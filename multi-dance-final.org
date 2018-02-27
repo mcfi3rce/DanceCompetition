@@ -9,19 +9,28 @@
 |    116 |   5 |   4 |   6 |   1 |   3 |     |     |     |
 |    117 |   6 |   2 |   5 |   4 |   6 |     |     |     |
 
+#+name: totals
 #+BEGIN_SRC emacs-lisp :var dances=dances :results value
+
+  (setq dancers-line (append `(,(mapcar 'first dances) hline)))
+  (setq dancers (mapcar 'first dances))
+  (setq majority (calculate-majority (cdr (first dances))))
+
   (defun extract-place (n dances)
     (mapcar (lambda (row)
               (loop for score in (remove-if 'stringp row)
                     count (= n score)))
             dances))
 
-  (append `(,(mapcar 'first dances) hline)
+  (defun calculate-majority (row)
+    (1+ (/ (length (remove-if 'stringp row)) 2)))
+
+  (append dancers-line 
           (loop for place from 1 to 8
                 collect (extract-place place dances)))
 #+END_SRC
 
-#+RESULTS:
+#+RESULTS: totals
 | 111 | 112 | 113 | 114 | 115 | 116 | 117 |
 |-----+-----+-----+-----+-----+-----+-----|
 |   0 |   0 |   1 |   1 |   2 |   1 |   0 |
@@ -33,45 +42,55 @@
 |   5 |   0 |   0 |   0 |   0 |   0 |   0 |
 |   0 |   0 |   0 |   0 |   0 |   0 |   0 |
 
-|     | No. |   A | 	B | 	C | 	D | 	E | 	F | 	G | 	H | 1 |   1 | 1-2 | 1-3 | 1-4 | 1-5 | 1-6 | 1-7 | 1-8 |
-|-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+---+-----+-----+-----+-----+-----+-----+-----+-----|
-|     | 111 |   7 |   7 |   7 |   7 |   7 |     |     |     | 1 |     |     |     |     |     |     |     |     |
-|     | 112 |   4 |   6 |   3 |   6 |   4 |     |     |     | 1 |     |     |     |     |     |     |     |     |
-|     | 113 |   1 |   5 |   2 |   3 |   5 |     |     |     | 1 |     |     |     |     |     |     |     |     |
-|     | 114 |   3 |   3 |   4 |   5 |   1 |     |     |     | 1 |     |     |     |     |     |     |     |     |
-|     | 115 |   2 |   1 |   1 |   2 |   2 |     |     |     | 1 |     |     |     |     |     |     |     |     |
-|     | 116 |   5 |   4 |   6 |   1 |   3 |     |     |     | 1 |     |     |     |     |     |     |     |     |
-|     | 117 |   6 |   2 |   5 |   4 |   6 |     |     |     | 1 |     |     |     |     |     |     |     |     |
-
-
-|-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+---+-----+-----+-----+-----+-----+-----+-----+-----|
-|     | No. |   A | 	B | 	C | 	D | 	E | 	F | 	G | 	H | 1 |   1 | 1-2 | 1-3 | 1-4 | 1-5 | 1-6 | 1-7 | 1-8 |
-|-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+---+-----+-----+-----+-----+-----+-----+-----+-----|
-|     | 111 |   7 |   7 |   7 |   7 |   7 |     |     |     | 1 |     |     |     |     |     |     |     |     |
-|     | 112 |   4 |   6 |   3 |   6 |   4 |     |     |     | 1 |     |     |     |     |     |     |     |     |
-|     | 113 |   1 |   5 |   2 |   3 |   5 |     |     |     | 1 |     |     |     |     |     |     |     |     |
-|     | 114 |   3 |   3 |   4 |   5 |   1 |     |     |     | 1 |     |     |     |     |     |     |     |     |
-|     | 115 |   2 |   1 |   1 |   2 |   2 |     |     |     | 1 |     |     |     |     |     |     |     |     |
-|     | 116 |   5 |   4 |   6 |   1 |   3 |     |     |     | 1 |     |     |     |     |     |     |     |     |
-|     | 117 |   6 |   2 |   5 |   4 |   6 |     |     |     | 1 |     |     |     |     |     |     |     |     |
-|-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+---+-----+-----+-----+-----+-----+-----+-----+-----|
-|     |     |     |     |     |     |     |     |     |     | 1 |     |     |     |     |     |     |     |     |
-#+BEGIN_SRC elisp :results value table :var dance=cha-cha
-  (cons
-  '(No. 1 1-2 1-3 1-4 1-5 1-6 1-7 1-8) 
-   (mapcar 'list (mapcar 'car dance)))
+#+BEGIN_SRC emacs-lisp :var totals=totals
+  (defun ++ (l1 l2)
+    (mapcar* '+ l1 l2))
+  (setq first (first totals)
+          second (++ first (second totals))
+          third (++ second (third totals))
+          fourth (++ third (fourth totals))
+          fifth (++ fourth (fifth totals))
+          sixth (++ fifth  (sixth totals))
+          seventh (++ sixth (seventh totals))
+          all (list first second third fourth fifth sixth seventh))
+  (append dancers all)
 #+END_SRC
+
+#+RESULTS:
+| 111 | 112 | 113 | 114 | 115 | 116 | 117 |
+|-----+-----+-----+-----+-----+-----+-----|
+|   0 |   0 |   1 |   1 |   2 |   1 |   0 |
+|   0 |   0 |   2 |   1 |   5 |   1 |   1 |
+|   0 |   1 |   3 |   3 |   5 |   2 |   1 |
+|   0 |   3 |   3 |   4 |   5 |   3 |   2 |
+|   0 |   3 |   5 |   5 |   5 |   4 |   3 |
+|   0 |   5 |   5 |   5 |   5 |   5 |   5 |
+|   5 |   5 |   5 |   5 |   5 |   5 |   5 |
+
+#+BEGIN_SRC emacs-lisp :results raw
+  ;; Testing first place 
+  (defun find-winner (row)
+    (catch 'dancer
+      (mapcar (lambda (x)
+                (if (>= x majority)
+                    (throw 'dancer (position x row)))) row)))
+(elt dancers (find-winner third))
+#+END_SRC
+
+#+RESULTS:
+113
+115
+4
+find-winner
+4
+4
+(nil nil nil nil 4 nil nil)
+
+
+
 
 #+tblname: places-cha-cha
 #+RESULTS:
-| No. | 1 | 1-2 | 1-3 | 1-4 | 1-5 | 1-6 | 1-7 | 1-8 |
-| 111 |   |     |     |     |     |     |     |     |
-| 112 |   |     |     |     |     |     |     |     |
-| 113 |   |     |     |     |     |     |     |     |
-| 114 |   |     |     |     |     |     |     |     |
-| 115 |   |     |     |     |     |     |     |     |
-| 116 |   |     |     |     |     |     |     |     |
-| 117 |   |     |     |     |     |     |     |     |
 
 
 | No.     | 1 | 1-2 | 1-3 | 1-4 | 1-5 | 1-6 | 1-7 | 1-8 |
