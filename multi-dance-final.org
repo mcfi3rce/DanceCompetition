@@ -44,6 +44,10 @@
 
   (setq dancers (mapcar 'first dances)
         dancers-line (append `(,dancers hline))
+        dancer-scores (mapcar (lambda (row)
+                                (loop for score in (remove-if 'stringp row)
+                                      collect score))
+                              dances)
         majority (calculate-majority (cdr (first dances)))
         place 1)
 #+END_SRC
@@ -76,37 +80,27 @@
 
 * Calculate the number of place values for each place:
 #+BEGIN_SRC emacs-lisp :var totals=totals
-   (defun ++ (l1 l2)
-     (mapcar* '+ l1 l2))
+  (defun ++ (l1 l2)
+    (mapcar* '+ l1 l2))
 
-   (setq first (first totals)
-           second (++ first (second totals))
-           third (++ second (third totals))
-           fourth (++ third (fourth totals))
-           fifth (++ fourth (fifth totals))
-           sixth (++ fifth  (sixth totals))
-           seventh (++ sixth (seventh totals))
-           all (list first second third fourth fifth sixth seventh))
-
-  (setq dance-totals (transpose (append (list dancers)
-                                               (loop with sum-row = (make-list (length (first totals)) 0)
-                                                     for row in (butlast totals)
-                                                     do (setq sum-row (++ row sum-row))
-                                                     collect sum-row))))
+  (setq first (first totals)
+          second (++ first (second totals))
+          third (++ second (third totals))
+          fourth (++ third (fourth totals))
+          fifth (++ fourth (fifth totals))
+          sixth (++ fifth  (sixth totals))
+          seventh (++ sixth (seventh totals))
+          all (list first second third fourth fifth sixth seventh))
+          dance-totals-row (transpose (append (list dancers)
+                                              (loop with sum-row = (make-list (length (first totals)) 0)
+                                                    for row in (butlast totals)
+                                                    do (setq sum-row (++ row sum-row))
+                                                    collect sum-row)))
+  dance-totals-column (append (list dancers) all)
 #+END_SRC
 
 #+RESULTS:
-| 111 | 0 | 0 | 0 | 0 | 0 | 0 | 5 |
-| 112 | 0 | 0 | 1 | 3 | 3 | 5 | 5 |
-| 113 | 1 | 2 | 3 | 3 | 5 | 5 | 5 |
-| 114 | 1 | 1 | 3 | 4 | 5 | 5 | 5 |
-| 115 | 2 | 5 | 5 | 5 | 5 | 5 | 5 |
-| 116 | 1 | 1 | 2 | 3 | 4 | 5 | 5 |
-| 117 | 0 | 1 | 1 | 2 | 3 | 5 | 5 |
-
-#+RESULT:
 | 111 | 112 | 113 | 114 | 115 | 116 | 117 |
-|-----+-----+-----+-----+-----+-----+-----|
 |   0 |   0 |   1 |   1 |   2 |   1 |   0 |
 |   0 |   0 |   2 |   1 |   5 |   1 |   1 |
 |   0 |   1 |   3 |   3 |   5 |   2 |   1 |
@@ -116,7 +110,7 @@
 |   5 |   5 |   5 |   5 |   5 |   5 |   5 |
 
 * Beginning of the find winner code *lots* to do: 
-** Mapping version:
+** Find-majority Mapping version:
 #+BEGIN_SRC emacs-lisp :results raw
   ;; Testing first place 
   (defun find-winner (row)
@@ -130,7 +124,7 @@
 #+RESULTS:
 113
 
-** Iterative Version:
+** Find-majority Iterative Version:
 #+BEGIN_SRC emacs-lisp :results silent
   (defun find-number-of-majorities (row)
      (loop for value in row
@@ -146,3 +140,19 @@
 #+RESULTS:
 (2 3 4)
 
+** Remove dancer after placement:
+#+BEGIN_SRC emacs-lisp :results silent
+  (defun remove-couple (couple)
+    (replace (elt dance-totals-row couple) place)
+    (incf place))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :results raw
+ (remove-couple (position 111 dancers)) 
+#+END_SRC
+
+ : After the dancer is removed
+#+BEGIN_SRC emacs-lisp :results value
+  dance-totals-row
+#+END_SRC
+#+RESULTS:
