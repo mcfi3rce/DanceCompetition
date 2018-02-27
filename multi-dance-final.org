@@ -104,25 +104,44 @@
 113
 
 ** Iterative Version:
-#+BEGIN_SRC emacs-lisp
-  (defun find-number-of-majorities (row)
-      (let ((majorities 0)
-            (location nil))
-      (loop for value in row
-            do (if (>= value majority)
-                   (setq majorities (1+ majorities)
-                         location (append location (position value row))
-                         )))(list majorities location)))
+#+BEGIN_SRC emacs-lisp :results silent
+  (defun find-number-of-majorities (row majority)
+     (loop for value in row
+           for position from 0
+           when (>= value majority) 
+           collect position)) 
+#+END_SRC
 
+#+BEGIN_SRC emacs-lisp :results raw
+  (find-number-of-majorities third 3)
 #+END_SRC
 
 #+RESULTS:
-: find-number-of-majorities
-#+BEGIN_SRC emacs-lisp
-  (find-number-of-majorities third) 
+(2 3 4)
+
+#+BEGIN_SRC emacs-lisp :results silent
+  (defun transpose (list-of-same-size-lists)
+    (apply 'mapcar* 'list list-of-same-size-lists))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :results raw
+  (let ((flipped-lists (transpose '((1 2 3) (4 5 6)))))
+    (remove (second flipped-lists) flipped-lists))
 #+END_SRC
 
 #+RESULTS:
-| 3 | (((nil 2) 2) 4) |
+((1 4) (3 6))
 
+#+BEGIN_SRC emacs-lisp :results value :var totals=totals
+  (transpose totals)
+#+END_SRC
+
+#+RESULTS:
+| 0 | 0 | 0 | 0 | 0 | 0 | 5 | 0 |
+| 0 | 0 | 1 | 2 | 0 | 2 | 0 | 0 |
+| 1 | 1 | 1 | 0 | 2 | 0 | 0 | 0 |
+| 1 | 0 | 2 | 1 | 1 | 0 | 0 | 0 |
+| 2 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
+| 1 | 0 | 1 | 1 | 1 | 1 | 0 | 0 |
+| 0 | 1 | 0 | 1 | 1 | 2 | 0 | 0 |
 
