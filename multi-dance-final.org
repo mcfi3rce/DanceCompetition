@@ -144,10 +144,12 @@
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :results raw
-  (find-number-of-majorities third)
+  (mapcar (lambda (x) (elt dancers x)) (find-number-of-majorities third))
 #+END_SRC
 
 #+RESULTS:
+(113 114 115)
+(2 3 4)
 (2 3 4)
 
 ** Remove dancer after placement:
@@ -173,3 +175,7 @@
 #+RESULTS:
 | 5 | 1 | 2 | 4 | 3 | 6 | 7 |
 :test-edit:
+* TODO ADD GET SCORE FOR COUPLE NUMBER
+* TODO ADD GET SUM OF VALUES OF PLACES UNDER A CERTAIN PLACE EX: values of scores from 1-3
+* TODO HANDLE TIE BREAK VALUES
+
