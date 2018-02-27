@@ -9,15 +9,19 @@
 |    116 |   5 |   4 |   6 |   1 |   3 |     |     |     |
 |    117 |   6 |   2 |   5 |   4 |   6 |     |     |     |
 
-#+name: totals
-#+BEGIN_SRC emacs-lisp :var dances=dances :results value
+#+BEGIN_SRC emacs-lisp :var dances=dances :results silent
   (defun calculate-majority (row)
     (1+ (/ (length (remove-if 'stringp row)) 2)))
 
-  (setq dancers-line (append `(,(mapcar 'first dances) hline)))
-  (setq dancers (mapcar 'first dances))
-  (setq majority (calculate-majority (cdr (first dances))))
+  (setq dancers (mapcar 'first dances)
+        dancers-line (append `(,dancers hline))
+        majority (calculate-majority (cdr (first dances)))
+        place 1)
+#+END_SRC
 
+* Extract the place values for each of the dances
+#+name: totals
+#+BEGIN_SRC emacs-lisp :var dances=dances :results value
   (defun extract-place (n dances)
     (mapcar (lambda (row)
               (loop for score in (remove-if 'stringp row)
@@ -41,6 +45,7 @@
 |   5 |   0 |   0 |   0 |   0 |   0 |   0 |
 |   0 |   0 |   0 |   0 |   0 |   0 |   0 |
 
+* Calculate the number of place values for each place 
 #+BEGIN_SRC emacs-lisp :var totals=totals
   (defun ++ (l1 l2)
     (mapcar* '+ l1 l2))
@@ -83,6 +88,8 @@
 |   0 |   5 |   5 |   5 |   5 |   5 |   5 |
 |   5 |   5 |   5 |   5 |   5 |   5 |   5 |
 
+* Beginning of the find winner code *lots* to do: 
+** Mapping version:
 #+BEGIN_SRC emacs-lisp :results raw
   ;; Testing first place 
   (defun find-winner (row)
@@ -102,7 +109,27 @@ find-winner
 4
 (nil nil nil nil 4 nil nil)
 
+** Iterative Version:
+#+BEGIN_SRC emacs-lisp
+  (defun find-number-of-majorities (row)
+      (let ((majorities 0)
+            (location nil))
+      (loop for value in row
+            do (if (>= value majority)
+                   (setq majorities (1+ majorities)
+                         location (append location (position value row))
+                         )))(list majorities location)))
 
+#+END_SRC
+
+#+RESULTS:
+: find-number-of-majorities
+#+BEGIN_SRC emacs-lisp
+  (find-number-of-majorities third) 
+#+END_SRC
+
+#+RESULTS:
+| 3 | (((nil 2) 2) 4) |
 
 
 #+tblname: places-cha-cha
