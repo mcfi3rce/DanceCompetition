@@ -105,7 +105,7 @@
 
 ** Iterative Version:
 #+BEGIN_SRC emacs-lisp :results silent
-  (defun find-number-of-majorities (row majority)
+  (defun find-number-of-majorities (row)
      (loop for value in row
            for position from 0
            when (>= value majority) 
@@ -113,10 +113,11 @@
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :results raw
-  (find-number-of-majorities third 3)
+  (find-number-of-majorities third)
 #+END_SRC
 
 #+RESULTS:
+(2 3 4)
 (2 3 4)
 
 #+BEGIN_SRC emacs-lisp :results silent
