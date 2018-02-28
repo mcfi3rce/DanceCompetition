@@ -184,7 +184,7 @@
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp  :var totals-row=totals-row
-  (remove-couple 111) 
+  (remove-couple 115) 
 #+END_SRC
 
 #+RESULTS:
@@ -197,8 +197,8 @@
 #+END_SRC
 
 #+RESULTS:
-| (1 0 0 0 0 0 0 5) | (112 0 0 1 3 3 5 5) | (113 1 2 3 3 5 5 5) | (114 1 1 3 4 5 5 5) | ((0 0 2 1 5 1 1) 2 5 5 5 5 5 5) | (116 1 1 2 3 4 5 5) | (117 0 1 1 2 3 5 5) |
-|                 1 |                 112 |                 113 |                 114 | (0 0 2 1 5 1 1)                 |                 116 |                 117 |
+| (111 0 0 0 0 0 0 5) | (112 0 0 1 3 3 5 5) | (113 1 2 3 3 5 5 5) | (114 1 1 3 4 5 5 5) | (115 2 5 5 5 5 5 5) | (116 1 1 2 3 4 5 5) | (117 0 1 1 2 3 5 5) |
+|                 111 |                 112 |                 113 |                 114 |                 115 |                 116 |                 117 |
 
 ** Main function:
 #+BEGIN_SRC emacs-lisp :results silent
@@ -213,13 +213,11 @@
 #+RESULTS:
 calculate-placement
 
-#+BEGIN_SRC emacs-lisp :results output :var totals-row=totals-row
+#+BEGIN_SRC emacs-lisp :results raw :var totals-row=totals-row
   (calculate-placement all)
 #+END_SRC
 
 #+RESULTS:
-: 
-: 115
 
 * TODO ADD GET SCORE FOR COUPLE NUMBER
 * TODO ADD GET SUM OF VALUES OF PLACES UNDER A CERTAIN PLACE EX: values of scores from 1-3
