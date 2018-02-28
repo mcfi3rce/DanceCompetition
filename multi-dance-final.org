@@ -13,6 +13,7 @@
 #+RESULTS:
 ((1 4) (3 6))
 ((1 4) (3 6))
+((1 4) (3 6))
 
 #+BEGIN_SRC emacs-lisp :results value :var totals=totals
   (transpose totals)
@@ -93,12 +94,12 @@
           sixth (++ fifth  (sixth totals))
           seventh (++ sixth (seventh totals))
           all (list first second third fourth fifth sixth seventh)
-          dance-totals-column (append (list dancers) all))
+          dance-totals-column (append (list dancers) all)
           dance-totals-row (transpose (append (list dancers)
                                               (loop with sum-row = (make-list (length (first totals)) 0)
                                                     for row in (butlast totals)
                                                     do (setq sum-row (++ row sum-row))
-                                                    collect sum-row)))
+                                                    collect sum-row))))
 #+END_SRC
 
 #+RESULTS: totals-row
@@ -120,37 +121,50 @@
 | 117 | 0 | 1 | 1 | 2 | 3 | 5 | 5 |
 
 * Beginning of the find winner code *lots* to do: 
-** Find-majority Mapping version:
-#+BEGIN_SRC emacs-lisp :results raw
-  ;; Testing first place 
-  (defun find-winner (row)
-    (catch 'dancer
-      (mapcar (lambda (x)
-                (if (>= x majority)
-                    (throw 'dancer (position x row)))) row)))
-(elt dancers (find-winner third))
-#+END_SRC
-
-#+RESULTS:
-113
-
 ** Find-majority Iterative Version:
 #+BEGIN_SRC emacs-lisp :results silent
   (defun find-number-of-majorities (row)
-     (loop for value in row
-           for position from 0
-           when (>= value majority) 
-           collect position)) 
+     (loop 
+      for value in row
+      for position from 0
+      when (>= value majority) 
+      collect (cons position value)))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (find-number-of-majorities third)
+#+END_SRC
+
+#+RESULTS:
+: ((2 . 3) (3 . 3) (4 . 5))
+
+** Converts the majorities to dance numbers
+#+BEGIN_SRC emacs-lisp :results silent
+  (defun position-to-dancers (tied-dancers)
+    (mapcar (lambda (x) (elt dancers (car x))) tied-dancers))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :results raw
-  (mapcar (lambda (x) (elt dancers x)) (find-number-of-majorities third))
+  (position-to-dancers (find-number-of-majorities third))
 #+END_SRC
 
 #+RESULTS:
 (113 114 115)
-(2 3 4)
-(2 3 4)
+
+** Finds largest majority
+  #+BEGIN_SRC emacs-lisp :results output
+    (defun largest-majority (tied-dancers)
+       (car (rassoc (apply 'max (mapcar 'cdr tied-dancers)) tied-dancers)))
+#+END_SRC 
+
+#+RESULTS:
+(113 114 115)
+#+BEGIN_SRC emacs-lisp 
+ (largest-majority '((2 . 3) (3 . 3) (4 . 5))) 
+#+END_SRC
+
+#+RESULTS:
+: 4
 
 ** Remove dancer after placement:
 #+BEGIN_SRC emacs-lisp :results silent 
