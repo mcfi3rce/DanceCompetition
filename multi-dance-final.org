@@ -14,6 +14,7 @@
 ((1 4) (3 6))
 ((1 4) (3 6))
 ((1 4) (3 6))
+((1 4) (3 6))
 
 #+BEGIN_SRC emacs-lisp :results value :var totals=totals
   (transpose totals)
@@ -27,6 +28,15 @@
 | 2 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
 | 1 | 0 | 1 | 1 | 1 | 1 | 0 | 0 |
 | 0 | 1 | 0 | 1 | 1 | 2 | 0 | 0 |
+
+** ++ Function:
+#+BEGIN_SRC emacs-lisp
+  (defun ++ (l1 l2)
+    (mapcar* '+ l1 l2))
+#+END_SRC
+
+#+RESULTS:
+: ++
 
 * Initial values for the Dance:
 #+tblname: dances
@@ -83,9 +93,6 @@
 * Calculate the number of place values for each place:
 #+name: totals-row
 #+BEGIN_SRC emacs-lisp :var totals=totals
-  (defun ++ (l1 l2)
-    (mapcar* '+ l1 l2))
-
   (setq first (first totals)
           second (++ first (second totals))
           third (++ second (third totals))
@@ -149,6 +156,8 @@
 #+END_SRC
 
 #+RESULTS:
+(113 114 (0 0 2 1 5 1 1))
+(113 114 115)
 (113 114 115)
 
 ** Finds largest majority
@@ -175,20 +184,43 @@
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp  :var totals-row=totals-row
-  (remove-couple 117) 
+  (remove-couple 111) 
 #+END_SRC
 
 #+RESULTS:
-: 8
+: 2
 4
 
  : After the dancer is removed
 #+BEGIN_SRC emacs-lisp :results value
   (list dance-totals-row dancers)
 #+END_SRC
+
 #+RESULTS:
-| 5 | 1 | 2 | 4 | 3 | 6 | 7 |
-:test-edit:
+| (1 0 0 0 0 0 0 5) | (112 0 0 1 3 3 5 5) | (113 1 2 3 3 5 5 5) | (114 1 1 3 4 5 5 5) | ((0 0 2 1 5 1 1) 2 5 5 5 5 5 5) | (116 1 1 2 3 4 5 5) | (117 0 1 1 2 3 5 5) |
+|                 1 |                 112 |                 113 |                 114 | (0 0 2 1 5 1 1)                 |                 116 |                 117 |
+
+** Main function:
+#+BEGIN_SRC emacs-lisp :results silent
+  (defun calculate-placement (totals)
+    (loop with majority-num = 0
+          for place in totals
+          for place-val from 0 to (length all)
+          if (= (length (find-number-of-majorities place)) 1)
+          do (remove-couple (elt dancers (caar (find-number-of-majorities place))))))
+#+END_SRC
+
+#+RESULTS:
+calculate-placement
+
+#+BEGIN_SRC emacs-lisp :results output :var totals-row=totals-row
+  (calculate-placement all)
+#+END_SRC
+
+#+RESULTS:
+: 
+: 115
+
 * TODO ADD GET SCORE FOR COUPLE NUMBER
 * TODO ADD GET SUM OF VALUES OF PLACES UNDER A CERTAIN PLACE EX: values of scores from 1-3
 * TODO HANDLE TIE BREAK VALUES
