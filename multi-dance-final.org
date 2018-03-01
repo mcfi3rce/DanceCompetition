@@ -17,7 +17,7 @@
  ((1 4) (3 6))
  ((1 4) (3 6))
 
- #+BEGIN_SRC emacs-lisp :results value :var totals=totals
+ #+BEGIN_SRC emacs-lisp :results value :var totals=tot1 112 2 1 3 116 117als
    (transpose totals)
  #+END_SRC
 
@@ -154,10 +154,15 @@
 : ((113 . 4) (114 . 4))
 
 ** Remove couple after placement:
+:Note:
+ Adjusted the totals-column when we remove a couple
+:END:
+
 #+BEGIN_SRC emacs-lisp :results silent 
-  (defun remove-couple (couple)
-    (setq dance-totals-row (remove (elt totals-row (position couple couples)) dance-totals-row))
+(defun remove-couple (couple)
+    (setq dance-totals-rows (remove (elt totals-row (position couple couples)) dance-totals-rows))
     (setf (elt couples (position couple couples)) place)
+    (setq dance-totals-columns (transpose dance-totals-rows))
     (incf place))
 #+END_SRC
 
@@ -171,12 +176,12 @@
 
  : After the couple is removed
 #+BEGIN_SRC emacs-lisp :results value 
-  (list couples dance-totals-row )
+  (list couples dance-totals-rows )
 #+END_SRC
 
 #+RESULTS:
-|                 111 |                 112 |                 113 |                 114 |                 115 |                 116 |                 117 |
-| (111 0 0 0 0 0 0 5) | (112 0 0 1 3 3 5 5) | (113 1 2 3 3 5 5 5) | (114 1 1 3 4 5 5 5) | (115 2 5 5 5 5 5 5) | (116 1 1 2 3 4 5 5) | (117 0 1 1 2 3 5 5) |
+|                 111 |                 112 |                 113 |                 114 |                   1 |                 116 | 117 |
+| (111 0 0 0 0 0 0 5) | (112 0 0 1 3 3 5 5) | (113 1 2 3 3 5 5 5) | (114 1 1 3 4 5 5 5) | (116 1 1 2 3 4 5 5) | (117 0 1 1 2 3 5 5) |     |
 
    I removed the code I was working on because I realized a test sequence of individual functions would be more informative:
    First Function:
@@ -290,7 +295,9 @@
                                    for row in (butlast totals)
                                    do (setq sum-row (++ row sum-row))
                                    collect sum-row)
-        dance-totals-rows (transpose (append (list couples) dance-totals-columns)))
+        dance-totals-rows (transpose (append (list couples) dance-totals-columns))
+        ; This is added because of difficult of dealing with the table
+        totals-row dance-totals-rows)
  #+END_SRC
 
  #+RESULTS: totals-rows
@@ -321,43 +328,144 @@
   *Next evaluate the functions next*
 ** Functions:
 #+BEGIN_SRC emacs-lisp :results silent :var totals-row=totals-rows
-  (defun find-number-of-majorities (row)
-      (pos(loop 
-           for value in row
-           for position from 0
-           when (>= value majority) 
-           collect (cons position value))))
+    (defun find-number-of-majorities (row)
+        (loop 
+             for value in row
+             for position from 0
+             when (>= value majority) 
+             collect (cons (elt couples position) value)))
 
-  (defun position-to-couples (tied-couples)
-    (mapcar (lambda (x) (elt couples (car x))) tied-couples))
+    (defun position-to-couples (tied-couples)
+      (mapcar (lambda (x) (elt couples (car x))) tied-couples))
 
-  (defun find-couples-with-largest-majority (tied-couples)
-      (let ((max  (apply 'max (mapcar 'cdr tied-couples))))
-        (remove-if-not (lambda (couple) (= max (cdr couple))) tied-couples)))
+    (defun find-couples-with-largest-majority (tied-couples)
+        (let ((max  (apply 'max (mapcar 'cdr tied-couples))))
+          (remove-if-not (lambda (couple) (= max (cdr couple))) tied-couples)))
 
   (defun remove-couple (couple)
-       (setq dance-totals-row (remove (elt totals-row (position couple couples)) dance-totals-row))
-       (setf (elt couples (position couple couples)) place)
-       (incf place))
+      (setq dance-totals-rows (remove (elt totals-row (position couple couples)) dance-totals-rows)
+            dance-totals-columns (transpose dance-totals-rows)
+            places (append couple places))
+      (incf place))
 
-(defun get-score (couple-number)
-     (loop for row in couple-scores
-           when (= (car row) couple-number)
-           return (rest row)))
+  (defun get-score (couple-number)
+       (loop for row in couple-scores
+             when (= (car row) couple-number)
+             return (rest row)))
 
- (defun sum-of-values-at-place (couple place)
-     (loop for value in (get-score couple)
-           when (<= value place)
-           sum value))
+   (defun sum-of-values-at-place (couple place)
+       (loop for value in (get-score couple)
+             when (<= value place)
+             sum value))
 
-(defun compare-sums (couple1 couple2 place)
-     (cond ((< (sum-of-values-at-place couple1 place)
-               (sum-of-values-at-place couple2 place)) couple1)
-           ((> (sum-of-values-at-place couple1 place)
-               (sum-of-values-at-place couple2 place)) couple2)
-           (t (list couple1 couple2))))
+  (defun compare-sums (couple1 couple2 place)
+       (cond ((< (sum-of-values-at-place couple1 place)
+                 (sum-of-values-at-place couple2 place)) couple1)
+             ((> (sum-of-values-at-place couple1 place)
+                 (sum-of-values-at-place couple2 place)) couple2)
+             (t (list couple1 couple2))))
  #+END_SRC 
 #+END_SRC
 ** Testing:
 *** This will follow the way the final code will be evaluated:
-    
+    Step 1:
+    Find the couple with the largest majority
+   #+BEGIN_SRC emacs-lisp 
+     (loop for row in (cdr dance-totals-columns)
+           collect (find-number-of-majorities row))
+#+END_SRC 
+
+#+RESULTS:
+| (115 . 5) |           |           |           |           |           |           |
+| (113 . 3) | (114 . 3) | (115 . 5) |           |           |           |           |
+| (112 . 3) | (113 . 3) | (114 . 4) | (115 . 5) | (116 . 3) |           |           |
+| (112 . 3) | (113 . 5) | (114 . 5) | (115 . 5) | (116 . 4) | (117 . 3) |           |
+| (112 . 5) | (113 . 5) | (114 . 5) | (115 . 5) | (116 . 5) | (117 . 5) |           |
+| (111 . 5) | (112 . 5) | (113 . 5) | (114 . 5) | (115 . 5) | (116 . 5) | (117 . 5) |
+   
+   Step 2:
+   If there is only one couple then remove that couple
+   #+BEGIN_SRC emacs-lisp 
+     (remove-couple 115)
+   #+END_SRC
+
+   #+RESULTS:
+   : 4
+
+#+RESULTS:
+| 111 | 112 | 113 | 114 | 116 | 117 |
+|   0 |   0 |   1 |   1 |   1 |   0 |
+|   0 |   0 |   2 |   1 |   1 |   1 |
+|   0 |   1 |   3 |   3 |   2 |   1 |
+|   0 |   3 |   3 |   4 |   3 |   2 |
+|   0 |   3 |   5 |   5 |   4 |   3 |
+|   0 |   5 |   5 |   5 |   5 |   5 |
+|   5 |   5 |   5 |   5 |   5 |   5 |
+
+   Step 4:
+ 
+
+   #+RESULTS:
+   : 2
+   Step 4: 
+   Find the next couple with the largest majority
+    #+BEGIN_SRC emacs-lisp 
+      (loop for row in (cdr dance-totals-columns)
+            collect (find-number-of-majorities row))
+#+END_SRC 
+:BUG:
+We need to remove the couple number from the list of couples because it is
+Throwing off our display
+:END:
+
+#+RESULTS:
+| (113 . 3) | (114 . 3) |           |           |           |           |
+| (112 . 3) | (113 . 3) | (114 . 4) | (1 . 3)   |           |           |
+| (112 . 3) | (113 . 5) | (114 . 5) | (1 . 4)   | (116 . 3) |           |
+| (112 . 5) | (113 . 5) | (114 . 5) | (1 . 5)   | (116 . 5) |           |
+| (111 . 5) | (112 . 5) | (113 . 5) | (114 . 5) | (1 . 5)   | (116 . 5) |
+
+   Step 5: Find next majority
+  #+BEGIN_SRC emacs-lisp
+    (largest-majority '((113 . 3)(114 . 3)))
+#+END_SRC 
+
+#+RESULTS:
+: ((113 . 3) (114 . 3))
+   
+   Tiebreak #1: If there is no higher majority sum the values
+  #+BEGIN_SRC emacs-lisp
+    (compare-sums 113 114 3)
+#+END_SRC 
+
+#+RESULTS:
+: 113
+
+#+BEGIN_SRC emacs-lisp 
+  (remove-couple 113) 
+#+END_SRC
+
+#+RESULTS:
+: 3
+
+#+BEGIN_SRC emacs-lisp 
+ (remove-couple 114)  
+#+END_SRC
+
+#+RESULTS:
+
+: 2
+  Step 6: Find next majority
+#+BEGIN_SRC emacs-lisp 
+      (loop for row in (cdr dance-totals-columns)
+            collect (find-number-of-majorities row))
+#+END_SRC
+
+#+RESULTS:
+| (112 . 3) | (2 . 3)   |         |         |
+| (112 . 3) | (2 . 4)   | (1 . 3) |         |
+| (112 . 5) | (2 . 5)   | (1 . 5) |         |
+| (111 . 5) | (112 . 5) | (2 . 5) | (1 . 5) |
+
+
+
