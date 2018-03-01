@@ -118,9 +118,6 @@
  | 115 | 2 | 5 | 5 | 5 | 5 | 5 | 5 |
  | 116 | 1 | 1 | 2 | 3 | 4 | 5 | 5 |
  | 117 | 0 | 1 | 1 | 2 | 3 | 5 | 5 |
- ((111 0 0 0 0 0 0 5) (112 0 0 1 3 3 5 5) (113 1 2 3 3 5 5 5) (114 1 1 3 4 5 5 5) (115 2 5 5 5 5 5 5) (116 1 1 2 3 4 5 5) (117 0 1 1 2 3 5 5))
- ((111 0 0 0 0 0 0 5) (112 0 0 1 3 3 5 5) (113 1 2 3 3 5 5 5) (114 1 1 3 4 5 5 5) (115 2 5 5 5 5 5 5) (116 1 1 2 3 4 5 5) (117 0 1 1 2 3 5 5))
- ((111 0 0 0 0 0 0 5) (112 0 0 1 3 3 5 5) (113 1 2 3 3 5 5 5) (114 1 1 3 4 5 5 5) (115 2 5 5 5 5 5 5) (116 1 1 2 3 4 5 5) (117 0 1 1 2 3 5 5))
 
  #+RESULTS: totals-column
  | 111 | 0 | 0 | 0 | 0 | 0 | 0 | 5 |
@@ -296,41 +293,41 @@
 
 #+name: totals-rows
  #+BEGIN_SRC emacs-lisp :var dances=dances :results value
-      (defun calculate-majority (row)
-        (1+ (/ (length (remove-if 'stringp row)) 2)))
-      (defun transpose (list-of-same-size-lists)
-        (apply 'mapcar* 'list list-of-same-size-lists))
-      (defun ++ (l1 l2)
-        (mapcar* '+ l1 l2))
-      (defun extract-place (n dances)
-        (mapcar (lambda (row)
-                  (loop for score in (remove-if 'stringp row)
-                        count (= n score)))
-                dances))
-      (setq dancers (mapcar 'first dances)
-            dancers-line (append `(,dancers hline))
-            dancer-scores (mapcar (lambda (row)
-                                    (loop for score in (remove-if 'stringp row)
-                                          collect score))
-                                  dances)
-            majority (calculate-majority (cdr (first dances)))
-            place 1
-            totals (loop for place from 1 to 8
-                         collect (extract-place place dances))
-            first (first totals)
-            second (++ first (second totals))
-            third (++ second (third totals))
-            fourth (++ third (fourth totals))
-            fifth (++ fourth (fifth totals))
-            sixth (++ fifth  (sixth totals))
-            seventh (++ sixth (seventh totals))
-            all (list first second third fourth fifth sixth seventh)
-            dance-totals-column (append (list dancers) all)
-            dance-totals-row (transpose (append (list dancers)
-                                                (loop with sum-row = (make-list (length (first totals)) 0)
-                                                      for row in (butlast totals)
-                                                            do (setq sum-row (++ row sum-row))
-                                                            collect sum-row))))
+  (defun calculate-majority (row)
+    (1+ (/ (length (remove-if 'stringp row)) 2)))
+  (defun transpose (list-of-same-size-lists)
+    (apply 'mapcar* 'list list-of-same-size-lists))
+  (defun ++ (l1 l2)
+    (mapcar* '+ l1 l2))
+  (defun extract-place (n dances)
+    (mapcar (lambda (row)
+              (loop for score in (remove-if 'stringp row)
+                    count (= n score)))
+            dances))
+  (setq dancers (mapcar 'first dances)
+        dancers-line (append `(,dancers hline))
+        dancer-scores (mapcar (lambda (row)
+                                (loop for score in (remove-if 'stringp row)
+                                      collect score))
+                              dances)
+        majority (calculate-majority (cdr (first dances)))
+        place 1
+        totals (loop for place from 1 to 8 
+                     collect (extract-place place dances))
+        first (first totals)
+        second (++ first (second totals))
+        third (++ second (third totals))
+        fourth (++ third (fourth totals))
+        fifth (++ fourth (fifth totals))
+        sixth (++ fifth  (sixth totals))
+        seventh (++ sixth (seventh totals))
+        all (list first second third fourth fifth sixth seventh)
+        dance-totals-column (append (list dancers) all)
+        dance-totals-row (transpose (append (list dancers)
+                                            (loop with sum-row = (make-list (length (first totals)) 0)
+                                                  for row in (butlast totals)
+                                                        do (setq sum-row (++ row sum-row))
+                                                        collect sum-row))))
  #+END_SRC
 
  #+RESULTS: totals-rows
@@ -389,5 +386,5 @@
            (t (list couple1 couple2))))
  #+END_SRC 
 #+END_SRC
-** Test:
+** Testing:
 *** This will follow the way the final code will be evaluated:
