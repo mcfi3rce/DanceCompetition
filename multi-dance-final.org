@@ -57,7 +57,7 @@
 
    (setq couples (mapcar 'first dances)
          couples-line (list couples 'hline)
-         dancer-scores (mapcar (lambda (row)
+         couple-scores (mapcar (lambda (row)
                                  (loop for score in (remove-if 'stringp row)
                                        collect score))
                                dances)
@@ -131,19 +131,19 @@
 ** Find-number-of-majorities Iterative Version:
 #+BEGIN_SRC emacs-lisp :results silent
   (defun find-number-of-majorities (row)
-     (pos(loop 
+     (loop 
       for value in row
       for position from 0
       when (>= value majority) 
-      collect (cons position value)))
+      collect (cons (elt couples position) value)))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  (find-number-of-majorities third)
+  (find-number-of-majorities (third dance-totals-columns))
 #+END_SRC
 
 #+RESULTS:
-: ((2 . 3) (3 . 3) (4 . 5))
+: ((113 . 3) (114 . 3) (115 . 5))
 
 ** Converts the majorities to dance numbers
 #+BEGIN_SRC emacs-lisp :results silent
@@ -158,30 +158,25 @@
 #+RESULTS:
 (113 114 115)
 
-** TODO Finds largest majority
+** DONE Finds largest majority
+   CLOSED: [2018-03-01 Thu 12:28]
    : This needs work because it doesn't handle tied majorities
   #+BEGIN_SRC emacs-lisp :results output
-    (defun largest-majority (tied-couples)
-       (list (mapca (apply 'tieable-max (mapcar 'cdr tied-couples)) tied-couples)))
-    (defun tieable-max (win-values)
-      (loop for majority in (butlast (sort win-values '>))
-            for next-majority in (rest (sort win-values '>))
-            when (> majority next-majority)
-            return majority
-            when (= majority next-majority)
-            return (remove-if-not (lambda (x) (= majority x)) win-values)))
+    (defun find-couples-with-largest-majority (tied-couples)
+      (let ((max  (apply 'max (mapcar 'cdr tied-couples))))
+        (remove-if-not (lambda (couple) (= max (cdr couple))) tied-couples)))
 #+END_SRC 
 
 #+RESULTS:
 (113 114 115)
 #+BEGIN_SRC emacs-lisp 
- (largest-majority '((2 . 3) (3 . 3) (4 . 5))) 
+  (find-couples-with-largest-majority '((113 . 4) (114  . 4)(115 . 3))) 
 #+END_SRC
 
 #+RESULTS:
-: 4
+: ((113 . 4) (114 . 4))
 
-** Remove dancer after placement:
+** Remove couple after placement:
 #+BEGIN_SRC emacs-lisp :results silent 
   (defun remove-couple (couple)
     (setq dance-totals-row (remove (elt totals-row (position couple couples)) dance-totals-row))
@@ -197,7 +192,7 @@
 : 2
 4
 
- : After the dancer is removed
+ : After the couple is removed
 #+BEGIN_SRC emacs-lisp :results value 
   (list dance-totals-row couples)
 #+END_SRC
@@ -212,7 +207,7 @@
    CLOSED: [2018-02-28 Wed 17:58]
  #+BEGIN_SRC emacs-lisp :results silent
    (defun get-score (couple-number)
-     (loop for row in dancer-scores
+     (loop for row in couple-scores
            when (= (car row) couple-number)
            return (rest row)))
  #+END_SRC
@@ -234,7 +229,7 @@
  #+END_SRC
 
  #+BEGIN_SRC emacs-lisp 
-   dancer-scores
+   couple-scores
  #+END_SRC
 
  #+RESULTS:
@@ -306,7 +301,7 @@
             dances))
   (setq couples (mapcar 'first dances)
         couples-line (list couples 'hline)
-        dancer-scores (mapcar (lambda (row)
+        couple-scores (mapcar (lambda (row)
                                 (loop for score in (remove-if 'stringp row)
                                       collect score))
                               dances)
@@ -359,8 +354,9 @@
   (defun position-to-couples (tied-couples)
     (mapcar (lambda (x) (elt couples (car x))) tied-couples))
 
-  (defun largest-majority (tied-couples)
-    (list (mapca (apply 'tieable-max (mapcar 'cdr tied-couples)) tied-couples)))
+  (defun find-couples-with-largest-majority (tied-couples)
+      (let ((max  (apply 'max (mapcar 'cdr tied-couples))))
+        (remove-if-not (lambda (couple) (= max (cdr couple))) tied-couples)))
 
   (defun tieable-max (win-values)
     (loop for majority in (butlast (sort win-values '>))
@@ -376,7 +372,7 @@
        (incf place))
 
 (defun get-score (couple-number)
-     (loop for row in dancer-scores
+     (loop for row in couple-scores
            when (= (car row) couple-number)
            return (rest row)))
 
@@ -395,3 +391,4 @@
 #+END_SRC
 ** Testing:
 *** This will follow the way the final code will be evaluated:
+    
