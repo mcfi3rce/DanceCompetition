@@ -55,8 +55,8 @@
    (defun calculate-majority (row)
      (1+ (/ (length (remove-if 'stringp row)) 2)))
 
-   (setq dancers (mapcar 'first dances)
-         dancers-line (append `(,dancers hline))
+   (setq couples (mapcar 'first dances)
+         couples-line (list couples 'hline)
          dancer-scores (mapcar (lambda (row)
                                  (loop for score in (remove-if 'stringp row)
                                        collect score))
@@ -74,7 +74,7 @@
                      count (= n score)))
              dances))
 
-   (append dancers-line 
+   (append couples-line 
            (loop for place from 1 to 8
                  collect (extract-place place dances)))
  #+END_SRC
@@ -102,8 +102,8 @@
            sixth (++ fifth  (sixth totals))
            seventh (++ sixth (seventh totals))
            all (list first second third fourth fifth sixth seventh)
-           dance-totals-column (append (list dancers) all)
-           dance-totals-row (transpose (append (list dancers)
+           dance-totals-column (append (list couples) all)
+           dance-totals-row (transpose (append (list couples)
                                                (loop with sum-row = (make-list (length (first totals)) 0)
                                                      for row in (butlast totals)
                                                      do (setq sum-row (++ row sum-row))
@@ -147,12 +147,12 @@
 
 ** Converts the majorities to dance numbers
 #+BEGIN_SRC emacs-lisp :results silent
-  (defun position-to-dancers (tied-dancers)
-    (mapcar (lambda (x) (elt dancers (car x))) tied-dancers))
+  (defun position-to-couples (tied-couples)
+    (mapcar (lambda (x) (elt couples (car x))) tied-couples))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :results raw
-  (position-to-dancers (find-number-of-majorities third))
+  (position-to-couples (find-number-of-majorities third))
 #+END_SRC
 
 #+RESULTS:
@@ -161,8 +161,8 @@
 ** TODO Finds largest majority
    : This needs work because it doesn't handle tied majorities
   #+BEGIN_SRC emacs-lisp :results output
-    (defun largest-majority (tied-dancers)
-       (list (mapca (apply 'tieable-max (mapcar 'cdr tied-dancers)) tied-dancers)))
+    (defun largest-majority (tied-couples)
+       (list (mapca (apply 'tieable-max (mapcar 'cdr tied-couples)) tied-couples)))
     (defun tieable-max (win-values)
       (loop for majority in (butlast (sort win-values '>))
             for next-majority in (rest (sort win-values '>))
@@ -184,8 +184,8 @@
 ** Remove dancer after placement:
 #+BEGIN_SRC emacs-lisp :results silent 
   (defun remove-couple (couple)
-    (setq dance-totals-row (remove (elt totals-row (position couple dancers)) dance-totals-row))
-    (setf (elt dancers (position couple dancers)) place)
+    (setq dance-totals-row (remove (elt totals-row (position couple couples)) dance-totals-row))
+    (setf (elt couples (position couple couples)) place)
     (incf place))
 #+END_SRC
 
@@ -199,7 +199,7 @@
 
  : After the dancer is removed
 #+BEGIN_SRC emacs-lisp :results value 
-  (list dance-totals-row dancers)
+  (list dance-totals-row couples)
 #+END_SRC
 
 #+RESULTS:
@@ -304,8 +304,8 @@
               (loop for score in (remove-if 'stringp row)
                     count (= n score)))
             dances))
-  (setq dancers (mapcar 'first dances)
-        dancers-line (list dancers 'hline)
+  (setq couples (mapcar 'first dances)
+        couples-line (list couples 'hline)
         dancer-scores (mapcar (lambda (row)
                                 (loop for score in (remove-if 'stringp row)
                                       collect score))
@@ -318,7 +318,7 @@
                                    for row in (butlast totals)
                                    do (setq sum-row (++ row sum-row))
                                    collect sum-row)
-        dance-totals-rows (transpose (append (list dancers) dance-totals-columns)))
+        dance-totals-rows (transpose (append (list couples) dance-totals-columns)))
  #+END_SRC
 
  #+RESULTS: totals-rows
@@ -332,7 +332,7 @@
 
 #+NAME: totals-columns
 #+BEGIN_SRC elisp
-  (append dancers-line dance-totals-columns)
+  (append couples-line dance-totals-columns)
 #+END_SRC
 
 #+RESULTS: totals-columns
@@ -356,11 +356,11 @@
            when (>= value majority) 
            collect (cons position value))))
 
-  (defun position-to-dancers (tied-dancers)
-    (mapcar (lambda (x) (elt dancers (car x))) tied-dancers))
+  (defun position-to-couples (tied-couples)
+    (mapcar (lambda (x) (elt couples (car x))) tied-couples))
 
-  (defun largest-majority (tied-dancers)
-    (list (mapca (apply 'tieable-max (mapcar 'cdr tied-dancers)) tied-dancers)))
+  (defun largest-majority (tied-couples)
+    (list (mapca (apply 'tieable-max (mapcar 'cdr tied-couples)) tied-couples)))
 
   (defun tieable-max (win-values)
     (loop for majority in (butlast (sort win-values '>))
@@ -371,8 +371,8 @@
           return (remove-if-not (lambda (x) (= majority x)) win-values)))
 
   (defun remove-couple (couple)
-       (setq dance-totals-row (remove (elt totals-row (position couple dancers)) dance-totals-row))
-       (setf (elt dancers (position couple dancers)) place)
+       (setq dance-totals-row (remove (elt totals-row (position couple couples)) dance-totals-row))
+       (setf (elt couples (position couple couples)) place)
        (incf place))
 
 (defun get-score (couple-number)
@@ -395,3 +395,4 @@
 #+END_SRC
 ** Testing:
 *** This will follow the way the final code will be evaluated:
+
