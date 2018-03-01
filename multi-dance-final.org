@@ -82,8 +82,8 @@
 | 111 | 112 | 113 | 114 | 115 | 116 | 117 |
 |-----+-----+-----+-----+-----+-----+-----|
 |   0 |   0 |   1 |   1 |   2 |   1 |   0 |
-|   0 |   0 |   1 |   0 |   3 |   0 |   1 |
-|   0 |   1 |   1 |   2 |   0 |   1 |   0 |
+|   0 |   0 |   1 |   1 |   3 |   0 |   1 |
+|   0 |   1 |   1 |   1 |   0 |   1 |   0 |
 |   0 |   2 |   0 |   1 |   0 |   1 |   1 |
 |   0 |   0 |   2 |   1 |   0 |   1 |   1 |
 |   0 |   2 |   0 |   0 |   0 |   1 |   2 |
@@ -113,7 +113,7 @@
 | 111 | 0 | 0 | 0 | 0 | 0 | 0 | 5 |
 | 112 | 0 | 0 | 1 | 3 | 3 | 5 | 5 |
 | 113 | 1 | 2 | 3 | 3 | 5 | 5 | 5 |
-| 114 | 1 | 1 | 3 | 4 | 5 | 5 | 5 |
+| 114 | 1 | 2 | 3 | 4 | 5 | 5 | 5 |
 | 115 | 2 | 5 | 5 | 5 | 5 | 5 | 5 |
 | 116 | 1 | 1 | 2 | 3 | 4 | 5 | 5 |
 | 117 | 0 | 1 | 1 | 2 | 3 | 5 | 5 |
@@ -267,11 +267,15 @@ calculate-placement
 : 6
 * Compare two couples and return the couple with the lowest
 #+BEGIN_SRC emacs-lisp :results silent
-  (defun compare-sums (couple1 couple2)
-    )
+  (defun compare-sums (couple1 couple2 place)
+    (cond ((< (sum-of-values-at-place couple1 place)
+              (sum-of-values-at-place couple2 place)) couple1)
+          ((> (sum-of-values-at-place couple1 place)
+              (sum-of-values-at-place couple2 place)) couple2)
+          (t (list couple1 couple2))))
 #+END_SRC
 * TODO HANDLE TIE BREAK VALUES
 #+BEGIN_SRC emacs-lisp :results silent
-  
+  (
 #+END_SRC
 
