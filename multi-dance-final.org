@@ -271,6 +271,39 @@
  
  #+END_SRC
 
+** TODO Consolidate functions into one big functions
+  #+BEGIN_SRC emacs-lisp :results output
+    (defun single-dance ()
+      (loop with dance = (cdr dance-totals-columns)
+            for place in dance
+            for place-val from 1 to (length dance)
+            if (= 1 (length (find-number-of-majorities place))
+              (print(find-number-of-majorities place))))
+#+END_SRC 
+
+#+RESULTS:
+
+#+BEGIN_SRC emacs-lisp :results output
+ (single-dance)
+#+END_SRC
+#+RESULTS:
+#+begin_example
+
+nil
+
+((115 . 5))
+
+((113 . 3) (114 . 3) (115 . 5))
+
+((112 . 3) (113 . 3) (114 . 4) (115 . 5) (116 . 3))
+
+((112 . 3) (113 . 5) (114 . 5) (115 . 5) (116 . 4) (117 . 3))
+
+((112 . 5) (113 . 5) (114 . 5) (115 . 5) (116 . 5) (117 . 5))
+
+((111 . 5) (112 . 5) (113 . 5) (114 . 5) (115 . 5) (116 . 5) (117 . 5))
+#+end_example
+
 * Testing:
   *Evaluate this before testing*
 ** Data:
@@ -388,11 +421,11 @@
   (defun print-standings (standings)
      (loop for couple in standings
           for place from 1 to (length standings)
-          collect (list couple place)))
+          collect (list place couple)))
  #+END_SRC 
 #+END_SRC
 ** Testing:
-*** This will follow the way the final code will be evaluated:
+  : This will follow the way the final code will be evaluated:
 *** Step 1: Find the couple with the largest majority
    #+BEGIN_SRC emacs-lisp 
      (loop for row in (cdr dance-totals-columns)
@@ -534,34 +567,35 @@
 | 117 | 6 |
 | 111 | 7 |
 
-** Test UI
- Judges:
- [ ] 3
- [x] 5
- [ ] 7
- [ ] 9
+*** Test UI
+  Judges:
+  [ ] 3
+  [x] 5
+  [ ] 7
+  [ ] 9
 
- #+name: couple-number
- 6
+  #+name: couple-number
+  6
  
- #+name: number-of-dances
- 5
+  #+name: number-of-dances
+  5
 
-** Dance 1: Cha-Cha
+**** Dance 1: Cha-Cha
 
 
- #+name: d
- | Number of Dances | 5 |   |
- | Random text |   |   |
+   #+name: d
+   | Number of Dances | 5 |   |
+   | Random text |   |   |
    
- #+BEGIN_SRC elisp :var d=d  
- (loop for x from 1 to (cadr (first d))
-         collect d)
- #+END_SRC
+   #+BEGIN_SRC elisp :var d=d  
+   (loop for x from 1 to (cadr (first d))
+           collect d)
+   #+END_SRC
 
- #+RESULTS:
- | (Number of Dances 5 ) | (Random text  ) |
- | (Number of Dances 5 ) | (Random text  ) |
- | (Number of Dances 5 ) | (Random text  ) |
- | (Number of Dances 5 ) | (Random text  ) |
- | (Number of Dances 5 ) | (Random text  ) |
+   #+RESULTS:
+   | (Number of Dances 5 ) | (Random text  ) |
+   | (Number of Dances 5 ) | (Random text  ) |
+   | (Number of Dances 5 ) | (Random text  ) |
+   | (Number of Dances 5 ) | (Random text  ) |
+   | (Number of Dances 5 ) | (Random text  ) |
+** Beginning of the 
