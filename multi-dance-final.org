@@ -250,22 +250,33 @@
    CLOSED: [2018-02-28 Wed 18:43]
    compare-sums takes in two couples and a place value and returns the couple with the lowest sum.
    If the value of the sums is the same then it returns both couples 
- #+BEGIN_SRC emacs-lisp :results silent
-   (defun compare-sums (couple1 couple2 place)
-     (cond ((< (sum-of-values-at-place couple1 place)
-               (sum-of-values-at-place couple2 place)) couple1)
-           ((> (sum-of-values-at-place couple1 place)
-               (sum-of-values-at-place couple2 place)) couple2)
-           (t (list couple1 couple2))))
- #+END_SRC
-
- #+BEGIN_SRC emacs-lisp
-   (compare-sums 113 114 3)
- #+END_SRC
-
  #+RESULTS:
  | 113 | 114 |
+#+BEGIN_SRC emacs-lisp
+  (defun compare-n-sums (couples place)
+    ;;((113 . 3) (114 . 3) (115 . 3)
+    (sort (loop for (couple . majority) in couples
+                collect (cons couple (sum-of-values-at-place couple place)))
+          (lambda (a b)
+            (< (cdr a) (cdr b)))))
+#+END_SRC
 
+#+RESULTS:
+: compare-n-sums
+
+#+BEGIN_SRC emacs-lisp
+ (compare-n-sums '((113 . 3) (114 . 3) (115 . 3)) 3)
+#+END_SRC
+#+RESULTS:
+: ((113 . 6) (114 . 7) (115 . 8))
+
+#+BEGIN_SRC emacs-lisp :results silent
+  (defun find-winning-couples (couples)
+    (loop with lowest = (cdar couples)
+          for (couple . sum) in couples
+          when (= lowest sum)
+          collect couple))
+#+END_SRC
 ** TODO HANDLE TIE BREAK VALUES
  #+BEGIN_SRC emacs-lisp :results silent
  
@@ -275,10 +286,21 @@
   #+BEGIN_SRC emacs-lisp :results output
     (defun single-dance ()
       (loop with dance = (cdr dance-totals-columns)
+            with majority-couples = nil
+            with tied-majorities = nil
+            with winning-couples = nil
             for place in dance
             for place-val from 1 to (length dance)
-            if (= 1 (length (find-number-of-majorities place))
-              (print(find-number-of-majorities place))))
+            do (setq majority-couples (find-number-of-majorities place))
+            (case (length majority-couples)
+              (0)
+              (1 (remove-couple (caar majority-couples)))
+              (t (setq tied-majorities (find-couples-with-largest-majority majority-couples))
+                 (case (length tied-majorities)
+                   (1 (remove-couple (caar tied-majorities)))
+                   (t (setq winning-couples (compare-n-sums tied-majorities place-val))
+                      (if (= (length winning-couples) 1)
+                          (remove-couple (car winning-couples)))))))))
 #+END_SRC 
 
 #+RESULTS:
@@ -286,23 +308,17 @@
 #+BEGIN_SRC emacs-lisp :results output
  (single-dance)
 #+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+ dance-totals-rows 
+#+END_SRC
 #+RESULTS:
-#+begin_example
-
-nil
-
-((115 . 5))
-
-((113 . 3) (114 . 3) (115 . 5))
-
-((112 . 3) (113 . 3) (114 . 4) (115 . 5) (116 . 3))
-
-((112 . 3) (113 . 5) (114 . 5) (115 . 5) (116 . 4) (117 . 3))
-
-((112 . 5) (113 . 5) (114 . 5) (115 . 5) (116 . 5) (117 . 5))
-
-((111 . 5) (112 . 5) (113 . 5) (114 . 5) (115 . 5) (116 . 5) (117 . 5))
-#+end_example
+| 111 | 0 | 0 | 0 | 0 | 0 | 0 | 5 |
+| 112 | 0 | 0 | 1 | 3 | 3 | 5 | 5 |
+| 113 | 1 | 2 | 3 | 3 | 5 | 5 | 5 |
+| 114 | 1 | 1 | 3 | 4 | 5 | 5 | 5 |
+| 116 | 1 | 1 | 2 | 3 | 4 | 5 | 5 |
+| 117 | 0 | 1 | 1 | 2 | 3 | 5 | 5 |
 
 * Testing:
   *Evaluate this before testing*
@@ -411,12 +427,12 @@ nil
           when (<= value place)
           sum value))
 
-  (defun compare-sums (couple1 couple2 place)
-    (cond ((< (sum-of-values-at-place couple1 place)
-              (sum-of-values-at-place couple2 place)) couple1)
-          ((> (sum-of-values-at-place couple1 place)
-              (sum-of-values-at-place couple2 place)) couple2)
-          (t (list couple1 couple2))))
+(defun compare-n-sums (couples place)
+    ;;((113 . 3) (114 . 3) (115 . 3)
+    (sort (loop for (couple . majority) in couples
+                collect (cons couple (sum-of-values-at-place couple place)))
+          (lambda (a b)
+            (< (cdr a) (cdr b)))))
 
   (defun print-standings (standings)
      (loop for couple in standings
@@ -585,7 +601,7 @@ nil
 
    #+name: d
    | Number of Dances | 5 |   |
-   | Random text |   |   |
+   | Random text      |   |   |
    
    #+BEGIN_SRC elisp :var d=d  
    (loop for x from 1 to (cadr (first d))
