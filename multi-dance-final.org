@@ -268,7 +268,13 @@
 
 ** TODO HANDLE TIE BREAK VALUES
  #+BEGIN_SRC emacs-lisp :results silent
- 
+   (defun tie-breaker (c1 c2 place)
+     ;; apply rule 6 -> largest majority
+     ;; if no breaker
+     ;; apply rule 7 -> sum scores lowest total wins
+     ;; if no breaker both couples are deemed tied. 
+     )
+
  #+END_SRC
 
 ** TODO Consolidate functions into one big functions
