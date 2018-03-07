@@ -292,16 +292,14 @@
  #+END_SRC
 
 ** TODO Consolidate functions into one big function
-  #+BEGIN_SRC emacs-lisp :results output
-    (defun single-dance ()
+  #+BEGIN_SRC emacs-lisp :results output 
+(defun single-dance ()
       (loop with dance = (cdr dance-totals-columns)
             with majority-couples = nil
             with tied-majorities = nil
             with winning-couples = nil
             for place in dance
             for place-val from 1 to (length dance)
-            if (= 1 (length (find-number-of-majorities place))
-              (print(find-number-of-majorities place))))
             do (setq majority-couples (find-number-of-majorities place))
             (case (length majority-couples)
               (0)
@@ -311,7 +309,7 @@
                    (1 (remove-couple (caar tied-majorities)))
                    (t (setq winning-couples (compare-n-sums tied-majorities place-val))
                       (if (= (length winning-couples) 1)
-                          (remove-couple (car winning-couples))))))))
+                          (remove-couple (car winning-couples)))))))))
 
       (defun multi-dance()
         ;; gather number of judges
@@ -326,6 +324,7 @@
         ;; display final summary table and provide final score and ranks
         )
 
+    
 #+END_SRC 
 
 #+RESULTS:
@@ -334,16 +333,12 @@
  (single-dance)
 #+END_SRC
 
+#+RESULTS:
+
 #+BEGIN_SRC emacs-lisp
  dance-totals-rows 
 #+END_SRC
 #+RESULTS:
-| 111 | 0 | 0 | 0 | 0 | 0 | 0 | 5 |
-| 112 | 0 | 0 | 1 | 3 | 3 | 5 | 5 |
-| 113 | 1 | 2 | 3 | 3 | 5 | 5 | 5 |
-| 114 | 1 | 1 | 3 | 4 | 5 | 5 | 5 |
-| 116 | 1 | 1 | 2 | 3 | 4 | 5 | 5 |
-| 117 | 0 | 1 | 1 | 2 | 3 | 5 | 5 |
 
 * Testing:
   *Evaluate this before testing*
