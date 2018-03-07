@@ -1,6 +1,7 @@
 * Development:
 ** Useful functions:
 *** Transpose Function
+**** Rotates the tables horizonal and verticle. 
  #+BEGIN_SRC emacs-lisp :results silent
    (defun transpose (list-of-same-size-lists)
      (apply 'mapcar* 'list list-of-same-size-lists))
@@ -31,6 +32,7 @@
  | 0 | 1 | 0 | 1 | 1 | 2 | 0 | 0 |
 
 *** ++ Function:
+**** Takes in two lists and adds them together
  #+BEGIN_SRC emacs-lisp
    (defun ++ (l1 l2)
      (mapcar* '+ l1 l2))
@@ -270,6 +272,7 @@
  #+BEGIN_SRC emacs-lisp :results silent
    (defun tie-breaker (c1 c2 place)
      ;; apply rule 6 -> largest majority
+     if (
      ;; if no breaker
      ;; apply rule 7 -> sum scores lowest total wins
      ;; if no breaker both couples are deemed tied. 
@@ -277,7 +280,7 @@
 
  #+END_SRC
 
-** TODO Consolidate functions into one big functions
+** TODO Consolidate functions into one big function
   #+BEGIN_SRC emacs-lisp :results output
     (defun single-dance ()
       (loop with dance = (cdr dance-totals-columns)
@@ -285,6 +288,20 @@
             for place-val from 1 to (length dance)
             if (= 1 (length (find-number-of-majorities place))
               (print(find-number-of-majorities place))))
+
+
+      (defun multi-dance()
+        ;; gather number of judges
+        ;; gather number of couples
+        ;; gather number of dances
+        ;;
+        ;; create table according to specs
+        ;; allow the judges to enter score rankings per couple on that particular dance.
+        ;; repeat until all dances have been completed
+        ;; begin rankings and apply rules 5 - 11
+        ;; if there is a tie -> call tie breaker function
+        ;; display final summary table and provide final score and ranks
+        )
 #+END_SRC 
 
 #+RESULTS:
