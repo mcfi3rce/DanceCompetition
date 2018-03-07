@@ -533,6 +533,9 @@
  (remove-couple 116)  
 #+END_SRC
 
+#+RESULTS:
+| 115 | 113 | 114 | 116 |
+
 #+BEGIN_SRC emacs-lisp 
  (remove-couple 112)  
 #+END_SRC
@@ -544,6 +547,11 @@
       (loop for row in (cdr dance-totals-columns)
             collect (find-number-of-majorities row))
 #+END_SRC
+
+#+RESULTS:
+| (117 . 3) |           |
+| (117 . 5) |           |
+| (111 . 5) | (117 . 5) |
 
 *** Step 10: Single Majority
 #+BEGIN_SRC emacs-lisp 
@@ -575,13 +583,13 @@
 #+END_SRC 
 
 #+RESULTS:
-| 115 | 1 |
-| 113 | 2 |
-| 114 | 3 |
-| 116 | 4 |
-| 112 | 5 |
-| 117 | 6 |
-| 111 | 7 |
+| 1 | 115 |
+| 2 | 113 |
+| 3 | 114 |
+| 4 | 116 |
+| 5 | 112 |
+| 6 | 117 |
+| 7 | 111 |
 
 *** Test UI
   Judges:
