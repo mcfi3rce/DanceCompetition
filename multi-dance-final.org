@@ -302,7 +302,16 @@
             for place-val from 1 to (length dance)
             if (= 1 (length (find-number-of-majorities place))
               (print(find-number-of-majorities place))))
-
+            do (setq majority-couples (find-number-of-majorities place))
+            (case (length majority-couples)
+              (0)
+              (1 (remove-couple (caar majority-couples)))
+              (t (setq tied-majorities (find-couples-with-largest-majority majority-couples))
+                 (case (length tied-majorities)
+                   (1 (remove-couple (caar tied-majorities)))
+                   (t (setq winning-couples (compare-n-sums tied-majorities place-val))
+                      (if (= (length winning-couples) 1)
+                          (remove-couple (car winning-couples))))))))
 
       (defun multi-dance()
         ;; gather number of judges
@@ -316,16 +325,7 @@
         ;; if there is a tie -> call tie breaker function
         ;; display final summary table and provide final score and ranks
         )
-            do (setq majority-couples (find-number-of-majorities place))
-            (case (length majority-couples)
-              (0)
-              (1 (remove-couple (caar majority-couples)))
-              (t (setq tied-majorities (find-couples-with-largest-majority majority-couples))
-                 (case (length tied-majorities)
-                   (1 (remove-couple (caar tied-majorities)))
-                   (t (setq winning-couples (compare-n-sums tied-majorities place-val))
-                      (if (= (length winning-couples) 1)
-                          (remove-couple (car winning-couples)))))))))
+
 #+END_SRC 
 
 #+RESULTS:
