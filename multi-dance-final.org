@@ -192,7 +192,10 @@
 #+RESULTS:
 : 2
 4
-
+#+BEGIN_SRC emacs-lisp
+  (defun remove-couples (couples)
+    (mapcar 'cdr 
+#+END_SRC
  : After the couple is removed
 #+BEGIN_SRC emacs-lisp :results value 
   (list couples dance-totals-rows )
@@ -287,54 +290,69 @@
 
  #+END_SRC
 
+** TODO Hande removing all the couples that have a majority
+** Handle tied sums to the end
+#+BEGIN_SRC emacs-lisp
+  (defun really-tied (couples place)
+    (loop for x from place to 7
+          if (compare-n-sums couples)
+#+END_SRC
 ** TODO Consolidate functions into one big function
   #+BEGIN_SRC emacs-lisp :results output 
-(defun single-dance ()
-      (loop with dance = (cdr dance-totals-columns)
-            with majority-couples = nil
-            with tied-majorities = nil
-            with winning-couples = nil
-            for place in dance
-            for place-val from 1 to (length dance)
-            do (setq majority-couples (find-number-of-majorities place))
-            (case (length majority-couples)
-              (0)
-              (1 (remove-couple (caar majority-couples)))
-              (t (setq tied-majorities (find-couples-with-largest-majority majority-couples))
-                 (case (length tied-majorities)
-                   (1 (remove-couple (caar tied-majorities)))
-                   (t (setq winning-couples (compare-n-sums tied-majorities place-val))
-                      (if (= (length winning-couples) 1)
-                          (remove-couple (car winning-couples)))))))))
+    (defun single-dance ()
+          (loop with dance = (cdr dance-totals-columns)
+                with majority-couples = nil
+                with tied-majorities = nil
+                ;with winning-couples = nil
+                for place in dance
+                for place-val from 1 to (length dance)
+                do
+                ;(debug)
+                (setq majority-couples (find-number-of-majorities place))
+                (case (length majority-couples)
+                  (0)
+                  (1 (remove-couple (caar majority-couples)))
+                  (t (setq tied-majorities (find-couples-with-largest-majority majority-couples))
+                     (case (length tied-majorities)
+                       (1 (remove-couple (caar tied-majorities)))
+                       (t (setq winning-couples (compare-n-sums tied-majorities place-val))
+                          (if (= (length winning-couples) 1)
+                              (remove-couple (cdar winning-couples)))))))))
 
-      (defun multi-dance()
-        ;; gather number of judges
-        ;; gather number of couples
-        ;; gather number of dances
-        ;;
-        ;; create table according to specs
-        ;; allow the judges to enter score rankings per couple on that particular dance.
-        ;; repeat until all dances have been completed
-        ;; begin rankings and apply rules 5 - 11
-        ;; if there is a tie -> call tie breaker function
-        ;; display final summary table and provide final score and ranks
-        )
-
-    
+          (defun multi-dance()
+            ;; gather number of judges
+            ;; gather number of couples
+            ;; gather number of dances
+            ;;
+            ;; create table according to specs
+            ;; allow the judges to enter score rankings per couple on that particular dance.
+            ;; repeat until all dances have been completed
+            ;; begin rankings and apply rules 5 - 11
+            ;; if there is a tie -> call tie breaker function
+            ;; display final summary table and provide final score and ranks
+            ) 
 #+END_SRC 
 
 #+RESULTS:
 
 #+BEGIN_SRC emacs-lisp :results output
- (single-dance)
+  (single-dance)
 #+END_SRC
 
 #+RESULTS:
 
 #+BEGIN_SRC emacs-lisp
- dance-totals-rows 
+ dance-totals-columns 
 #+END_SRC
 #+RESULTS:
+| 111 | 112 | 113 | 114 | 116 | 117 |
+|   0 |   0 |   1 |   1 |   1 |   0 |
+|   0 |   0 |   2 |   1 |   1 |   1 |
+|   0 |   1 |   3 |   3 |   2 |   1 |
+|   0 |   3 |   3 |   4 |   3 |   2 |
+|   0 |   3 |   5 |   5 |   4 |   3 |
+|   0 |   5 |   5 |   5 |   5 |   5 |
+|   5 |   5 |   5 |   5 |   5 |   5 |
 
 * Testing:
   *Evaluate this before testing*
