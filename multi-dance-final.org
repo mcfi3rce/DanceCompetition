@@ -41,7 +41,7 @@
  #+RESULTS:
  : ++
 
-** New way of seeing scores:
+** TODO New way of seeing scores:
 #+name: judge-score
 | Judge |   1 |   2 |   3 |   4 |   5 |   6 |
 | A     | 111 | 114 | 115 | 112 | 116 | 113 |
@@ -141,7 +141,7 @@
 
 ** Find-number-of-majorities Iterative Version:
 #+BEGIN_SRC emacs-lisp :results silent
-  (defun find-number-of-majorities (row)
+  (defun find-number-of-majorities (row couples)
      (loop 
       for value in row
       for position from 0
@@ -156,8 +156,11 @@
 #+RESULTS:
 : ((113 . 3) (114 . 3) (115 . 5))
 
-** DONE Finds largest majority
-   CLOSED: [2018-03-01 Thu 12:28]
+** TODO Finds largest majority
+:possible-bug:
+We don't know if this will handle the couple who still has a majority
+:END:
+
   #+BEGIN_SRC emacs-lisp :results output
     (defun find-couples-with-largest-majority (tied-couples)
       (let ((max  (apply 'max (mapcar 'cdr tied-couples))))
@@ -177,28 +180,6 @@
 :Note:
  Adjusted the totals-column when we remove a couple
 :END:
-
-#+BEGIN_SRC emacs-lisp :results silent 
-   (defun remove-couple (couple)
-    (if (> (length dance-totals-rows) 1)
-        (setq dance-totals-rows (remove (assoc couple dance-totals-rows) dance-totals-rows)
-              dance-totals-columns (transpose dance-totals-rows)
-              couples (remove couple couples)
-              places (append places (list couple)))
-      ;; removing the last element causes issues
-      (setq dance-totals-rows nil
-            couples nil
-            places (append places (list couple))
-            )))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp  :var totals-row=totals-row
-  (remove-couple 115) 
-#+END_SRC
-
-#+RESULTS:
-: 2
-4
 #+BEGIN_SRC emacs-lisp
   (defun remove-couples (couples)
     (mapcar 'remove-couples (mapcar 'car couples)))
@@ -206,6 +187,20 @@
 
 #+RESULTS:
 : remove-couples
+** remove couples non-global 
+#+BEGIN_SRC emacs-lisp
+  (defun remove-couple (couple-num rem-couples rows)
+      (if (> (length rows) 1)
+          (setq couples (remove couple-num rem-couples)
+                places (append places (list couple-num))
+                rows (remove (assoc couple-num dance-totals-rows) rows))
+        ;; removing the last element causes issues
+        (setq places (append places (list couple-num))
+              rows nil)))
+#+END_SRC
+
+#+RESULTS:
+: remove-couple
 
  : After the couple is removed
 #+BEGIN_SRC emacs-lisp :results value 
@@ -331,10 +326,10 @@
                 (setq majority-couples (find-number-of-majorities place))
                 (case (length majority-couples)
                   (0)
-                  (1 (remove-couple (caar majority-couples)))
+                  (1 (setq dance (remove-couple (caar majority-couples))))
                   (t (setq tied-majorities (find-couples-with-largest-majority majority-couples))
                      (case (length tied-majorities)
-                       (1 (remove-couple (caar tied-majorities)))
+                       (1 (setq dance (remove-couple (caar tied-majorities))))
                        (t (setq winning-couples (compare-n-sums tied-majorities place-val))
                           (really-tied winning-couples place)))))))
 
@@ -469,18 +464,14 @@
   (defun find-couples-with-largest-majority (tied-couples)
     (let ((max  (apply 'max (mapcar 'cdr tied-couples))))
       (remove-if-not (lambda (couple) (= max (cdr couple))) tied-couples)))
-
-  (defun remove-couple (couple)
-    (if (> (length dance-totals-rows) 1)
-        (setq dance-totals-rows (remove (assoc couple dance-totals-rows) dance-totals-rows)
-              dance-totals-columns (transpose dance-totals-rows)
-              couples (remove couple couples)
-              places (append places (list couple)))
-      ;; removing the last element causes issues
-      (setq dance-totals-rows nil
-            couples nil
-            places (append places (list couple))
-            )))
+ (defun remove-couple (couple-num rem-couples rows)
+      (if (> (length rows) 1)
+          (setq couples (remove couple-num rem-couples)
+                places (append places (list couple-num))
+                rows (remove (assoc couple-num dance-totals-rows) rows))
+        ;; removing the last element causes issues
+        (setq places (append places (list couple-num))
+              rows nil)))
 
   (defun get-score (couple-number)
     (loop for row in couple-scores
