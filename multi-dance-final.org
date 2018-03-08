@@ -289,11 +289,7 @@
 ** TODO HANDLE TIE BREAK VALUES
  #+BEGIN_SRC emacs-lisp :results silent
    (defun tie-breaker (c1 c2 place)
-     ;; apply rule 6 -> largest majority
-     if (
-     ;; if no breaker
-     ;; apply rule 7 -> sum scores lowest total wins
-     ;; if no breaker both couples are deemed tied. 
+   ;; tie-breaker for rule 8 and apply split rankings.
      )
 
  #+END_SRC
@@ -492,6 +488,7 @@
 ** Testing:
   : This will follow the way the final code will be evaluated:
 *** Step 1: Find the couple with the largest majority
+**** couple 115 has a majority of 5
    #+BEGIN_SRC emacs-lisp 
      (loop for row in (cdr dance-totals-columns)
            collect (find-number-of-majorities row))
@@ -671,5 +668,6 @@
    | (Number of Dances 5 ) | (Random text  ) |
    | (Number of Dances 5 ) | (Random text  ) |
    | (Number of Dances 5 ) | (Random text  ) |
+   |                       |                 |
 ** Beginning of the 
    
