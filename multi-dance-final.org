@@ -179,10 +179,17 @@
 :END:
 
 #+BEGIN_SRC emacs-lisp :results silent 
-  (defun remove-couple (couple)
-      (setq dance-totals-rows (remove (elt totals-row (position couple couples)) dance-totals-rows)
-            dance-totals-columns (transpose dance-totals-rows)
-            places (append places '(couple))))
+   (defun remove-couple (couple)
+    (if (> (length dance-totals-rows) 1)
+        (setq dance-totals-rows (remove (assoc couple dance-totals-rows) dance-totals-rows)
+              dance-totals-columns (transpose dance-totals-rows)
+              couples (remove couple couples)
+              places (append places (list couple)))
+      ;; removing the last element causes issues
+      (setq dance-totals-rows nil
+            couples nil
+            places (append places (list couple))
+            )))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp  :var totals-row=totals-row
@@ -298,17 +305,22 @@
 ** Handle tied sums to the end
 #+BEGIN_SRC emacs-lisp
   (defun really-tied (tied-couples place)
-    (loop for x from place to 7
-          (loop for couple-1 in tied-couples
-                for couple-2 in (rest couples)
-                if (< (cdr couple-1)(cdr couple-2))
-                (remove-couples tied-couples)
-                if (= (cdr couple-1)(cdr couple-2))
+    (loop for couple-1 in tied-couples
+          for couple-2 in (rest couples)
+          if (< (cdr couple-1)(cdr couple-2))
+          (remove-couples tied-couples)
+          if (-all-p (lambda (x) (= x (cdr couple-1))) tied-couples)
+          (single-dance (filter-columns tied-couples dance-totals-columns))))
 #+END_SRC
+
+#+RESULTS:
+: really-tied
+
 ** TODO Consolidate functions into one big function
+   : We need this to be able to handle the case when couples are tied all the way
   #+BEGIN_SRC emacs-lisp :results output 
-    (defun single-dance ()
-          (loop with dance = (cdr dance-totals-columns)
+    (defun single-dance (dance-columns)
+          (loop with dance = (cdr dance-columns)
                 with majority-couples = nil
                 with tied-majorities = nil
                 with winning-couples = nil
@@ -324,8 +336,7 @@
                      (case (length tied-majorities)
                        (1 (remove-couple (caar tied-majorities)))
                        (t (setq winning-couples (compare-n-sums tied-majorities place-val))
-                          (if (= (length winning-couples) 1)
-                              (remove-couple (cdar winning-couples)))))))))
+                          (really-tied winning-couples place)))))))
 
           (defun multi-dance()
             ;; gather number of judges
@@ -344,7 +355,7 @@
 #+RESULTS:
 
 #+BEGIN_SRC emacs-lisp :results output
-  (single-dance)
+  (single-dance dance-totals-columns)
 #+END_SRC
 
 #+RESULTS:
@@ -361,6 +372,18 @@
 |   0 |   3 |   5 |   5 |   4 |   3 |
 |   0 |   5 |   5 |   5 |   5 |   5 |
 |   5 |   5 |   5 |   5 |   5 |   5 |
+
+** Filter columns 
+#+BEGIN_SRC emacs-lisp
+  (defun filter-columns (filter-couples columns)
+    (let ((edited (transpose columns)))
+      (loop
+       for (couple . sum) in filter-couples
+       do (setq edited (remove (assoc couple edited) edited)))(transpose edited)))
+#+END_SRC
+
+#+RESULTS:
+: filter-columns
 
 * Testing:
   *Evaluate this before testing*
