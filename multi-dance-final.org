@@ -156,8 +156,7 @@
 #+RESULTS:
 : ((113 . 3) (114 . 3) (115 . 5))
 
-** DONE Finds largest majority
-   CLOSED: [2018-03-01 Thu 12:28]
+** Finds largest majority for couples
   #+BEGIN_SRC emacs-lisp :results output
     (defun find-couples-with-largest-majority (tied-couples)
       (let ((max  (apply 'max (mapcar 'cdr tied-couples))))
@@ -211,8 +210,7 @@
 
    I removed the code I was working on because I realized a test sequence of individual functions would be more informative:
    First Function:
-** DONE ADD GET SCORE FOR COUPLE NUMBER
-   CLOSED: [2018-02-28 Wed 17:58]
+** ADD GET SCORE FOR COUPLE NUMBER
  #+BEGIN_SRC emacs-lisp :results silent
    (defun get-score (couple-number)
      (loop for row in couple-scores
@@ -227,8 +225,7 @@
  #+RESULTS:
  | 7 | 7 | 7 | 7 | 7 |
 
-** DONE ADD GET SUM OF VALUES OF PLACES UNDER A CERTAIN PLACE EX: values of scores from 1-3
-   CLOSED: [2018-02-28 Wed 18:05]
+** ADD GET SUM OF VALUES OF PLACES UNDER A CERTAIN PLACE EX: values of scores from 1-3
  #+BEGIN_SRC emacs-lisp :results silent
    (defun sum-of-values-at-place (couple place)
      (loop for value in (get-score couple)
@@ -255,8 +252,7 @@
 
  #+RESULTS:
  : 6
-** DONE Compare two couples and return the couple with the lowest
-   CLOSED: [2018-02-28 Wed 18:43]
+** Compare two couples and return the couple with the lowest
    compare-sums takes in two couples and a place value and returns the couple with the lowest sum.
    If the value of the sums is the same then it returns both couples 
  #+RESULTS:
@@ -286,16 +282,8 @@
           when (= lowest sum)
           collect couple))
 #+END_SRC
-** TODO HANDLE TIE BREAK VALUES
- #+BEGIN_SRC emacs-lisp :results silent
-   (defun tie-breaker (c1 c2 place)
-   ;; tie-breaker for rule 8 and apply split rankings.
-     )
-
- #+END_SRC
-
 ** TODO Hande removing all the couples that have a majority
-** Handle tied sums to the end
+** TODO Handle tied sums to the end
 #+BEGIN_SRC emacs-lisp
   (defun really-tied (tied-couples place)
     (loop for x from place to 7
@@ -380,10 +368,13 @@
  #+BEGIN_SRC emacs-lisp :var dances=dances :results value
   (defun calculate-majority (row)
     (1+ (/ (length (remove-if 'stringp row)) 2)))
+  
   (defun transpose (list-of-same-size-lists)
     (apply 'mapcar* 'list list-of-same-size-lists))
+  
   (defun ++ (l1 l2)
     (mapcar* '+ l1 l2))
+  
   (defun extract-place (n dances)
     (mapcar (lambda (row)
               (loop for score in (remove-if 'stringp row)
@@ -469,7 +460,7 @@
           when (<= value place)
           sum value))
 
-(defun compare-n-sums (couples place)
+  (defun compare-n-sums (couples place)
     ;;((113 . 3) (114 . 3) (115 . 3)
     (sort (loop for (couple . majority) in couples
                 collect (cons couple (sum-of-values-at-place couple place)))
@@ -481,9 +472,8 @@
           for place from 1 to (length standings)
           collect (list place couple)))
  #+END_SRC 
-#+END_SRC
 ** Testing:
-  : This will follow the way the final code will be evaluated:
+   : This will follow the way the final code will be evaluated:
 *** Step 1: Find the couple with the largest majority
 **** couple 115 has a majority of 5
    #+BEGIN_SRC emacs-lisp 
@@ -666,5 +656,4 @@
    | (Number of Dances 5 ) | (Random text  ) |
    | (Number of Dances 5 ) | (Random text  ) |
    |                       |                 |
-** Beginning of the 
    
