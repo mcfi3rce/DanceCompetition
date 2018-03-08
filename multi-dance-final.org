@@ -200,15 +200,15 @@ We don't know if this will handle the couple who still has a majority
 ** DONE remove couples non-global 
    CLOSED: [2018-03-08 Thu 12:53]
 #+BEGIN_SRC emacs-lisp
-   (defun remove-couple (couple-num rows)
-        (if (> (length rows) 1)
-            (setq couples (remove couple-num couples)
-                  places (append places (list couple-num))
-                  rows (remove (assoc couple-num dance-totals-rows) rows))
-          ;; removing the last element causes issues
-          (setq couples (remove couple-num couples)
-           places (append places (list couple-num))
-                rows nil)))
+  (defun remove-couple (couple-num rows)
+    (if (> (length rows) 1)
+        (setq couples (remove couple-num couples)
+              places (append places (list couple-num))
+              rows (remove (assoc couple-num dance-totals-rows) rows))
+      ;; removing the last element causes issues
+      (setq couples (remove couple-num couples)
+            places (append places (list couple-num))
+            rows nil))(transpose rows))
 #+END_SRC
 
 #+RESULTS:
@@ -461,7 +461,7 @@ We don't know if this will handle the couple who still has a majority
   *Next evaluate the functions next*
 ** Functions:
 #+BEGIN_SRC emacs-lisp :results silent 
-  (defun find-number-of-majorities (row)
+  (defun find-number-of-majorities (row couples)
     (loop 
      for value in row
      for position from 0
@@ -474,21 +474,21 @@ We don't know if this will handle the couple who still has a majority
   (defun find-couples-with-largest-majority (tied-couples)
     (let ((max  (apply 'max (mapcar 'cdr tied-couples))))
       (remove-if-not (lambda (couple) (= max (cdr couple))) tied-couples)))
- 
-(defun remove-couple (couple-num rows)
-        (if (> (length rows) 1)
-            (setq couples (remove couple-num couples)
-                  places (append places (list couple-num))
-                  rows (remove (assoc couple-num dance-totals-rows) rows))
-          ;; removing the last element causes issues
-          (setq couples (remove couple-num couples)
-           places (append places (list couple-num))
-                rows nil)))
+
+  (defun remove-couple (couple-num rows)
+    (if (> (length rows) 1)
+        (setq couples (remove couple-num couples)
+                    places (append places (list couple-num))
+                    rows (remove (assoc couple-num dance-totals-rows) rows))
+      ;; removing the last element causes issues
+      (setq couples (remove couple-num couples)
+            places (append places (list couple-num))
+            rows nil))(transpose rows))
 
   (defun get-score (couple-number)
     (loop for row in couple-scores
           when (= (car row) couple-number)
-          return (rest row)))
+            return (rest row)))
 
   (defun sum-of-values-at-place (couple place)
     (loop for value in (get-score couple)
@@ -503,7 +503,7 @@ We don't know if this will handle the couple who still has a majority
             (< (cdr a) (cdr b)))))
 
   (defun print-standings (standings)
-     (loop for couple in standings
+    (loop for couple in standings
           for place from 1 to (length standings)
           collect (list place couple)))
  #+END_SRC 
