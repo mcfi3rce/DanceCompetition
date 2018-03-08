@@ -304,9 +304,6 @@
                 if (< (cdr couple-1)(cdr couple-2))
                 (remove-couples tied-couples)
                 if (= (cdr couple-1)(cdr couple-2))
-              
-
-
 #+END_SRC
 ** TODO Consolidate functions into one big function
   #+BEGIN_SRC emacs-lisp :results output 
