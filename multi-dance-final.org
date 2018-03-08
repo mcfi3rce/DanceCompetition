@@ -156,15 +156,10 @@
 #+RESULTS:
 : ((113 . 3) (114 . 3) (115 . 5))
 
-<<<<<<< HEAD
-** Finds largest majority for couples
-=======
 ** TODO Finds largest majority
 :possible-bug:
 We don't know if this will handle the couple who still has a majority
 :END:
-
->>>>>>> 88347dfc4c0b2048236209e98d0035a5958ce4d2
   #+BEGIN_SRC emacs-lisp :results output
     (defun find-couples-with-largest-majority (tied-couples)
       (let ((max  (apply 'max (mapcar 'cdr tied-couples))))
@@ -339,6 +334,11 @@ We don't know if this will handle the couple who still has a majority
                        (1 (setq dance (remove-couple (caar tied-majorities) dance)))
                        (t (setq winning-couples (compare-n-sums tied-majorities place-val))
                           (really-tied winning-couples place)))))))
+
+
+
+
+
 
           (defun multi-dance()
             ;; gather number of judges
