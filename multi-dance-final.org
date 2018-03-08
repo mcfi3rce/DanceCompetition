@@ -176,27 +176,37 @@ We don't know if this will handle the couple who still has a majority
 #+RESULTS:
 : ((113 . 4) (114 . 4))
 
-** Remove couple after placement:
+** Remove couples after placement:
 :Note:
  Adjusted the totals-column when we remove a couple
 :END:
 #+BEGIN_SRC emacs-lisp
-  (defun remove-couples (couples)
-    (mapcar 'remove-couples (mapcar 'car couples)))
+  (defun remove-couples (couples rem-couples rows)
+   (mapcar (lambda (couple) (setq rows (remove-couple couple rem-couples rows))) (mapcar 'car couples)))
 #+END_SRC
 
 #+RESULTS:
 : remove-couples
+
+#+BEGIN_SRC emacs-lisp :results raw
+  (setq test '((113 . 3)(114 . 3)(115 . 3))) 
+  (setq last (remove-couples test '(111 112 113 114 115 116 117) dance-totals-rows))
+  last
+#+END_SRC
+
+#+RESULTS:
+(((111 0 0 0 0 0 0 5) (112 0 0 1 3 3 5 5) (114 1 1 3 4 5 5 5) (115 2 5 5 5 5 5 5) (116 1 1 2 3 4 5 5) (117 0 1 1 2 3 5 5)) ((111 0 0 0 0 0 0 5) (112 0 0 1 3 3 5 5) (115 2 5 5 5 5 5 5) (116 1 1 2 3 4 5 5) (117 0 1 1 2 3 5 5)) ((111 0 0 0 0 0 0 5) (112 0 0 1 3 3 5 5) (116 1 1 2 3 4 5 5) (117 0 1 1 2 3 5 5)))
 ** remove couples non-global 
 #+BEGIN_SRC emacs-lisp
-  (defun remove-couple (couple-num rem-couples rows)
-      (if (> (length rows) 1)
-          (setq couples (remove couple-num rem-couples)
-                places (append places (list couple-num))
-                rows (remove (assoc couple-num dance-totals-rows) rows))
-        ;; removing the last element causes issues
-        (setq places (append places (list couple-num))
-              rows nil)))
+   (defun remove-couple (couple-num rows)
+        (if (> (length rows) 1)
+            (setq couples (remove couple-num couples)
+                  places (append places (list couple-num))
+                  rows (remove (assoc couple-num dance-totals-rows) rows))
+          ;; removing the last element causes issues
+          (setq couples (remove couple-num couples)
+           places (append places (list couple-num))
+                rows nil)))
 #+END_SRC
 
 #+RESULTS:
