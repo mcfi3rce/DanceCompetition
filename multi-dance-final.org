@@ -182,7 +182,7 @@ We don't know if this will handle the couple who still has a majority
 :END:
 #+BEGIN_SRC emacs-lisp
   (defun remove-couples (couples rows)
-   (mapcar (lambda (couple) (setq rows (remove-couple couple rows))) (mapcar 'car couples))(transpose rows))
+   (mapcar (lambda (couple) (setq rows (remove-couple couple rows))) (mapcar 'car couples))(transpose rows)rows)
 #+END_SRC
 
 #+RESULTS:
@@ -195,7 +195,6 @@ We don't know if this will handle the couple who still has a majority
 #+END_SRC
 
 #+RESULTS:
-((111 112 116 117) (0 0 1 0) (0 0 1 1) (0 1 2 1) (0 3 3 2) (0 3 4 3) (0 5 5 5) (5 5 5 5))
 ((111 0 0 0 0 0 0 5) (112 0 0 1 3 3 5 5) (116 1 1 2 3 4 5 5) (117 0 1 1 2 3 5 5))
 ** DONE remove couples non-global 
    CLOSED: [2018-03-08 Thu 12:53]
@@ -204,11 +203,11 @@ We don't know if this will handle the couple who still has a majority
     (if (> (length rows) 1)
         (setq couples (remove couple-num couples)
               places (append places (list couple-num))
-              rows (remove (assoc couple-num dance-totals-rows) rows))
+              rows (remove (assoc couple-num rows) rows))
       ;; removing the last element causes issues
       (setq couples (remove couple-num couples)
             places (append places (list couple-num))
-            rows nil))(transpose rows))
+            rows nil)) rows)
 #+END_SRC
 
 #+RESULTS:
@@ -300,13 +299,13 @@ We don't know if this will handle the couple who still has a majority
 ** TODO Hande removing all the couples that have a majority
 ** TODO Handle tied sums to the end
 #+BEGIN_SRC emacs-lisp
-  (defun really-tied (tied-couples place)
+  (defun really-tied (tied-couples place rows)
     (loop for couple-1 in tied-couples
-          for couple-2 in (rest couples)
+          for couple-2 in (rest tied-couples)
           if (< (cdr couple-1)(cdr couple-2))
-          (remove-couples tied-couples)
+          return (remove-couples tied-couples (transpose rows))
           if (-all-p (lambda (x) (= x (cdr couple-1))) tied-couples)
-          (single-dance (filter-columns tied-couples dance-totals-columns))))
+          do (single-dance (filter-columns tied-couples dance-totals-columns))))
 #+END_SRC
 
 #+RESULTS:
@@ -328,10 +327,10 @@ We don't know if this will handle the couple who still has a majority
                 ;; (debug)
                 (case (length majority-couples)
                   (0)
-                  (1 (setq dance (remove-couple (caar majority-couples) dance)))
+                  (1 (setq dance (remove-couple (caar majority-couples) (transpose dance))))
                   (t (setq tied-majorities (find-couples-with-largest-majority majority-couples))
                      (case (length tied-majorities)
-                       (1 (setq dance (remove-couple (caar tied-majorities) dance)))
+                       (1 (setq dance (remove-couple (caar tied-majorities) (transpose dance))))
                        (t (setq winning-couples (compare-n-sums tied-majorities place-val))
                           (really-tied winning-couples place)))))))
 
@@ -366,14 +365,14 @@ We don't know if this will handle the couple who still has a majority
  dance-totals-columns 
 #+END_SRC
 #+RESULTS:
-| 111 | 112 | 113 | 114 | 115 | 116 | 117 |
-|   0 |   0 |   1 |   1 |   2 |   1 |   0 |
-|   0 |   0 |   2 |   1 |   5 |   1 |   1 |
-|   0 |   1 |   3 |   3 |   5 |   2 |   1 |
-|   0 |   3 |   3 |   4 |   5 |   3 |   2 |
-|   0 |   3 |   5 |   5 |   5 |   4 |   3 |
-|   0 |   5 |   5 |   5 |   5 |   5 |   5 |
-|   5 |   5 |   5 |   5 |   5 |   5 |   5 |
+| 111 | 112 | 113 | 114 | 116 | 117 |
+|   0 |   0 |   1 |   1 |   1 |   0 |
+|   0 |   0 |   2 |   1 |   1 |   1 |
+|   0 |   1 |   3 |   3 |   2 |   1 |
+|   0 |   3 |   3 |   4 |   3 |   2 |
+|   0 |   3 |   5 |   5 |   4 |   3 |
+|   0 |   5 |   5 |   5 |   5 |   5 |
+|   5 |   5 |   5 |   5 |   5 |   5 |
 
 ** Filter columns 
 #+BEGIN_SRC emacs-lisp
@@ -390,7 +389,7 @@ We don't know if this will handle the couple who still has a majority
 * Testing:
   *Evaluate this before testing*
 ** Data:
- #+tblname: dances
+   #+tblname: dances
  | Couple | 	A | 	B | 	C | 	D | 	E | 	F | 	G | 	H |
  |--------+-----+-----+-----+-----+-----+-----+-----+-----|
  |    111 |   7 |   7 |   7 |   7 |   7 |     |     |     |
@@ -403,35 +402,36 @@ We don't know if this will handle the couple who still has a majority
 
 #+name: totals-rows
  #+BEGIN_SRC emacs-lisp :var dances=dances :results value
-  (defun calculate-majority (row)
-    (1+ (/ (length (remove-if 'stringp row)) 2)))
+    (defun calculate-majority (row)
+      (1+ (/ (length (remove-if 'stringp row)) 2)))
   
-  (defun transpose (list-of-same-size-lists)
-    (apply 'mapcar* 'list list-of-same-size-lists))
+    (defun transpose (list-of-same-size-lists)
+      (apply 'mapcar* 'list list-of-same-size-lists))
   
-  (defun ++ (l1 l2)
-    (mapcar* '+ l1 l2))
+    (defun ++ (l1 l2)
+      (mapcar* '+ l1 l2))
   
-  (defun extract-place (n dances)
-    (mapcar (lambda (row)
-              (loop for score in (remove-if 'stringp row)
-                    count (= n score)))
-            dances))
-  (setq couples (mapcar 'first dances)
-        couples-line (list couples 'hline)
-        couple-scores (mapcar (lambda (row)
-                                (loop for score in (remove-if 'stringp row)
-                                      collect score))
-                              dances)
-        majority (calculate-majority (cdr (first dances)))
-        places ()
-        totals (loop for place from 1 to 8
-                     collect (extract-place place dances))
-        dance-totals-columns (append (list couples)(loop with sum-row = (make-list (length (first totals)) 0)
-                                                   for row in (butlast totals)
-                                                   do (setq sum-row (++ row sum-row))
-                                                   collect sum-row))
-        dance-totals-rows (transpose dance-totals-columns)) 
+    (defun extract-place (n dances)
+      (mapcar (lambda (row)
+                (loop for score in (remove-if 'stringp row)
+                      count (= n score)))
+              dances))
+    (setq couples (mapcar 'first dances)
+          couples-line (list couples 'hline)
+          couple-scores (mapcar (lambda (row)
+                                  (loop for score in (remove-if 'stringp row)
+                                        collect score))
+                                dances)
+          majority (calculate-majority (cdr (first dances)))
+          places ()
+          totals (loop for place from 1 to 8
+                       collect (extract-place place dances))
+          dance-totals-columns (append (list couples)(loop with sum-row = (make-list (length (first totals)) 0)
+                                                     for row in (butlast totals)
+                                                     do (setq sum-row (++ row sum-row))
+                                                     collect sum-row))
+          dance-totals-rows (transpose dance-totals-columns)
+          totals-row dance-totals-rows) 
  #+END_SRC
 
  #+RESULTS: totals-rows
@@ -485,6 +485,9 @@ We don't know if this will handle the couple who still has a majority
             places (append places (list couple-num))
             rows nil))(transpose rows))
 
+  (defun remove-couples (couples rows)
+   (mapcar (lambda (couple) (setq rows (remove-couple couple rows))) (mapcar 'car couples))(transpose rows))
+
   (defun get-score (couple-number)
     (loop for row in couple-scores
           when (= (car row) couple-number)
@@ -513,7 +516,7 @@ We don't know if this will handle the couple who still has a majority
 **** couple 115 has a majority of 5
    #+BEGIN_SRC emacs-lisp 
      (loop for row in (cdr dance-totals-columns)
-           collect (find-number-of-majorities row))
+           collect (find-number-of-majorities row couples))
 #+END_SRC 
 
 #+RESULTS:
@@ -526,16 +529,23 @@ We don't know if this will handle the couple who still has a majority
    
 *** Step 2: If there is only one couple then remove that couple
    #+BEGIN_SRC emacs-lisp 
-     (remove-couple 115)
+     (setq dance-totals-rows (remove-couple 115 dance-totals-rows))
    #+END_SRC
 
    #+RESULTS:
-   | 115 |
+   | 111 | 112 | 113 | 114 | 116 | 117 |
+   |   0 |   0 |   1 |   1 |   1 |   0 |
+   |   0 |   0 |   2 |   1 |   1 |   1 |
+   |   0 |   1 |   3 |   3 |   2 |   1 |
+   |   0 |   3 |   3 |   4 |   3 |   2 |
+   |   0 |   3 |   5 |   5 |   4 |   3 |
+   |   0 |   5 |   5 |   5 |   5 |   5 |
+   |   5 |   5 |   5 |   5 |   5 |   5 |
 
 *** Step 3: Find the next couple with the largest majority
 #+BEGIN_SRC emacs-lisp 
-      (loop for row in (rest dance-totals-columns)
-            collect (find-number-of-majorities row))
+  (loop for row in (cdr dance-totals-rows)
+        collect (find-number-of-majorities row couples))
 #+END_SRC 
 
 #+RESULTS:
@@ -555,18 +565,39 @@ We don't know if this will handle the couple who still has a majority
    
 *** Tiebreak #1: If there is no higher majority sum the values
   #+BEGIN_SRC emacs-lisp
-    (compare-sums 113 114 3)
+    (compare-n-sums '((113 . 3)(114 . 3)) 3)
 #+END_SRC 
 
 #+RESULTS:
-: 113
+: ((113 . 6) (114 . 7))
 
-#+BEGIN_SRC emacs-lisp 
-  (remove-couple 113) 
+#+BEGIN_SRC emacs-lisp
+  (really-tied '((113 . 6)(114 . 7)) 3 dance-totals-rows)
 #+END_SRC
 
 #+RESULTS:
-| 115 | 113 |
+| 111 | 112 | 114 | 116 | 117 |
+|   0 |   0 |   1 |   1 |   0 |
+|   0 |   0 |   1 |   1 |   1 |
+|   0 |   1 |   3 |   2 |   1 |
+|   0 |   3 |   4 |   3 |   2 |
+|   0 |   3 |   5 |   4 |   3 |
+|   0 |   5 |   5 |   5 |   5 |
+|   5 |   5 |   5 |   5 |   5 |
+
+#+BEGIN_SRC emacs-lisp 
+  (remove-couple 113 (transpose dance-totals-rows))
+#+END_SRC
+
+#+RESULTS:
+| 111 | 112 | 113 | 114 | 116 | 117 |
+|   0 |   0 |   1 |   1 |   1 |   0 |
+|   0 |   0 |   2 |   1 |   1 |   1 |
+|   0 |   1 |   3 |   3 |   2 |   1 |
+|   0 |   3 |   3 |   4 |   3 |   2 |
+|   0 |   3 |   5 |   5 |   4 |   3 |
+|   0 |   5 |   5 |   5 |   5 |   5 |
+|   5 |   5 |   5 |   5 |   5 |   5 |
 
 #+BEGIN_SRC emacs-lisp 
  (remove-couple 114)  
