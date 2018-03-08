@@ -194,8 +194,12 @@
 4
 #+BEGIN_SRC emacs-lisp
   (defun remove-couples (couples)
-    (mapcar 'cdr 
+    (mapcar 'remove-couples (mapcar 'car couples)))
 #+END_SRC
+
+#+RESULTS:
+: remove-couples
+
  : After the couple is removed
 #+BEGIN_SRC emacs-lisp :results value 
   (list couples dance-totals-rows )
@@ -297,9 +301,16 @@
 ** TODO Hande removing all the couples that have a majority
 ** Handle tied sums to the end
 #+BEGIN_SRC emacs-lisp
-  (defun really-tied (couples place)
+  (defun really-tied (tied-couples place)
     (loop for x from place to 7
-          if (compare-n-sums couples)
+          (loop for couple-1 in tied-couples
+                for couple-2 in (rest couples)
+                if (< (cdr couple-1)(cdr couple-2))
+                (remove-couples tied-couples)
+                if (= (cdr couple-1)(cdr couple-2))
+              
+
+
 #+END_SRC
 ** TODO Consolidate functions into one big function
   #+BEGIN_SRC emacs-lisp :results output 
@@ -307,11 +318,11 @@
           (loop with dance = (cdr dance-totals-columns)
                 with majority-couples = nil
                 with tied-majorities = nil
-                ;with winning-couples = nil
+                with winning-couples = nil
                 for place in dance
                 for place-val from 1 to (length dance)
                 do
-                ;(debug)
+                (debug)
                 (setq majority-couples (find-number-of-majorities place))
                 (case (length majority-couples)
                   (0)
