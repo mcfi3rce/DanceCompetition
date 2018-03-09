@@ -606,7 +606,8 @@ dance-totals-rows
                     ;; since they are sorted from smallest to largest pass them both in
                     (case (length winning-couple)
                       (1 (remove-couples couple-sums)
-                         (return (1+ place-val ))))))))))
+                         (return (1+ place-val )))
+                      (t (return couple-sums)))))))))
 #+END_SRC
 #+RESULTS:
 : complex-majority
