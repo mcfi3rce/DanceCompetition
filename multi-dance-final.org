@@ -18,7 +18,8 @@
  ((1 4) (3 6))
  ((1 4) (3 6))
 
- #+BEGIN_SRC emacs-lisp :results value :var totals=tot1 112 2 1 3 116 117als
+ #+BEGIN_SRC emacs-lis
+p :results value :var totals=tot1 112 2 1 3 116 117als
    (transpose totals)
  #+END_SRC
 
@@ -574,20 +575,26 @@ We don't know if this will handle the couple who still has a majority
 
 #+RESULTS:
 : ((113 . 6) (114 . 7))
+#+BEGIN_SRC emacs-lisp
+  (find-winning-couples (compare-n-sums '((113) (114)) 3))
+#+END_SRC
+
+#+RESULTS:
+| 113 |
 
 #+BEGIN_SRC emacs-lisp 
   (remove-couple 113) 
 #+END_SRC
 
 #+RESULTS:
-| 115 | 115 | 113 |
+| 115 | 113 |
 
 #+BEGIN_SRC emacs-lisp 
  (remove-couple 114)  
 #+END_SRC
 
 #+RESULTS:
-| 115 | 115 | 113 | 114 |
+| 115 | 113 | 114 |
 
 : 2
 *** Step 6: Find next majority
@@ -609,21 +616,28 @@ We don't know if this will handle the couple who still has a majority
 
 #+RESULTS:
 : ((116 . 8) (112 . 11))
+#+BEGIN_SRC emacs-lisp
+  (find-winning-couples (compare-n-sums '((112) (116)) 4))
+#+END_SRC
+
+#+RESULTS:
+| 116 |
 
 *** Step 8: Remove couples with Majority
+
 #+BEGIN_SRC emacs-lisp 
  (remove-couple 116)  
 #+END_SRC
 
 #+RESULTS:
-| 115 | 115 | 113 | 114 | 116 |
+| 115 | 113 | 114 | 116 |
 
 #+BEGIN_SRC emacs-lisp 
  (remove-couple 112)  
 #+END_SRC
 
 #+RESULTS:
-| 115 | 115 | 113 | 114 | 116 | 112 |
+| 115 | 113 | 114 | 116 | 112 |
 *** Step 9: Find Next Majority
 #+BEGIN_SRC emacs-lisp 
       (loop for row in (cdr dance-totals-columns)
@@ -641,7 +655,7 @@ We don't know if this will handle the couple who still has a majority
 #+END_SRC
 
 #+RESULTS:
-| 115 | 115 | 113 | 114 | 116 | 112 | 117 |
+| 115 | 113 | 114 | 116 | 112 | 117 |
 
 *** Step 12: Find LAST MAJORITY
 #+BEGIN_SRC emacs-lisp 
@@ -657,7 +671,7 @@ We don't know if this will handle the couple who still has a majority
 #+END_SRC
 
 #+RESULTS:
-| 115 | 115 | 113 | 114 | 116 | 112 | 117 | 111 |
+| 115 | 113 | 114 | 116 | 112 | 117 | 111 |
 
 *** Step 13: Print Scores
    #+BEGIN_SRC emacs-lisp
@@ -666,13 +680,12 @@ We don't know if this will handle the couple who still has a majority
 
 #+RESULTS:
 | 1 | 115 |
-| 2 | 115 |
-| 3 | 113 |
-| 4 | 114 |
-| 5 | 116 |
-| 6 | 112 |
-| 7 | 117 |
-| 8 | 111 |
+| 2 | 113 |
+| 3 | 114 |
+| 4 | 116 |
+| 5 | 112 |
+| 6 | 117 |
+| 7 | 111 |
 
 *** Test UI
   Judges:
