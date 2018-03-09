@@ -546,107 +546,92 @@ We don't know if this will handle the couple who still has a majority
             do (setq shortened (cdr shortened)))shortened))
  #+END_SRC 
 ** Testing:
-   : This will follow the way the final code will be evaluated:
-*** Step 1 - 2: Simple Majority 
-**** couple 115 has a majority of 5
-#+name: place-value
-   #+BEGIN_SRC emacs-lisp :results value
-  (defun simple-majority (columns place)
-      (loop with number-majorities = nil
-            for row in (shorten columns place)
-            for place-val from place to 7
-            do (setq number-majorities (find-number-of-majorities row))
-            when (= (length number-majorities) 1)
-            do (remove-couple (caar number-majorities))
-            (return (1+ place-val))))
-#+END_SRC 
+*** Loop Test
+: This will follow the way the final code will be evaluated:
+**** Step 1 - 2: Simple Majority 
+***** couple 115 has a majority of 5
+ #+RESULTS: place-value
+ : simple-majority
 
-#+RESULTS: place-value
-: simple-majority
+ #+BEGIN_SRC emacs-lisp
+   (complex-majority dance-totals-columns 1)
+ #+END_SRC
+ #+RESULTS:
+ : 7
 
-#+BEGIN_SRC emacs-lisp
-  (simple-majority dance-totals-columns 1)
-#+END_SRC
-#+RESULTS:
-: 3
+ #+BEGIN_SRC emacs-lisp
+   dance-totals-rows
+ #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
-dance-totals-rows
-#+END_SRC
+ #+RESULTS:
+ | 111 | 0 | 0 | 0 | 0 | 0 | 0 | 5 |
+ | 112 | 0 | 0 | 1 | 3 | 3 | 5 | 5 |
+ | 116 | 1 | 1 | 2 | 3 | 4 | 5 | 5 |
+ | 117 | 0 | 1 | 1 | 2 | 3 | 5 | 5 |
 
-#+RESULTS:
-| 111 | 0 | 0 | 0 | 0 | 0 | 0 | 5 |
-| 112 | 0 | 0 | 1 | 3 | 3 | 5 | 5 |
-| 113 | 1 | 2 | 3 | 3 | 5 | 5 | 5 |
-| 114 | 1 | 1 | 3 | 4 | 5 | 5 | 5 |
-| 116 | 1 | 1 | 2 | 3 | 4 | 5 | 5 |
-| 117 | 0 | 1 | 1 | 2 | 3 | 5 | 5 |
+**** Step 3 - 6: Complex Majority 
+ #+BEGIN_SRC emacs-lisp 
+   (defun single-complex-majority (row place-val)
+     (let ((number-majorities nil)
+           (tied-majorities nil)
+           (couple-sums nil)
+           (winning-couple nil))
+       (setq number-majorities (find-number-of-majorities row))
+       (case (length number-majorities)
+         (0)
+         (1 (remove-couple (caar number-majorities)))
+         ;; tie-break 1 largest-majority
+         (t (setq tied-majorities (find-couples-with-largest-majority number-majorities))
+            (case (length tied-majorities)
+              (1 (remove-couple (caar tied-majorities)))
+              ;; tie-break 2 sums 
+              (t (setq couple-sums (compare-n-sums tied-majorities place-val)
+                       winning-couple (find-winning-couples couple-sums))
+                 ;; since they are sorted from smallest to largest pass them both in
+                 (case (length winning-couple)
+                   (1 (remove-couples couple-sums)
+                      (1+ place-val))
+                   (t couple-sums))))))))
+ #+END_SRC
+ #+RESULTS:
+ : complex-majority
 
-*** Step 3 - 6: Complex Majority 
-#+BEGIN_SRC emacs-lisp 
-  (defun complex-majority (columns place)  
-    (loop with number-majorities = nil
-          with tied-majorities = nil
-          with couple-sums = nil
-          with winning-couple = nil
-          ;; this is to account for the removed rows
-          for row in (shorten columns place)
-          for place-val from place to 7
-          do (setq number-majorities (find-number-of-majorities row))
-          (case (length number-majorities)
-            (0)
-            (1 (remove-couple (caar number-majorities)))
-            ;; tie-break 1 largest-majority
-            (t (setq tied-majorities (find-couples-with-largest-majority number-majorities))
-               (case (length tied-majorities)
-                 (1 (remove-couple (caar number-tied)))
-               ;; tie-break 2 sums 
-                 (t (setq couple-sums (compare-n-sums tied-majorities place-val)
-                          winning-couple (find-winning-couples couple-sums))
-                    ;; since they are sorted from smallest to largest pass them both in
-                    (case (length winning-couple)
-                      (1 (remove-couples couple-sums)
-                         (return (1+ place-val )))
-                      (t (return couple-sums)))))))))
-#+END_SRC
-#+RESULTS:
-: complex-majority
+ #+BEGIN_SRC emacs-lisp
+   (single-complex-majority (seventh (cdr dance-totals-columns)) 7)
+ #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
-  (complex-majority dance-totals-columns 3)
-#+END_SRC
+ #+RESULTS:
+ : 4
 
-#+RESULTS:
-: 4
+ #+BEGIN_SRC emacs-lisp
+  dance-totals-rows 
+ #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
- dance-totals-rows 
-#+END_SRC
+ #+RESULTS:
+ | 111 | 0 | 0 | 0 | 0 | 0 | 0 | 5 |
+ | 112 | 0 | 0 | 1 | 3 | 3 | 5 | 5 |
+ | 116 | 1 | 1 | 2 | 3 | 4 | 5 | 5 |
+ | 117 | 0 | 1 | 1 | 2 | 3 | 5 | 5 |
 
-#+RESULTS:
-| 111 | 0 | 0 | 0 | 0 | 0 | 0 | 5 |
-| 112 | 0 | 0 | 1 | 3 | 3 | 5 | 5 |
-| 116 | 1 | 1 | 2 | 3 | 4 | 5 | 5 |
-| 117 | 0 | 1 | 1 | 2 | 3 | 5 | 5 |
+**** Step 6 - 8: Complex Majority
+ #+BEGIN_SRC emacs-lisp 
+   (complex-majority dance-totals-columns 4)
+ #+END_SRC
 
-*** Step 6 - 8: Complex Majority
-#+BEGIN_SRC emacs-lisp 
-  (complex-majority dance-totals-columns 4)
-#+END_SRC
+ #+RESULTS:
+ : 5
 
-#+RESULTS:
-: 5
+ #+BEGIN_SRC emacs-lisp
+  dance-totals-rows 
+ #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
- dance-totals-rows 
-#+END_SRC
-
-#+RESULTS:
-| 111 | 0 | 0 | 0 | 0 | 0 | 0 | 5 |
-| 117 | 0 | 1 | 1 | 2 | 3 | 5 | 5 |
-*** Step 9 - 10: Simple Majority 
-#+BEGIN_SRC emacs-lisp 
-  (simple-majority dance-totals-columns 5)
+ #+RESULTS:
+ | 111 | 0 | 0 | 0 | 0 | 0 | 0 | 5 |
+ | 116 | 1 | 1 | 2 | 3 | 4 | 5 | 5 |
+ | 117 | 0 | 1 | 1 | 2 | 3 | 5 | 5 |
+**** Step 9 - 10: Simple Majority 
+ #+BEGIN_SRC emacs-lisp 
+  (complex-majority dance-totals-columns 5)
 #+END_SRC
 
 #+RESULTS:
@@ -658,58 +643,66 @@ dance-totals-rows
 #+RESULTS:
 | 111 | 0 | 0 | 0 | 0 | 0 | 0 | 5 |
 
-*** Step 12: Find LAST MAJORITY
-#+BEGIN_SRC emacs-lisp 
-  (simple-majority dance-totals-columns 6)
-#+END_SRC
+**** Step 12: Find LAST MAJORITY
+ #+BEGIN_SRC emacs-lisp 
+   (simple-majority dance-totals-columns 6)
+ #+END_SRC
 
-#+RESULTS:
-: 8
+ #+RESULTS:
+ : 8
 
-*** Step 13: Print Scores
-   #+BEGIN_SRC emacs-lisp
-   (print-standings places)
-#+END_SRC 
+**** Step 13: Print Scores
+    #+BEGIN_SRC emacs-lisp
+    (print-standings places)
+ #+END_SRC 
 
-#+RESULTS:
-| 1 | 115 |
-| 2 | 113 |
-| 3 | 114 |
-| 4 | 116 |
-| 5 | 112 |
-| 6 | 117 |
-| 7 | 111 |
+ #+RESULTS:
+ | 1 | 115 |
+ | 2 | 113 |
+ | 3 | 114 |
+ | 4 | 116 |
+ | 5 | 112 |
+ | 6 | 117 |
+ | 7 | 111 |
 
-*** Test UI
-  Judges:
-  [ ] 3
-  [x] 5
-  [ ] 7
-  [ ] 9
+**** Test UI
+   Judges:
+   [ ] 3
+   [x] 5
+   [ ] 7
+   [ ] 9
 
-  #+name: couple-number
-  6
+   #+name: couple-number
+   6
  
-  #+name: number-of-dances
-  5
+   #+name: number-of-dances
+   5
 
-**** Dance 1: Cha-Cha
+***** Dance 1: Cha-Cha
 
 
-   #+name: d
-   | Number of Dances | 5 |   |
-   | Random text      |   |   |
+    #+name: d
+    | Number of Dances | 5 |   |
+    | Random text      |   |   |
    
-   #+BEGIN_SRC elisp :var d=d  
-   (loop for x from 1 to (cadr (first d))
-           collect d)
-   #+END_SRC
+    #+BEGIN_SRC elisp :var d=d  
+    (loop for x from 1 to (cadr (first d))
+            collect d)
+    #+END_SRC
 
-   #+RESULTS:
-   | (Number of Dances 5 ) | (Random text  ) |
-   | (Number of Dances 5 ) | (Random text  ) |
-   | (Number of Dances 5 ) | (Random text  ) |
-   | (Number of Dances 5 ) | (Random text  ) |
-   | (Number of Dances 5 ) | (Random text  ) |
-   |                       |                 |
+    #+RESULTS:
+    | (Number of Dances 5 ) | (Random text  ) |
+    | (Number of Dances 5 ) | (Random text  ) |
+    | (Number of Dances 5 ) | (Random text  ) |
+    | (Number of Dances 5 ) | (Random text  ) |
+    | (Number of Dances 5 ) | (Random text  ) |
+    |                       |                 |
    
+*** Functional Test
+**** Steps 1 - 12 all in one
+#+BEGIN_SRC emacs-lisp
+  (defun func-single-dance (columns)
+    (for row in (cdr columns)
+         place from 1 to 7
+         (
+#+END_SRC
