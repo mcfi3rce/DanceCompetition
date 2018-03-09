@@ -414,6 +414,7 @@ We don't know if this will handle the couple who still has a majority
  |    115 |   2 |   1 |   1 |   2 |   2 |     |     |     |
  |    116 |   5 |   4 |   6 |   1 |   3 |     |     |     |
  |    117 |   6 |   2 |   5 |   4 |   6 |     |     |     |
+ |        |     |     |     |     |     |     |     |     |
 
 #+name: totals-rows
  #+BEGIN_SRC emacs-lisp :var dances=dances :results value
@@ -544,10 +545,32 @@ We don't know if this will handle the couple who still has a majority
     (let ((shortened columns))
       (loop for x from 1 to place
             do (setq shortened (cdr shortened)))shortened))
+
+(defun single-complex-majority (row place-val)
+  (let ((number-majorities nil)
+        (tied-majorities nil)
+        (couple-sums nil)
+        (winning-couple nil))
+    (setq number-majorities (find-number-of-majorities row))
+    (case (length number-majorities)
+      (0)
+      (1 (remove-couple (caar number-majorities)))
+      ;; tie-break 1 largest-majority
+      (t (setq tied-majorities (find-couples-with-largest-majority number-majorities))
+         (case (length tied-majorities)
+           (1 (remove-couple (caar tied-majorities)))
+           ;; tie-break 2 sums 
+           (t (setq couple-sums (compare-n-sums tied-majorities place-val)
+                    winning-couple (find-winning-couples couple-sums))
+              ;; since they are sorted from smallest to largest pass them both in
+              (case (length winning-couple)
+                (1 (remove-couples couple-sums)
+                   (1+ place-val))
+                (t couple-sums))))))))
  #+END_SRC 
 ** Testing:
 *** Loop Test
-: This will follow the way the final code will be evaluated:
+    : This will follow the way the final code will be evaluated:
 **** Step 1 - 2: Simple Majority 
 ***** couple 115 has a majority of 5
  #+RESULTS: place-value
@@ -701,8 +724,13 @@ We don't know if this will handle the couple who still has a majority
 *** Functional Test
 **** Steps 1 - 12 all in one
 #+BEGIN_SRC emacs-lisp
-  (defun func-single-dance (columns)
-    (for row in (cdr columns)
-         place from 1 to 7
-         (
+  (loop for place from 1 to 7
+        do (single-complex-majority (elt dance-totals-columns place) place))
 #+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+ places 
+#+END_SRC
+
+#+RESULTS:
+| 115 | 113 | 114 | 116 | 112 | 117 | 111 |
