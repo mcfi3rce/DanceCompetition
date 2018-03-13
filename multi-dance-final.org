@@ -42,7 +42,8 @@
   #+END_SRC
 
   #+RESULTS:
-  : ++
+  
+: ++
 
 *** TODO New way of seeing scores:
  #+name: judge-score
@@ -309,12 +310,19 @@
 *** TODO Handle tied sums to the end
  #+BEGIN_SRC emacs-lisp
    (defun really-tied (tied-couples place)
-     (loop for couple-1 in tied-couples
-           for couple-2 in (rest tied-couples)
-           if (-all-p (lambda (x) (= (cdr x) (cdr couple-1))) tied-couples)
-           do (loop with comparing-columns = (filter-columns tied-couples dance-totals-columns)
+     (loop with still-tied = (remove-if-not (lambda (c) (= (cdar tied-couples)(cdr c))) tied-couples)
+           with not-tied = (remove-if (lambda (c) (= (cdar tied-couples)(cdr c))) tied-couples)
+           with comparing-columns = (filter-columns still-tied dance-totals-columns)
+           for couple in tied-couples
+           when (= (tied-all-the-way comparing-columns) t)
+           do (setq
+               dance-totals-rows (remove (assoc couple dance-totals-rows) dance-totals-rows)
+               dance-totals-columns (transpose dance-totals-rows)
+               places (append places (list still-tied))
+            
+           do (loop 
                     for place from place to 7
-                    do (elt comparing-columns place))))
+                    do (single-complex-majority (elt comparing-columns place) place))))
  #+END_SRC
 
  #+RESULTS:
@@ -322,31 +330,42 @@
 #+BEGIN_SRC emacs-lisp
   (really-tied '((24 . 5)(26 . 5)) 2)
 #+END_SRC
+#+BEGIN_SRC elisp
+  (defun tied-all-the-way (l)
+    (setq l (cdr l)) ;remove the couple names
+    (if (-all-p (lambda (cell) (= (first cell)(second cell))) l)
+        t
+      nil))
+#+END_SRC
+
+#+RESULTS:
+: tied-all-the-way
+
 *** DONE Consolidate functions into one big function
     CLOSED: [2018-03-09 Fri 13:09]
     : We need this to be able to handle the case when couples are tied all the way
    #+BEGIN_SRC emacs-lisp :results output 
-     (defun single-dance (dance-columns)
-           (loop with dance = (cdr dance-columns)
-                 with majority-couples = nil
-                 with tied-majorities = nil
-                 with winning-couples = nil
-                 for place in dance
-                 for place-val from 1 to (length dance)
-                 do
-                 ;; (debug)
-                 (setq majority-couples (find-number-of-majorities place))
-                 ;; (debug)
-                 (case (length majority-couples)
-                   (0)
-                   (1 (remove-couple (caar majority-couples)))
-                   (t (setq tied-majorities (find-couples-with-largest-majority majority-couples))
-                      (case (length tied-majorities)
-                        (1 (remove-couple (caar tied-majorities)))
-                        (t (setq winning-couples (find-winning-couples (compare-n-sums tied-majorities place-val)))
-                           (case (length winning-couples)
-                             (1 (remove-couple winning-couples))
-                             (2 (really-tied tied-majorities place)))))))))
+     (defun single-complex-majority (row place-val)
+       (let ((number-majorities nil)
+             (tied-majorities nil)
+             (couple-sums nil)
+             (winning-couple nil))
+         (setq number-majorities (find-number-of-majorities row))
+         (case (length number-majorities)
+           (0)
+           (1 (remove-couple (caar number-majorities)))
+           ;; tie-break 1 largest-majority
+           (t (setq tied-majorities (find-couples-with-largest-majority number-majorities))
+              (case (length tied-majorities)
+                (1 (remove-couple (caar tied-majorities)))
+                ;; tie-break 2 sums 
+                (t (setq couple-sums (compare-n-sums tied-majorities place-val)
+                         winning-couple (find-winning-couples couple-sums))
+                   ;; since they are sorted from smallest to largest pass them both in
+                   (case (length winning-couple)
+                     (1 (remove-couples couple-sums)
+                        couple-sums)
+                     (t couple-sums))))))))
  #+END_SRC 
 
  #+RESULTS:
@@ -521,6 +540,13 @@
             places (append places (list couple))
             )))
 
+  (defun remove-tied (tied-couples)
+    (setq places (append places (list tied-couples)))
+    (loop for couple in tied-couples
+          do (setq dance-totals-rows (remove (assoc couple dance-totals-rows) dance-totals-rows)
+                   dance-totals-columns (transpose dance-totals-rows)
+                   couples (remove couple couples))))
+
   (defun remove-couples (majority-couples)
     (mapcar 'remove-couple (mapcar 'car majority-couples)))
 
@@ -565,9 +591,10 @@
       (loop for x from 1 to place
             do (setq shortened (cdr shortened)))shortened))
 
-(defun filter-columns (filter-couples columns)
-  (let ((edited (transpose columns)))
-   (transpose (mapcar (lambda (x) (assoc x edited)) (mapcar 'car filter-couples)))))
+  (defun filter-columns (filter-couples columns)
+    ;;Takes is a list of couples '((couple . sum)(couple . sum)) and then adds in only those couples
+    (let ((edited (transpose columns)))
+      (transpose (mapcar (lambda (x) (assoc x edited)) (mapcar 'car filter-couples)))))
 
   (defun single-complex-majority (row place-val)
     (let ((number-majorities nil)
@@ -739,3 +766,4 @@
 | 5 | 112 |
 | 6 | 117 |
 | 7 | 111 |
+|   |     |
