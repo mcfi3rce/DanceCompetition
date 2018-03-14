@@ -325,31 +325,46 @@ This function doesn't really work independent
 |   5 |   5 |   5 |   5 |   5 |   5 |   5 |
 
 ** Multi Dance:
-*** Swap the car and cdr for convenience:
-   #+BEGIN_SRC emacs-lisp
-     (require 'cl)
-     (defun car-to-cdr (list)
-       (mapcar (lambda (pair) (swap (car pair)(cadr pair))) list))
-
-     (defmacro swap (a b)
-       `(psetf ,a ,b
-               ,b ,a))
-#+END_SRC 
-
+*** DONE Swap the car and cdr for convenience:
+    CLOSED: [2018-03-13 Tue 23:13]
 #+RESULTS:
 : swap
+#+BEGIN_SRC emacs-lisp
+  (car-to-cdr dances-couple-scores)
+  dances-couple-scores
+#+END_SRC
 
-*** Build the values of the scores at for each place
-   #+BEGIN_SRC emacs-lisp
-     (defun final-scores (couples-list)
-       (loop for couple in couples-list
-             collect (append (list couple) (loop  for (value couple-num) in dances-couple-scores
-                                                  when (= couple couple-num)
-                                                  collect value))))
-   #+END_SRC 
+#+RESULTS:
+| 1 | 115 |
+| 2 | 113 |
+| 3 | 114 |
+| 4 | 116 |
+| 5 | 112 |
+| 6 | 117 |
+| 7 | 111 |
+| 1 | 115 |
+| 2 | 114 |
+| 3 | 113 |
+| 4 | 112 |
+| 5 | 117 |
+| 6 | 116 |
+| 7 | 111 |
+| 1 | 115 |
+| 2 | 113 |
+| 3 | 114 |
+| 4 | 116 |
+| 5 | 117 |
+| 6 | 112 |
+| 7 | 111 |
+| 1 | 115 |
+| 2 | 113 |
+| 3 | 114 |
+| 4 | 112 |
+| 5 | 116 |
+| 6 | 117 |
+| 7 | 111 |
 
-   #+RESULTS:
-   : final-scores
+*** DONE Build the values of the scores at for each place
 #+BEGIN_SRC emacs-lisp
  (couple-scores couples) 
 #+END_SRC
@@ -377,7 +392,8 @@ This function doesn't really work independent
              ;; display final summary table and provide final score and ranks
              ) 
 #+END_SRC 
-*** Sum the values for each couples
+*** DONE Sum the values for each couples
+    CLOSED: [2018-03-13 Tue 23:13]
    #+BEGIN_SRC emacs-lisp :results value
      (defun final-sum-values (rows)
        (mapcar (lambda (couple) (list (car couple) (apply '+ (cdr couple)))) rows))
@@ -387,7 +403,7 @@ This function doesn't really work independent
    : final-sum-values
 
 #+BEGIN_SRC emacs-lisp
-  (final-sum-values final-couple-rows) 
+  (final-sum-values couple-scores) 
 #+END_SRC
 
 #+RESULTS:
@@ -398,6 +414,25 @@ This function doesn't really work independent
 | 115 |  4 |
 | 116 | 19 |
 | 117 | 22 |
+
+*** DONE Make a list of all values for checking ties
+    CLOSED: [2018-03-13 Tue 23:13]
+#+RESULTS:
+: all-sum-values
+#+BEGIN_SRC emacs-lisp
+  (all-sum-values final-couple-sums)
+#+END_SRC
+
+#+RESULTS:
+| 28 | 19 | 9 | 11 | 4 | 19 | 22 |
+
+*** See what happens with calculate-majority
+   #+BEGIN_SRC emacs-lisp
+     (find-number-of-majorities (second totals-columns))
+#+END_SRC 
+
+#+RESULTS:
+: ((115 . 4))
 
 * Testing:
   *Evaluate this before testing*
@@ -933,24 +968,49 @@ This function doesn't really work independent
  | 6 | 117 |
  | 7 | 111 |
 
-*** Set couple scores:
-#+BEGIN_SRC emacs-lisp :var cha-cha=cha-cha-results swing=swing-results rumba=rumba-results mambo=mambo-results
-  (setq dances-couple-scores (append cha-cha rumba swing mambo)
-        couple-scores (final-scores couples)
-        final-couple-columns (transpose final-couple-rows)
-        number-of-places (length (first final-couple-columns))
-        totals (calculate-totals couple-scores number-of-places)
-        totals-columns (create-dance-columns totals couples)
-        totals-rows (transpose totals-column))
+**** Set couple scores:
+ #+BEGIN_SRC emacs-lisp :var cha-cha=cha-cha-results swing=swing-results rumba=rumba-results mambo=mambo-results
+   (setq dances-couple-scores (append cha-cha rumba swing mambo)
+         couple-scores (final-scores couples)
+         final-couple-sums (final-sum-values couple-scores)
+         sum-values (all-sum-values final-couple-sums)
+         final-couple-columns (transpose final-couple-rows)
+         number-of-places (length (first final-couple-columns))
+         totals (calculate-totals couple-scores number-of-places)
+         totals-columns (create-dance-columns totals couples)
+         totals-rows (transpose totals-column))
+ #+END_SRC
+
+ #+RESULTS:
+ | 111 | 0 | 0 | 0 | 0 | 0 | 0 | 4 |
+ | 112 | 0 | 0 | 0 | 2 | 3 | 4 | 4 |
+ | 113 | 0 | 3 | 4 | 4 | 4 | 4 | 4 |
+ | 114 | 0 | 1 | 4 | 4 | 4 | 4 | 4 |
+ | 115 | 4 | 4 | 4 | 4 | 4 | 4 | 4 |
+ | 116 | 0 | 0 | 0 | 2 | 3 | 4 | 4 |
+ | 117 | 0 | 0 | 0 | 0 | 2 | 4 | 4 |
+
+*** Functions:
+#+BEGIN_SRC emacs-lisp :results silent
+ (require 'cl)
+     (defun car-to-cdr (list)
+       (mapcar (lambda (pair) (swap (car pair)(cadr pair))) list))
+
+     (defmacro swap (a b)
+       `(psetf ,a ,b
+               ,b ,a)) 
+(defun final-scores (couples-list)
+       (loop for couple in couples-list
+             collect (append (list couple) (loop  for (value couple-num) in dances-couple-scores
+                                                  when (= couple couple-num)
+                                                  collect value))))
+(defun all-sum-values (couple-sums)
+       (apply 'append (mapcar 'cdr couple-sums)))
 #+END_SRC
 
 #+RESULTS:
-| 111 | 0 | 0 | 0 | 0 | 0 | 0 | 4 |
-| 112 | 0 | 0 | 0 | 2 | 3 | 4 | 4 |
-| 113 | 0 | 3 | 4 | 4 | 4 | 4 | 4 |
-| 114 | 0 | 1 | 4 | 4 | 4 | 4 | 4 |
-| 115 | 4 | 4 | 4 | 4 | 4 | 4 | 4 |
-| 116 | 0 | 0 | 0 | 2 | 3 | 4 | 4 |
-| 117 | 0 | 0 | 0 | 0 | 2 | 4 | 4 |
+: all-sum-values
 
-
+*** Testing:
+    Here we will attempt to work through the problem with the existing code
+    
