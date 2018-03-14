@@ -468,21 +468,22 @@ This function doesn't really work independent
    (defun ++ (l1 l2)
      (mapcar* '+ l1 l2))
 
- (defun calculate-totals (dance number-of-places)
-      (loop for place from 1 to number-of-places
-             collect (extract-place place dance)))  
+   (defun calculate-totals (dance number-of-places)
+     (loop for place from 1 to number-of-places
+           collect (extract-place place dance)))  
 
-    (defun create-dance-columns (totals-val couples-list)
-      (append (list couples-list)(loop with sum-row = (make-list (length (first totals)) 0)
-                                   for row in (butlast totals-val)
-                                   do (setq sum-row (++ row sum-row))
-                                   collect sum-row)))
+   (defun create-dance-columns (totals-val couples-list)
+     (append (list couples-list)(loop with sum-row = (make-list (length (first totals-val)) 0)
+                                      for row in totals-val
+                                      do (setq sum-row (++ row sum-row))
+                                      collect sum-row)))
 
    (defun extract-place (n dances)
      (mapcar (lambda (row)
                (loop for score in (remove-if 'stringp row)
                      count (= n score)))
              dances))
+
    (setq couples (mapcar 'first dances)
          couples-line (list couples 'hline)
          couple-scores (mapcar (lambda (row)
@@ -498,13 +499,13 @@ This function doesn't really work independent
  #+END_SRC
 
   #+RESULTS: totals-rows
-  | 111 | 0 | 0 | 0 | 0 | 0 | 2 | 5 |
-  | 112 | 0 | 0 | 1 | 1 | 3 | 5 | 5 |
-  | 113 | 2 | 3 | 5 | 5 | 5 | 5 | 5 |
-  | 114 | 0 | 1 | 2 | 5 | 5 | 5 | 5 |
-  | 115 | 3 | 5 | 5 | 5 | 5 | 5 | 5 |
-  | 116 | 0 | 0 | 1 | 3 | 4 | 5 | 5 |
-  | 117 | 0 | 1 | 1 | 1 | 3 | 3 | 5 |
+  | 111 | 0 | 0 | 0 | 0 | 0 | 2 | 5 | 5 |
+  | 112 | 0 | 0 | 1 | 1 | 3 | 5 | 5 | 5 |
+  | 113 | 2 | 3 | 5 | 5 | 5 | 5 | 5 | 5 |
+  | 114 | 0 | 1 | 2 | 5 | 5 | 5 | 5 | 5 |
+  | 115 | 3 | 5 | 5 | 5 | 5 | 5 | 5 | 5 |
+  | 116 | 0 | 0 | 1 | 3 | 4 | 5 | 5 | 5 |
+  | 117 | 0 | 1 | 1 | 1 | 3 | 3 | 5 | 5 |
 
  #+NAME: totals-columns
  #+BEGIN_SRC elisp
@@ -937,14 +938,19 @@ This function doesn't really work independent
   (setq dances-couple-scores (append cha-cha rumba swing mambo)
         couple-scores (final-scores couples)
         final-couple-columns (transpose final-couple-rows)
-        totals (loop for place from 1 to number-of-places
-                     collect (extract-place place dances))
-        )
+        number-of-places (length (first final-couple-columns))
+        totals (calculate-totals couple-scores number-of-places)
+        totals-columns (create-dance-columns totals couples)
+        totals-rows (transpose totals-column))
 #+END_SRC
 
 #+RESULTS:
-| 111 | 112 | 113 | 114 | 115 | 116 | 117 |
-|   7 |   5 |   2 |   3 |   1 |   4 |   6 |
-|   7 |   4 |   3 |   2 |   1 |   6 |   5 |
-|   7 |   6 |   2 |   3 |   1 |   4 |   5 |
-|   7 |   4 |   2 |   3 |   1 |   5 |   6 |
+| 111 | 0 | 0 | 0 | 0 | 0 | 0 | 4 |
+| 112 | 0 | 0 | 0 | 2 | 3 | 4 | 4 |
+| 113 | 0 | 3 | 4 | 4 | 4 | 4 | 4 |
+| 114 | 0 | 1 | 4 | 4 | 4 | 4 | 4 |
+| 115 | 4 | 4 | 4 | 4 | 4 | 4 | 4 |
+| 116 | 0 | 0 | 0 | 2 | 3 | 4 | 4 |
+| 117 | 0 | 0 | 0 | 0 | 2 | 4 | 4 |
+
+
