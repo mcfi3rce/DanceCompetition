@@ -217,45 +217,63 @@ NOTE: if the number does not appear in the list, you may type it in
 #+RESULTS:
 | 3 |
 
-#+BEGIN_SRC elisp :results raw
+#+BEGIN_SRC elisp :results value
 (setq num_judges (get-checkbox-list-values "number_judges"))
 #+END_SRC
 
 #+RESULTS:
-(3)
-(3)
+| 3 |
 
-#+BEGIN_SRC elisp :results silent
+
+
+#+BEGIN_SRC elisp :results value
 (setf num_couples (get-checkbox-list-values "number_couples"))
 #+END_SRC
+
+#+RESULTS:
+| 5 |
 
 
 ** TODO _Automate Table_
 
+#+BEGIN_SRC elisp :return value 
+  (setq j-letters '(A B C D E F G H I J K L M N O P Q R S T U V W X Y Z))
+
+
+  (defun header (num_judges)
+    (list (append '(Couple) (subseq j-letters 0 (truncate (car num_judges))))))
+
+  (defun body (num_couples)
+    (loop for couple from 0 to num_couples
+      collect(list "")))
+#+END_SRC
+
+#+RESULTS:
+: body
+
+
 #+BEGIN_SRC elisp results oututs 
-(defun build-tables (num_judges num_couples num_dances)
-)
-#+END_SRC
-
-
-#+BEGIN_SRC elisp 
-  (defun printer ()
-   (print "| Couple |")
-   (loop for i in 10
-    (print "couples")
-    (+ i 1))
-    )
+  (defun build-tables (num_judges num_couples)
+    (append(header num_judges)(list 'hline)(body num_couples)))
 #+END_SRC
 
 #+RESULTS:
-: printer
+: build-tables
 
-#+BEGIN_SRC elisp :results raw
-(printer)
+#+BEGIN_SRC elisp
+(build-tables '(5) 5)
 #+END_SRC
 
 #+RESULTS:
-:  A |
+| Couple | A | B | C | D | E |
+|--------+---+---+---+---+---|
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+
 
 #+BEGIN_SRC elisp
 (format "%s" (list 1 2 3))
@@ -273,23 +291,21 @@ NOTE: if the number does not appear in the list, you may type it in
 | 3 |
 
 
-#+BEGIN_SRC elisp :return value 
-  (setq j-letters '(A B C D E))
-
-
-  (defun header (num_judges)
-    (list (append '(couple) (subseq j-letters 0 (truncate (car num_judges))))))
-
+#+BEGIN_SRC elisp
+(header '(3))
 #+END_SRC
 
 #+RESULTS:
-: header
+| couple | A | B | C |
 
 #+BEGIN_SRC elisp
-(header num_judges)
+(body 5)
 #+END_SRC
 
 #+RESULTS:
-| couple | A | B | C | D | E |
-
-
+|   |
+|   |
+|   |
+|   |
+|   |
+|   |
