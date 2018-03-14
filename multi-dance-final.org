@@ -292,7 +292,77 @@ This function doesn't really work independent
 *** DONE Shorten length of rows by place
     CLOSED: [2018-03-09 Fri 00:19]
     *removed*
+*** DONE Make a function to calculate-totals
+    CLOSED: [2018-03-13 Tue 22:37]
+
+#+BEGIN_SRC emacs-lisp :var dances=swing
+ (calculate-totals dances 7)
+#+END_SRC
+
+#+RESULTS:
+| 0 | 0 | 2 | 0 | 3 | 0 | 0 |
+| 0 | 0 | 1 | 1 | 2 | 0 | 1 |
+| 0 | 1 | 2 | 1 | 0 | 1 | 0 |
+| 0 | 0 | 0 | 3 | 0 | 2 | 0 |
+| 0 | 2 | 0 | 0 | 0 | 1 | 2 |
+| 2 | 2 | 0 | 0 | 0 | 1 | 0 |
+| 3 | 0 | 0 | 0 | 0 | 0 | 2 |
+
+*** DONE Make a function to create the columns of totals
+    CLOSED: [2018-03-13 Tue 22:40]
+#+BEGIN_SRC emacs-lisp
+ (create-dance-column totals couples) 
+#+END_SRC
+
+#+RESULTS:
+| 111 | 112 | 113 | 114 | 115 | 116 | 117 |
+|   0 |   0 |   2 |   0 |   3 |   0 |   0 |
+|   0 |   0 |   3 |   1 |   5 |   0 |   1 |
+|   0 |   1 |   5 |   2 |   5 |   1 |   1 |
+|   0 |   1 |   5 |   5 |   5 |   3 |   1 |
+|   0 |   3 |   5 |   5 |   5 |   4 |   3 |
+|   2 |   5 |   5 |   5 |   5 |   5 |   3 |
+|   5 |   5 |   5 |   5 |   5 |   5 |   5 |
+
 ** Multi Dance:
+*** Swap the car and cdr for convenience:
+   #+BEGIN_SRC emacs-lisp
+     (require 'cl)
+     (defun car-to-cdr (list)
+       (mapcar (lambda (pair) (swap (car pair)(cadr pair))) list))
+
+     (defmacro swap (a b)
+       `(psetf ,a ,b
+               ,b ,a))
+#+END_SRC 
+
+#+RESULTS:
+: swap
+
+*** Build the values of the scores at for each place
+   #+BEGIN_SRC emacs-lisp
+     (defun final-scores (couples-list)
+       (loop for couple in couples-list
+             collect (append (list couple) (loop  for (value couple-num) in dances-couple-scores
+                                                  when (= couple couple-num)
+                                                  collect value))))
+   #+END_SRC 
+
+   #+RESULTS:
+   : final-scores
+#+BEGIN_SRC emacs-lisp
+ (couple-scores couples) 
+#+END_SRC
+
+#+RESULTS:
+| 111 | 7 | 7 | 7 | 7 |
+| 112 | 5 | 4 | 6 | 4 |
+| 113 | 2 | 3 | 2 | 2 |
+| 114 | 3 | 2 | 3 | 3 |
+| 115 | 1 | 1 | 1 | 1 |
+| 116 | 4 | 6 | 4 | 5 |
+| 117 | 6 | 5 | 5 | 6 |
+
 #+BEGIN_SRC emacs-lisp
              (defun multi-dance()
              ;; gather number of judges
@@ -307,107 +377,32 @@ This function doesn't really work independent
              ;; display final summary table and provide final score and ranks
              ) 
 #+END_SRC 
+*** Sum the values for each couples
+   #+BEGIN_SRC emacs-lisp :results value
+     (defun final-sum-values (rows)
+       (mapcar (lambda (couple) (list (car couple) (apply '+ (cdr couple)))) rows))
+   #+END_SRC 
+
+   #+RESULTS:
+   : final-sum-values
+
+#+BEGIN_SRC emacs-lisp
+  (final-sum-values final-couple-rows) 
+#+END_SRC
+
+#+RESULTS:
+| 111 | 28 |
+| 112 | 19 |
+| 113 |  9 |
+| 114 | 11 |
+| 115 |  4 |
+| 116 | 19 |
+| 117 | 22 |
+
 * Testing:
   *Evaluate this before testing*
 ** Single-Dance:
 *** Data:
-**** Rule 11 Test:
- #+tblname: cha_cha
- | Couple | 	A | 	B | 	C | 	D | 	E |
- |--------+-----+-----+-----+-----+-----|
- |    111 |   7 |   7 |   7 |   7 |   7 |
- |    112 |   4 |   6 |   3 |   6 |   4 |
- |    113 |   1 |   5 |   2 |   3 |   5 |
- |    114 |   3 |   3 |   4 |   5 |   1 |
- |    115 |   2 |   1 |   1 |   2 |   2 |
- |    116 |   5 |   4 |   6 |   1 |   3 |
- |    117 |   6 |   2 |   5 |   4 |   6 |
-
- #+BEGIN_SRC emacs-lisp
-   (score-single-dance 7)
- #+END_SRC
-
- #+RESULTS:
- | 1 | 115 |
- | 2 | 113 |
- | 3 | 114 |
- | 4 | 116 |
- | 5 | 112 |
- | 6 | 117 |
- | 7 | 111 |
-
- #+tblname: rumba
- | Couple | 	A | 	B | 	C | 	D | 	E |
- |--------+-----+-----+-----+-----+-----|
- |    111 |   7 |   7 |   7 |   7 |   7 |
- |    112 |   4 |   6 |   3 |   6 |   4 |
- |    113 |   2 |   4 |   2 |   5 |   6 |
- |    114 |   3 |   3 |   4 |   2 |   2 |
- |    115 |   1 |   1 |   1 |   1 |   1 |
- |    116 |   5 |   5 |   6 |   4 |   3 |
- |    117 |   6 |   2 |   5 |   3 |   5 |
-
- #+BEGIN_SRC emacs-lisp
-   (score-single-dance 7)
- #+END_SRC
-
- #+RESULTS:
- | 1 | 115 |
- | 2 | 114 |
- | 3 | 113 |
- | 4 | 112 |
- | 5 | 117 |
- | 6 | 116 |
- | 7 | 111 |
-
- #+tblname: swing
- | Couple | 	A | 	B | 	C | 	D | 	E |
- |--------+-----+-----+-----+-----+-----|
- |    111 |   6 |   7 |   7 |   7 |   6 |
- |    112 |   5 |   6 |   3 |   6 |   5 |
- |    113 |   3 |   3 |   1 |   2 |   1 |
- |    114 |   2 |   4 |   4 |   3 |   4 |
- |    115 |   1 |   1 |   2 |   1 |   2 |
- |    116 |   4 |   5 |   6 |   4 |   3 |
- |    117 |   7 |   2 |   5 |   5 |   7 |
-
- #+BEGIN_SRC emacs-lisp
-   (score-single-dance 7)
- #+END_SRC
-
- #+RESULTS:
- | 1 | 115 |
- | 2 | 113 |
- | 3 | 114 |
- | 4 | 116 |
- | 5 | 117 |
- | 6 | 112 |
- | 7 | 111 |
-
- #+tblname: mambo
- | Couple | 	A | 	B | 	C | 	D | 	E |
- |--------+-----+-----+-----+-----+-----|
- |    111 |   7 |   7 |   7 |   7 |   6 |
- |    112 |   4 |   6 |   1 |   5 |   5 |
- |    113 |   2 |   2 |   3 |   2 |   1 |
- |    114 |   3 |   4 |   4 |   3 |   3 |
- |    115 |   1 |   1 |   2 |   1 |   2 |
- |    116 |   5 |   5 |   6 |   4 |   4 |
- |    117 |   6 |   3 |   5 |   6 |   7 |
-
- #+BEGIN_SRC emacs-lisp
-   (score-single-dance 7)
- #+END_SRC
-
- #+RESULTS:
- | 1 | 115 |
- | 2 | 113 |
- | 3 | 114 |
- | 4 | 112 |
- | 5 | 116 |
- | 6 | 117 |
- | 7 | 111 |
-
 **** Example Tables 
   #+tblname: ex-128
   | Couple | 	A | 	B | 	C | 	D | 	E | 	F | 	G | 	H |
@@ -473,6 +468,16 @@ This function doesn't really work independent
    (defun ++ (l1 l2)
      (mapcar* '+ l1 l2))
 
+ (defun calculate-totals (dance number-of-places)
+      (loop for place from 1 to number-of-places
+             collect (extract-place place dance)))  
+
+    (defun create-dance-columns (totals-val couples-list)
+      (append (list couples-list)(loop with sum-row = (make-list (length (first totals)) 0)
+                                   for row in (butlast totals-val)
+                                   do (setq sum-row (++ row sum-row))
+                                   collect sum-row)))
+
    (defun extract-place (n dances)
      (mapcar (lambda (row)
                (loop for score in (remove-if 'stringp row)
@@ -487,12 +492,8 @@ This function doesn't really work independent
          majority (calculate-majority (cdr (first dances)))
          number-of-places (1+ (length couples))
          places ()
-         totals (loop for place from 1 to number-of-places
-                      collect (extract-place place dances))
-         dance-totals-columns (append (list couples)(loop with sum-row = (make-list (length (first totals)) 0)
-                                                    for row in (butlast totals)
-                                                    do (setq sum-row (++ row sum-row))
-                                                    collect sum-row))
+         totals (calculate-totals dances number-of-places)
+         dance-totals-columns (create-dance-columns totals couples)
          dance-totals-rows (transpose dance-totals-columns))
  #+END_SRC
 
@@ -511,18 +512,19 @@ This function doesn't really work independent
  #+END_SRC
 
  #+RESULTS: totals-columns
- | 21 | 22 | 23 | 24 | 25 |
- |  1 |  1 |  1 |  1 |  1 |
- |  2 |  2 |  2 |  2 |  2 |
- |  3 |  3 |  3 |  3 |  3 |
- |  4 |  4 |  4 |  4 |  4 |
- |  5 |  5 |  5 |  5 |  5 |
- |  5 |  5 |  5 |  5 |  5 |
+ | 111 | 112 | 113 | 114 | 115 | 116 | 117 |
+ |   0 |   0 |   2 |   0 |   3 |   0 |   0 |
+ |   0 |   0 |   3 |   1 |   5 |   0 |   1 |
+ |   0 |   1 |   5 |   2 |   5 |   1 |   1 |
+ |   0 |   1 |   5 |   5 |   5 |   3 |   1 |
+ |   0 |   3 |   5 |   5 |   5 |   4 |   3 |
+ |   2 |   5 |   5 |   5 |   5 |   5 |   3 |
+ |   5 |   5 |   5 |   5 |   5 |   5 |   5 |
 
  *Next evaluate the functions next*
 *** Functions:
  #+BEGIN_SRC emacs-lisp :results silent 
-   (defun find-number-of-majorities (row)
+(defun find-number-of-majorities (row)
      (sort (loop 
             for value in row
             for position from 0
@@ -828,3 +830,121 @@ This function doesn't really work independent
  | 7 | 111 |
 
 ** Multi-Dance:
+*** Data:
+**** Rule 11 Test:
+ #+tblname: cha-cha
+ | Couple | 	A | 	B | 	C | 	D | 	E |
+ |--------+-----+-----+-----+-----+-----|
+ |    111 |   7 |   7 |   7 |   7 |   7 |
+ |    112 |   4 |   6 |   3 |   6 |   4 |
+ |    113 |   1 |   5 |   2 |   3 |   5 |
+ |    114 |   3 |   3 |   4 |   5 |   1 |
+ |    115 |   2 |   1 |   1 |   2 |   2 |
+ |    116 |   5 |   4 |   6 |   1 |   3 |
+ |    117 |   6 |   2 |   5 |   4 |   6 |
+
+ #+BEGIN_SRC emacs-lisp
+   (score-single-dance 7)
+ #+END_SRC
+
+ #+tblname: cha-cha-results
+ #+RESULTS:
+ | 1 | 115 |
+ | 2 | 113 |
+ | 3 | 114 |
+ | 4 | 116 |
+ | 5 | 112 |
+ | 6 | 117 |
+ | 7 | 111 |
+
+ #+tblname: rumba
+ | Couple | 	A | 	B | 	C | 	D | 	E |
+ |--------+-----+-----+-----+-----+-----|
+ |    111 |   7 |   7 |   7 |   7 |   7 |
+ |    112 |   4 |   6 |   3 |   6 |   4 |
+ |    113 |   2 |   4 |   2 |   5 |   6 |
+ |    114 |   3 |   3 |   4 |   2 |   2 |
+ |    115 |   1 |   1 |   1 |   1 |   1 |
+ |    116 |   5 |   5 |   6 |   4 |   3 |
+ |    117 |   6 |   2 |   5 |   3 |   5 |
+
+ #+BEGIN_SRC emacs-lisp
+   (score-single-dance 7)
+ #+END_SRC
+
+ #+tblname: rumba-results
+ #+RESULTS:
+ | 1 | 115 |
+ | 2 | 114 |
+ | 3 | 113 |
+ | 4 | 112 |
+ | 5 | 117 |
+ | 6 | 116 |
+ | 7 | 111 |
+
+ #+tblname: swing
+ | Couple | 	A | 	B | 	C | 	D | 	E |
+ |--------+-----+-----+-----+-----+-----|
+ |    111 |   6 |   7 |   7 |   7 |   6 |
+ |    112 |   5 |   6 |   3 |   6 |   5 |
+ |    113 |   3 |   3 |   1 |   2 |   1 |
+ |    114 |   2 |   4 |   4 |   3 |   4 |
+ |    115 |   1 |   1 |   2 |   1 |   2 |
+ |    116 |   4 |   5 |   6 |   4 |   3 |
+ |    117 |   7 |   2 |   5 |   5 |   7 |
+
+ #+BEGIN_SRC emacs-lisp
+   (score-single-dance 7)
+ #+END_SRC
+
+ #+tblname: swing-results
+ #+RESULTS:
+ | 1 | 115 |
+ | 2 | 113 |
+ | 3 | 114 |
+ | 4 | 116 |
+ | 5 | 117 |
+ | 6 | 112 |
+ | 7 | 111 |
+
+ #+tblname: mambo
+ | Couple | 	A | 	B | 	C | 	D | 	E |
+ |--------+-----+-----+-----+-----+-----|
+ |    111 |   7 |   7 |   7 |   7 |   6 |
+ |    112 |   4 |   6 |   1 |   5 |   5 |
+ |    113 |   2 |   2 |   3 |   2 |   1 |
+ |    114 |   3 |   4 |   4 |   3 |   3 |
+ |    115 |   1 |   1 |   2 |   1 |   2 |
+ |    116 |   5 |   5 |   6 |   4 |   4 |
+ |    117 |   6 |   3 |   5 |   6 |   7 |
+
+ #+BEGIN_SRC emacs-lisp
+   (score-single-dance 7)
+ #+END_SRC
+
+ #+tblname: mambo-results
+ #+RESULTS:
+ | 1 | 115 |
+ | 2 | 113 |
+ | 3 | 114 |
+ | 4 | 112 |
+ | 5 | 116 |
+ | 6 | 117 |
+ | 7 | 111 |
+
+*** Set couple scores:
+#+BEGIN_SRC emacs-lisp :var cha-cha=cha-cha-results swing=swing-results rumba=rumba-results mambo=mambo-results
+  (setq dances-couple-scores (append cha-cha rumba swing mambo)
+        couple-scores (final-scores couples)
+        final-couple-columns (transpose final-couple-rows)
+        totals (loop for place from 1 to number-of-places
+                     collect (extract-place place dances))
+        )
+#+END_SRC
+
+#+RESULTS:
+| 111 | 112 | 113 | 114 | 115 | 116 | 117 |
+|   7 |   5 |   2 |   3 |   1 |   4 |   6 |
+|   7 |   4 |   3 |   2 |   1 |   6 |   5 |
+|   7 |   6 |   2 |   3 |   1 |   4 |   5 |
+|   7 |   4 |   2 |   3 |   1 |   5 |   6 |
