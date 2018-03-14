@@ -217,15 +217,22 @@ NOTE: if the number does not appear in the list, you may type it in
 #+RESULTS:
 | 3 |
 
-#+BEGIN_SRC elisp :results silent
-(setf num_judges (get-checkbox-list-values "number_judges"))
+#+BEGIN_SRC elisp :results raw
+(setq num_judges (get-checkbox-list-values "number_judges"))
 #+END_SRC
+
+#+RESULTS:
+(3)
+(3)
 
 #+BEGIN_SRC elisp :results silent
 (setf num_couples (get-checkbox-list-values "number_couples"))
 #+END_SRC
 
-#+BEGIN_SRC elisp results oututs :var num_judges=number_judges num_couples=number_couples num_dances=number_dances
+
+** TODO _Automate Table_
+
+#+BEGIN_SRC elisp results oututs 
 (defun build-tables (num_judges num_couples num_dances)
 )
 #+END_SRC
@@ -267,20 +274,22 @@ NOTE: if the number does not appear in the list, you may type it in
 
 
 #+BEGIN_SRC elisp :return value 
-  (setq jLetters '(A B C D E))
+  (setq j-letters '(A B C D E))
 
 
-  (defun looper (num_judges)
-    (loop for x from 1 to (car num_judges)
-          collect (list ("Couples")(jletters))))
+  (defun header (num_judges)
+    (list (append '(couple) (subseq j-letters 0 (truncate (car num_judges))))))
+
 #+END_SRC
 
 #+RESULTS:
-: looper
+: header
 
 #+BEGIN_SRC elisp
-(looper (symbol-value 'num_judges))
+(header num_judges)
 #+END_SRC
 
 #+RESULTS:
-: 5
+| couple | A | B | C | D | E |
+
+
