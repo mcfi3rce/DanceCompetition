@@ -396,7 +396,8 @@ This function doesn't really work independent
     CLOSED: [2018-03-13 Tue 23:13]
    #+BEGIN_SRC emacs-lisp :results value
      (defun final-sum-values (rows)
-       (mapcar (lambda (couple) (list (car couple) (apply '+ (cdr couple)))) rows))
+       (sort (mapcar (lambda (couple) (list (car couple) (apply '+ (cdr couple)))) rows)
+             (lambda (a b) (< (cadr a) (cadr b)))))
    #+END_SRC 
 
    #+RESULTS:
@@ -407,13 +408,13 @@ This function doesn't really work independent
 #+END_SRC
 
 #+RESULTS:
-| 111 | 28 |
-| 112 | 19 |
+| 115 |  4 |
 | 113 |  9 |
 | 114 | 11 |
-| 115 |  4 |
+| 112 | 19 |
 | 116 | 19 |
 | 117 | 22 |
+| 111 | 28 |
 
 *** DONE Make a list of all values for checking ties
     CLOSED: [2018-03-13 Tue 23:13]
@@ -977,8 +978,8 @@ This function doesn't really work independent
          final-couple-columns (transpose final-couple-rows)
          number-of-places (length (first final-couple-columns))
          totals (calculate-totals couple-scores number-of-places)
-         totals-columns (create-dance-columns totals couples)
-         totals-rows (transpose totals-column))
+         dance-totals-columns (create-dance-columns totals couples)
+         dance-totals-rows (transpose totals-column))
  #+END_SRC
 
  #+RESULTS:
@@ -1013,4 +1014,11 @@ This function doesn't really work independent
 
 *** Testing:
     Here we will attempt to work through the problem with the existing code
-    
+**** Procedural 
+***** Step 1:
+      Remove all couples in the order of lowest to highest until we have a tie
+     #+BEGIN_SRC emacs-lisp
+       (loop for (couple sum) in final-couple-sums
+      
+#+END_SRC 
+      
