@@ -912,7 +912,7 @@ couples
      (if (null (cdr couple-sums))
          (progn
            (remove-couple (caar couple-sums))
-           (remove-couple (caar couple-sums)))
+           (remove-sum (caar couple-sums)))
        (loop for (couple sum) in couple-sums
              for (next-couple next-sum) in (cdr couple-sums)
              for place from 1 to number-of-places
@@ -1268,10 +1268,6 @@ couples
 
 #+RESULTS:
 
-#+BEGIN_SRC emacs-lisp
-dance-totals-rows
-#+END_SRC
-#+RESULTS:
 
 : it works properly now and removes the proper couples
 
@@ -1288,13 +1284,17 @@ dance-totals-rows
 #+RESULTS:
 | 117 | 22 |
 | 111 | 28 |
+***** TODO Reset the global values:   
+#+BEGIN_SRC emacs-lisp
+
+#+END_SRC
+
 ***** Remove the remaining dances
     #+BEGIN_SRC emacs-lisp
       (remove-untied-couples final-couple-sums)
     #+END_SRC
 
     #+RESULTS:
-    | 115 | 113 | 114 | 116 | 112 | 117 | 111 | 111 |
 ***** Print the outcome
      #+BEGIN_SRC emacs-lisp
        (print-standings places)
@@ -1307,4 +1307,3 @@ dance-totals-rows
 | 4 | 116 |
 | 5 | 112 |
 | 6 | 117 |
-| 7 | 111 |
