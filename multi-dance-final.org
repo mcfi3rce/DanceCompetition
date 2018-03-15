@@ -1165,6 +1165,15 @@ couples
  | 116 | 0 | 0 | 0 | 2 | 3 | 4 | 4 |
  | 117 | 0 | 0 | 0 | 0 | 2 | 4 | 4 |
 
+ #+RESULT:
+ | 111 | 0 | 0 | 0 | 0 | 0 | 0 | 4 |
+ | 112 | 0 | 0 | 0 | 2 | 3 | 4 | 4 |
+ | 113 | 0 | 3 | 4 | 4 | 4 | 4 | 4 |
+ | 114 | 0 | 1 | 4 | 4 | 4 | 4 | 4 |
+ | 115 | 4 | 4 | 4 | 4 | 4 | 4 | 4 |
+ | 116 | 0 | 0 | 0 | 2 | 3 | 4 | 4 |
+ | 117 | 0 | 0 | 0 | 0 | 2 | 4 | 4 |
+
 *** Testing:
     Here we will attempt to work through the problem with the existing code
 **** Procedural 
@@ -1174,7 +1183,7 @@ couples
 #+END_SRC
 
 #+RESULTS:
-: 3
+: 4
 
 : the place we are looking to solve
 #+RESULTS:
@@ -1252,23 +1261,19 @@ couples
  (setq final-dance (append cha-cha rumba swing mambo))
 #+END_SRC
 
-   #+BEGIN_SRC emacs-lisp
-     (setq rule-11-dance-rows (rule-11-rows '(112 116) final-dance)
-           rule-11-dance-columns (transpose rule-11-dance-rows)
-           majority (1+ (/ (length (cdr (first rule-11-dance-rows))) 2))
-           starting-place 4
-           totals (calculate-totals rule-11-dance-rows number-of-places)
-           dance-totals-columns (create-dance-columns totals '(112 116))
-           dance-totals-rows (transpose dance-totals-columns))
-   #+END_SRC
-
-   #+RESULTS:
-   | 112 | 1 | 1 | 4 |  9 | 13 | 20 | 20 |
-   | 116 | 1 | 1 | 4 | 10 | 16 | 20 | 20 |
+#+BEGIN_SRC emacs-lisp
+  (setq rule-11-dance-rows (rule-11-rows '(112 116) final-dance)
+        rule-11-dance-columns (transpose rule-11-dance-rows)
+        majority (1+ (/ (length (cdr (first rule-11-dance-rows))) 2))
+        starting-place 4
+        totals (calculate-totals rule-11-dance-rows number-of-places)
+        dance-totals-columns (create-dance-columns totals '(112 116))
+        dance-totals-rows (transpose dance-totals-columns))
+#+END_SRC
 
 #+RESULTS:
-| 112 | 1 | 1 | 4 |  9 | 13 |
-| 116 | 1 | 1 | 4 | 10 | 16 |
+| 112 | 1 | 1 | 4 |  9 | 13 | 20 | 20 |
+| 116 | 1 | 1 | 4 | 10 | 16 | 20 | 20 |
 
 : Try passing these values into the single-complex majority
 #+BEGIN_SRC emacs-lisp
@@ -1277,7 +1282,12 @@ couples
 #+END_SRC
 
 #+RESULTS:
+#+BEGIN_SRC elisp
+ places 
+#+END_SRC
 
+#+RESULTS:
+| 115 | 113 | 114 | 116 | 112 |
 
 : it works properly now and removes the proper couples
 
@@ -1311,7 +1321,6 @@ couples
     #+END_SRC
 
     #+RESULTS:
-    : 6
 ***** Print the outcome
      #+BEGIN_SRC emacs-lisp
        (print-standings places)
@@ -1321,3 +1330,7 @@ couples
 | 1 | 115 |
 | 2 | 113 |
 | 3 | 114 |
+| 4 | 116 |
+| 5 | 112 |
+| 6 | 117 |
+| 7 | 111 |
