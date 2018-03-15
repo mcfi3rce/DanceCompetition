@@ -1334,3 +1334,4 @@ couples
 | 5 | 112 |
 | 6 | 117 |
 | 7 | 111 |
+**** Single-Function 
