@@ -592,6 +592,104 @@ This function doesn't really work independent
 
 #+RESULTS:
 : remove-sum
+*** DONE Update sum values after rule 11 
+    CLOSED: [2018-03-14 Wed 22:29]
+*** DONE Remove untied sums
+#+RESULTS:
+: remove-untied-couples
+      
+#+BEGIN_SRC emacs-lisp
+  (remove-untied-couples final-couple-sums)
+#+END_SRC
+
+#+RESULTS:
+: 4
+
+: the place we are looking to solve
+#+RESULTS:
+: 4
+
+: The untied couples have been removed
+
+#+BEGIN_SRC emacs-lisp
+  final-couple-sums
+#+END_SRC
+#+RESULTS:
+| 112 | 19 |
+| 116 | 19 |
+| 117 | 22 |
+| 111 | 28 |
+   
+#+BEGIN_SRC emacs-lisp
+couples
+#+END_SRC
+
+#+RESULTS:
+| 111 | 112 | 116 | 117 |
+
+    CLOSED: [2018-03-14 Wed 22:29]
+ #+BEGIN_SRC emacs-lisp
+
+ #+END_SRC
+
+ #+RESULTS:
+ : update-sums
+
+ #+BEGIN_SRC emacs-lisp
+  final-couple-sums 
+ #+END_SRC
+
+ #+RESULTS:
+ | 117 | 22 |
+ | 111 | 28 |
+
+*** DONE Make the rows for the multi-dance-final
+ : Uses the data we input into the tables 
+ : Note: We need to be able to do this with all the data that is input by the user
+#+BEGIN_SRC emacs-lisp :var cha-cha=cha-cha rumba=rumba swing=swing mambo=mambo
+ (setq final-dance (append cha-cha rumba swing mambo))
+#+END_SRC
+
+#+RESULTS:
+| 111 | 7 | 7 | 7 | 7 | 7 |
+| 112 | 4 | 6 | 3 | 6 | 4 |
+| 113 | 1 | 5 | 2 | 3 | 5 |
+| 114 | 3 | 3 | 4 | 5 | 1 |
+| 115 | 2 | 1 | 1 | 2 | 2 |
+| 116 | 5 | 4 | 6 | 1 | 3 |
+| 117 | 6 | 2 | 5 | 4 | 6 |
+| 111 | 7 | 7 | 7 | 7 | 7 |
+| 112 | 4 | 6 | 3 | 6 | 4 |
+| 113 | 2 | 4 | 2 | 5 | 6 |
+| 114 | 3 | 3 | 4 | 2 | 2 |
+| 115 | 1 | 1 | 1 | 1 | 1 |
+| 116 | 5 | 5 | 6 | 4 | 3 |
+| 117 | 6 | 2 | 5 | 3 | 5 |
+| 111 | 6 | 7 | 7 | 7 | 6 |
+| 112 | 5 | 6 | 3 | 6 | 5 |
+| 113 | 3 | 3 | 1 | 2 | 1 |
+| 114 | 2 | 4 | 4 | 3 | 4 |
+| 115 | 1 | 1 | 2 | 1 | 2 |
+| 116 | 4 | 5 | 6 | 4 | 3 |
+| 117 | 7 | 2 | 5 | 5 | 7 |
+| 111 | 7 | 7 | 7 | 7 | 6 |
+| 112 | 4 | 6 | 1 | 5 | 5 |
+| 113 | 2 | 2 | 3 | 2 | 1 |
+| 114 | 3 | 4 | 4 | 3 | 3 |
+| 115 | 1 | 1 | 2 | 1 | 2 |
+| 116 | 5 | 5 | 6 | 4 | 4 |
+| 117 | 6 | 3 | 5 | 6 | 7 |
+
+
+#+BEGIN_SRC emacs-lisp
+  (make-final-dance-row '(112 116) final-dance)
+#+END_SRC
+
+#+RESULTS:
+| 112 | 4 | 6 | 3 | 6 | 4 | 4 | 6 | 3 | 6 | 4 | 5 | 6 | 3 | 6 | 5 | 4 | 6 | 1 | 5 | 5 |
+| 116 | 5 | 4 | 6 | 1 | 3 | 5 | 5 | 6 | 4 | 3 | 4 | 5 | 6 | 4 | 3 | 5 | 5 | 6 | 4 | 4 |
+
+    CLOSED: [2018-03-14 Wed 22:33]
 * Testing:
   *Evaluate this before testing*
 ** Functions
@@ -647,6 +745,7 @@ This function doesn't really work independent
                places (append places (list couple)))
        ;; removing the last element causes issues
        (setq dance-totals-rows nil
+             dance-totals-columns nil
              couples nil
              places (append places (list couple))
              )))
@@ -777,8 +876,61 @@ This function doesn't really work independent
            do (single-complex-majority (elt dance-totals-columns place) place (car dance-totals-columns)))
      (print-standings places))
    ;; Multi-Dance Functions documentation is in Development
+   (require 'cl)
+   (defun car-to-cdr (list)
+     (mapcar (lambda (pair) (swap (car pair)(cadr pair))) list))
 
+   (defmacro swap (a b)
+     `(psetf ,a ,b
+             ,b ,a)) 
 
+   (defun final-scores (couples-list dances-couple-scores)
+     (loop for couple in couples-list
+           collect (append (list couple) (loop  for (value couple-num) in dances-couple-scores
+                                                when (= couple couple-num)
+                                                collect value))))
+   (defun all-sum-values (couple-sums)
+     (apply 'append (mapcar 'cdr couple-sums)))
+
+   (defun remove-sum (couple)
+     (setq final-couple-sums (remove (assoc couple final-couple-sums) final-couple-sums)))
+
+   (defun final-sum-values (rows)
+     (sort (mapcar (lambda (couple) (list (car couple) (apply '+ (cdr couple)))) rows)
+           (lambda (a b) (< (cadr a) (cadr b)))))
+
+   (defun couples-with-sum (couple-sums sum)
+     (remove-if-not (lambda (couple) (= (cadr couple) sum)) couple-sums))
+
+   (defun update-sums (places-list sums)
+     (loop for couple in places-list
+           do (loop for (sum-couple score) in sums
+                    if (= couple sum-couple)
+                    do (setq final-couple-sums (remove (assoc sum-couple final-couple-sums) final-couple-sums)))))
+
+   (defun remove-untied-couples (couple-sums)
+     (if (null (cdr couple-sums))
+         (progn
+           (remove-couple (caar couple-sums))
+           (remove-couple (caar couple-sums)))
+       (loop for (couple sum) in couple-sums
+             for (next-couple next-sum) in (cdr couple-sums)
+             for place from 1 to number-of-places
+             if (not (= sum next-sum))
+             do
+             (remove-couple couple)
+             (remove-sum couple)
+             else
+             return place)))
+
+   (defun rule-11-rows (couples dances)
+     (loop for couple in couples
+           collect (append (list couple)
+                           (loop with final-couple = nil
+                                 for single-dance in dances
+                                 if (= (car single-dance) couple)
+                                 do (setq final-couple (append final-couple (cdr single-dance)))
+                                 finally return final-couple))))
   #+END_SRC 
 
 ** Single-Dance:
@@ -880,40 +1032,8 @@ This function doesn't really work independent
 
  *Next evaluate the functions next*
 ** Multi-Dance:
-*** Functions:
-#+BEGIN_SRC emacs-lisp :results silent
-   (require 'cl)
-       (defun car-to-cdr (list)
-         (mapcar (lambda (pair) (swap (car pair)(cadr pair))) list))
-
-       (defmacro swap (a b)
-         `(psetf ,a ,b
-                 ,b ,a)) 
-
-  (defun final-scores (couples-list dances-couple-scores)
-         (loop for couple in couples-list
-               collect (append (list couple) (loop  for (value couple-num) in dances-couple-scores
-                                                    when (= couple couple-num)
-                                                    collect value))))
-  (defun all-sum-values (couple-sums)
-         (apply 'append (mapcar 'cdr couple-sums)))
-
-  (defun remove-sum (couple)
-      (setq final-couple-sums (remove (assoc couple final-couple-sums) final-couple-sums)))
-
-   (defun final-sum-values (rows)
-         (sort (mapcar (lambda (couple) (list (car couple) (apply '+ (cdr couple)))) rows)
-               (lambda (a b) (< (cadr a) (cadr b)))))
-
-  (defun couples-with-sum (couple-sums sum)
-    (remove-if-not (lambda (couple) (= (cadr couple) sum)) couple-sums))
-#+END_SRC
-
-#+RESULTS:
-: all-sum-values
-
 *** Data:
-**** Rule 11 Test:
+**** Rule 10 Values:
  #+tblname: cha-cha
  | Couple | 	A | 	B | 	C | 	D | 	E |
  |--------+-----+-----+-----+-----+-----|
@@ -1014,13 +1134,14 @@ This function doesn't really work independent
  | 6 | 117 |
  | 7 | 111 |
 
-**** Set couple scores:
+**** Build Rule 10 Scores:
  #+BEGIN_SRC emacs-lisp :var cha-cha=cha-cha-results swing=swing-results rumba=rumba-results mambo=mambo-results
-   (setq final-dance-scores (append cha-cha rumba swing mambo)
+   (setq multi-dance-scores (append cha-cha rumba swing mambo)
          couples (sort (mapcar 'cadr cha-cha) (lambda (a b) (< a b)))
          places ()
+         number-of-places 7
          ;; this is name the same so we can use get-scores function
-         couple-scores (final-scores couples final-dance-scores)
+         couple-scores (final-scores couples multi-dance-scores)
          final-couple-sums (final-sum-values couple-scores)
          sum-values (all-sum-values final-couple-sums)
          totals (calculate-totals couple-scores number-of-places)
@@ -1037,51 +1158,25 @@ This function doesn't really work independent
  | 116 | 0 | 0 | 0 | 2 | 3 | 4 | 4 |
  | 117 | 0 | 0 | 0 | 0 | 2 | 4 | 4 |
 
-**** My attempt at recreating the rows from what we have
+**** Rule 11 Values:
+   #+BEGIN_SRC emacs-lisp
+     (setq rule-11-dance-rows (rule-11-rows '(112 116) final-dance)
+           rule-11-dance-columns (transpose rule-11-dance-rows)
+           majority (1+ (/ (length (cdr (first rule-11-dance-rows))) 2))
+           starting-place 4
+           totals (calculate-totals rule-11-dance-rows number-of-places)
+           dance-totals-columns (create-dance-columns totals '(112 116))
+           dance-totals-rows (transpose final-totals-columns))
+   #+END_SRC
 
- #+BEGIN_SRC emacs-lisp
-   (defun update-sums (places-list sums)
-     (loop for couple in places-list
-           do (loop for (sum-couple score) in sums
-                    if (= couple sum-couple)
-                    do (setq final-couple-sums (remove (assoc sum-couple final-couple-sums) final-couple-sums)))))
- #+END_SRC
-
- #+RESULTS:
- : update-sums
-
- #+BEGIN_SRC emacs-lisp
-  final-couple-sums 
- #+END_SRC
-
- #+RESULTS:
- | 117 | 22 |
- | 111 | 28 |
+   #+RESULTS:
+   | 112 | 1 | 1 | 4 |  9 | 13 | 20 | 20 |
+   | 116 | 1 | 1 | 4 | 10 | 16 | 20 | 20 |
 
 *** Testing:
     Here we will attempt to work through the problem with the existing code
 **** Procedural 
 ***** Step 1: Remove all couples in the order of lowest to highest until we have a tie
-     #+BEGIN_SRC emacs-lisp
-       (defun remove-untied-couples (couple-sums)
-         (if (null (cdr couple-sums))
-             (progn
-               (remove-couple (caar couple-sums))
-               (remove-couple (caar couple-sums)))
-           (loop for (couple sum) in couple-sums
-                 for (next-couple next-sum) in (cdr couple-sums)
-                 for place from 1 to number-of-places
-                 if (not (= sum next-sum))
-                 do
-                 (remove-couple couple)
-                 (remove-sum couple)
-                 else
-                 return place)))
-#+END_SRC 
-
-#+RESULTS:
-: remove-untied-couples
-      
 #+BEGIN_SRC emacs-lisp
   (remove-untied-couples final-couple-sums)
 #+END_SRC
@@ -1120,7 +1215,7 @@ couples
      | 116 | 19 |
 
 #+BEGIN_SRC emacs-lisp
-  (setq tied-columns (filter-columns (couples-with-sum final-couple-sums 19) dance-totals-columns))
+(setq tied-columns (filter-columns (couples-with-sum final-couple-sums 19) dance-totals-columns))
 #+END_SRC
 
 #+RESULTS:
@@ -1158,65 +1253,8 @@ couples
 
 : Rule 11 is required!!!!!
 
-***** TODO Build the table for rule 11
-#+BEGIN_SRC emacs-lisp :var cha-cha=cha-cha rumba=rumba swing=swing mambo=mambo
- (setq final-dance (append cha-cha rumba swing mambo))
-#+END_SRC
-
-#+RESULTS:
-| 111 | 7 | 7 | 7 | 7 | 7 |
-| 112 | 4 | 6 | 3 | 6 | 4 |
-| 113 | 1 | 5 | 2 | 3 | 5 |
-| 114 | 3 | 3 | 4 | 5 | 1 |
-| 115 | 2 | 1 | 1 | 2 | 2 |
-| 116 | 5 | 4 | 6 | 1 | 3 |
-| 117 | 6 | 2 | 5 | 4 | 6 |
-| 111 | 7 | 7 | 7 | 7 | 7 |
-| 112 | 4 | 6 | 3 | 6 | 4 |
-| 113 | 2 | 4 | 2 | 5 | 6 |
-| 114 | 3 | 3 | 4 | 2 | 2 |
-| 115 | 1 | 1 | 1 | 1 | 1 |
-| 116 | 5 | 5 | 6 | 4 | 3 |
-| 117 | 6 | 2 | 5 | 3 | 5 |
-| 111 | 6 | 7 | 7 | 7 | 6 |
-| 112 | 5 | 6 | 3 | 6 | 5 |
-| 113 | 3 | 3 | 1 | 2 | 1 |
-| 114 | 2 | 4 | 4 | 3 | 4 |
-| 115 | 1 | 1 | 2 | 1 | 2 |
-| 116 | 4 | 5 | 6 | 4 | 3 |
-| 117 | 7 | 2 | 5 | 5 | 7 |
-| 111 | 7 | 7 | 7 | 7 | 6 |
-| 112 | 4 | 6 | 1 | 5 | 5 |
-| 113 | 2 | 2 | 3 | 2 | 1 |
-| 114 | 3 | 4 | 4 | 3 | 3 |
-| 115 | 1 | 1 | 2 | 1 | 2 |
-| 116 | 5 | 5 | 6 | 4 | 4 |
-| 117 | 6 | 3 | 5 | 6 | 7 |
-
-#+BEGIN_SRC emacs-lisp 
-  (defun make-final-dance-row (couples dances)
-    (loop for couple in couples
-          collect (append (list couple)
-                          (loop with final-couple = nil
-                                for single-dance in dances
-                                if (= (car single-dance) couple)
-                                do (setq final-couple (append final-couple (cdr single-dance)))
-                                finally return final-couple))))
-#+END_SRC
-
-#+RESULTS:
-: make-final-dance-row
-
-#+BEGIN_SRC emacs-lisp
-  (setq final-dance-rows (make-final-dance-row '(112 116) final-dance)
-        final-dance-columns (transpose final-dance-rows)
-        majority (1+ (/ (length (cdr (first final-dance-rows))) 2))
-        number-of-places (1+ (length couples))
-        starting-place 4
-        totals (calculate-totals final-dance-rows number-of-places)
-        final-totals-columns (create-dance-columns totals '(112 116))
-        final-totals-rows (transpose final-totals-columns))
-#+END_SRC
+***** DONE Build the table for rule 11
+      CLOSED: [2018-03-14 Wed 22:46]
 
 #+RESULTS:
 | 112 | 1 | 1 | 4 |  9 | 13 |
@@ -1225,15 +1263,15 @@ couples
 : Try passing these values into the single-complex majority
 #+BEGIN_SRC emacs-lisp
   (loop for place from starting-place to number-of-places
-        do (single-complex-majority (elt final-totals-columns place) place '(112 116)))
+        do (single-complex-majority (elt dance-totals-columns place) place (car dance-totals-columns)))
 #+END_SRC
 
+#+RESULTS:
+
 #+BEGIN_SRC emacs-lisp
-  dance-totals-rows
+dance-totals-rows
 #+END_SRC
 #+RESULTS:
-| 111 | 0 | 0 | 0 | 0 | 0 | 0 | 4 |
-| 117 | 0 | 0 | 0 | 0 | 2 | 4 | 4 |
 
 : it works properly now and removes the proper couples
 
