@@ -154,8 +154,8 @@ NOTE: if the number does not appear in the list, you may type it in
 
 #+attr_org: :radio
 #+name: number_judges
-  - [X] 3
-  - [ ] 5
+  - [ ] 3
+  - [X] 5
   - [ ] 7
   - [ ] 9
   - [ ] 11
@@ -164,16 +164,16 @@ NOTE: if the number does not appear in the list, you may type it in
 #+attr_org: :radio
 #+name: number_couples
   - [ ] 3
-  - [X] 5
-  - [ ] 7
+  - [ ] 5
+  - [X] 7
   - [ ] 9
   - [ ] 11
   - [ ] --
 
 #+attr_org: :radiod
 #+name: number_dances
-  - [X] 3
-  - [ ] 5
+  - [ ] 3
+  - [X] 5
   - [ ] 7
   - [ ] 9
   - [ ] 11
@@ -185,54 +185,56 @@ NOTE: if the number does not appear in the list, you may type it in
 #+END_SRC
 
 #+RESULTS:
-: 3
+: 5
  
 #+BEGIN_SRC emacs-lisp
   (validate-radio-list (get-checkbox-list-values "number_couples"))
 #+END_SRC
 
 #+RESULTS:
-: 5
+: 7
 
 #+BEGIN_SRC emacs-lisp
   (validate-radio-list (get-checkbox-list-values "number_dances"))
 #+END_SRC
 
 #+RESULTS:
-: 3
+: 5
 
 
 ** _SETUP THE VARIABLES_
-#+BEGIN_SRC elisp :results raw
+#+BEGIN_SRC elisp :results value
 (setq num_dances (string-to-number (car (get-checkbox-list-values "number_dances"))))
 #+END_SRC
 
 #+RESULTS:
-3
+: 5
 
-#+BEGIN_SRC elisp :return value 
+#+BEGIN_SRC elisp :results value 
 (symbol-value 'num_dances)
 #+END_SRC   
 
 #+RESULTS:
-: 3
+: 5
 
 #+BEGIN_SRC elisp :results value
   (setq num_judges (string-to-number (car (get-checkbox-list-values "number_judges"))))
 #+END_SRC
 
 #+RESULTS:
-: 3
+: 5
 
 #+BEGIN_SRC elisp :results value
   (setq num_couples (string-to-number (car (get-checkbox-list-values "number_couples"))))
 #+END_SRC
 
-#+RESULTS:
-: 5
+#+name: cha-cha-table
+: 7
 
 
 ** TODO _Automate Table_
+
+*** _CONSTRUCT TABLE_ 
 
 #+BEGIN_SRC elisp :results silent 
   (defun header (num-judges)
@@ -243,15 +245,12 @@ NOTE: if the number does not appear in the list, you may type it in
   (defun body (num_couples)
     (loop for couple from 0 to num_couples
       collect(list "")))
-#+END_SRC
 
-#+BEGIN_SRC elisp :results silent
   (defun build-tables (num_judges num_couples)
     (append(header num_judges)(list 'hline)(body num_couples)))
 #+END_SRC
 
-#+RESULTS:
-: build-tables
+*** _NAME THE DANCE_
 #+BEGIN_SRC elisp :results silent
   (setq dance "cha-cha")
 #+END_SRC
@@ -259,22 +258,11 @@ NOTE: if the number does not appear in the list, you may type it in
  (set (intern (concat dance "-table")) (build-tables '(5) 5))
 #+END_SRC
 
-#+name: cha-cha-table
-| Couple | A | B | C | D | E |
-|--------+---+---+---+---+---|
-|        |   |   |   |   |   |
-|        |   |   |   |   |   |
-|        |   |   |   |   |   |
-|        |   |   |   |   |   |
-|        |   |   |   |   |   |
-|        |   |   |   |   |   |
-
-
 #+BEGIN_SRC elisp 
   cha-cha-table
 #+END_SRC
 
-#+name: cha-cha-table
+#+RESULTS:
 | Couple | A | B | C | D | E |
 |--------+---+---+---+---+---|
 |        |   |   |   |   |   |
@@ -283,43 +271,94 @@ NOTE: if the number does not appear in the list, you may type it in
 |        |   |   |   |   |   |
 |        |   |   |   |   |   |
 |        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
 
+
+*** _Name the table for the dance_
 #+BEGIN_SRC elisp
   (when (search-backward (format "%c+RESULTS:" ?#) nil t)
     (replace-match (concat "#+name: " (symbol-name 'cha-cha-table)) t))  
 #+END_SRC
 
-#+BEGIN_SRC elisp
-(format "%s" (list 1 2 3))
-#+END_SRC
-
-#+RESULTS:
-: (1 2 3)
-
-#+BEGIN_SRC elisp :return value
-;;(setf (num_judges (get-checkbox-list-value "number_judges")))
-(symbol-value 'num_judges)
-#+END_SRC
-
-#+RESULTS:
-| 3 |
-
+** TEST FUNCTINOS AREA
 
 #+BEGIN_SRC elisp
 (header num_judges)
 #+END_SRC
 
-#+RESULTS:
-| Couple | C | D | E |
+#+name: 
+| Couple | A | B | C | D | E |
 
 #+BEGIN_SRC elisp
-(body 5)
+(body num_couples)
 #+END_SRC
 
-#+RESULTS:
+#+name: t-name
 |   |
 |   |
 |   |
 |   |
 |   |
 |   |
+|   |
+|   |
+
+
+
+
+#+BEGIN_SRC elisp
+(setq dance "salsa")
+#+END_SRC
+
+
+#+BEGIN_SRC elisp
+(setq t-name (set (intern (concat dance "-table")) (build-tables num_judges num_couples)))
+#+END_SRC
+
+#+BEGIN_SRC elisp
+ salsa-table
+#+END_SRC
+
+#+name: 
+| Couple | A | B | C | D | E |
+|--------+---+---+---+---+---|
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+
+#+name: 
+| Couple | A | B | C | D | E |
+|--------+---+---+---+---+---|
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+
+#+name: intern-table
+| Couple | A | B | C | D | E |
+|--------+---+---+---+---+---|
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+
+
+#+BEGIN_SRC elisp
+  (when (search-backward (format "%c+RESULTS:" ?#) nil t)
+    (replace-match (concat "#+name: " (symbol-function 'salsa-table)) t))  
+#+END_SRC
+
