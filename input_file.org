@@ -153,7 +153,7 @@ NOTE: if the number does not appear in the list, you may type it in
       where the '--' indicators are.
 
 #+attr_org: :radio
-#+name: number_judges
+#+name: number-judges
   - [ ] 3
   - [X] 5
   - [ ] 7
@@ -162,7 +162,7 @@ NOTE: if the number does not appear in the list, you may type it in
   - [ ] --
 
 #+attr_org: :radio
-#+name: number_couples
+#+name: number-couples
   - [ ] 3
   - [ ] 5
   - [X] 7
@@ -171,7 +171,7 @@ NOTE: if the number does not appear in the list, you may type it in
   - [ ] --
 
 #+attr_org: :radiod
-#+name: number_dances
+#+name: number-dances
   - [ ] 3
   - [X] 5
   - [ ] 7
@@ -179,57 +179,91 @@ NOTE: if the number does not appear in the list, you may type it in
   - [ ] 11
   - [ ] --
 
+#+name: dance-styles
+  - [ ] IS--Quickstep
+  - [ ] IS--Slow Foxtrot
+  - [ ] IS--Tango
+  - [ ] IS--Viennese Waltz
+  - [ ] IS--Waltz 
+  - [ ] IL--Cha Cha
+  - [ ] IL--Jive
+  - [ ] IL--Paso Doble
+  - [ ] IL--Rumba
+  - [X] IL--Samba 
+  - [ ] AS--Foxtrot
+  - [ ] AS--Tango
+  - [ ] AS--Viennese Waltz
+  - [ ] AS--Waltz
+  - [ ] AR--Bolero
+  - [ ] AR--Cha Cha
+  - [ ] AR--East Coast Swing
+  - [ ] AR--Mambo
+  - [ ] AR--Rumba 
+  - [ ] Cabaret
+  - [X] Salsa
+  - [ ] NY Hustle
+  - [ ] Lindy
+  - [ ] Swing
+  - [ ] Two Step
+  - [ ] West Coast Swing
+  - [ ] Bonus Swing 
+
 **  _VALIDATE THE INPUT_ 
-#+BEGIN_SRC emacs-lisp
-  (validate-radio-list (get-checkbox-list-values "number_judges"))
+
+#+BEGIN_SRC elisp 
+  (defun validate-input ()
+    (validate-radio-list (get-checkbox-list-values "number-judges"))
+    (validate-radio-list (get-checkbox-list-values "number-couples"))
+    (validate-radio-list (get-checkbox-list-values "number-dances"))
+    ;; if error message 
+    )
+
+(validate-input)
 #+END_SRC
 
 #+RESULTS:
 : 5
- 
-#+BEGIN_SRC emacs-lisp
-  (validate-radio-list (get-checkbox-list-values "number_couples"))
-#+END_SRC
-
-#+RESULTS:
-: 7
-
-#+BEGIN_SRC emacs-lisp
-  (validate-radio-list (get-checkbox-list-values "number_dances"))
-#+END_SRC
-
-#+RESULTS:
-: 5
-
 
 ** _SETUP THE VARIABLES_
 #+BEGIN_SRC elisp :results value
-(setq num_dances (string-to-number (car (get-checkbox-list-values "number_dances"))))
+(setq num-dances (string-to-number (car (get-checkbox-list-values "number-dances"))))
 #+END_SRC
 
 #+RESULTS:
 : 5
 
 #+BEGIN_SRC elisp :results value 
-(symbol-value 'num_dances)
+(symbol-value 'num-dances)
 #+END_SRC   
 
 #+RESULTS:
 : 5
 
 #+BEGIN_SRC elisp :results value
-  (setq num_judges (string-to-number (car (get-checkbox-list-values "number_judges"))))
+(setq num-judges (string-to-number (car (get-checkbox-list-values "number-judges"))))
 #+END_SRC
 
 #+RESULTS:
 : 5
 
 #+BEGIN_SRC elisp :results value
-  (setq num_couples (string-to-number (car (get-checkbox-list-values "number_couples"))))
+(setq num-couples (string-to-number (car (get-checkbox-list-values "number-couples"))))
 #+END_SRC
 
 #+RESULTS:
 : 7
+
+#+BEGIN_SRC emacs-lisp :results value
+  (setq dance-list (org-get-plain-list "dance-styles")
+        ans (org-element-property :name dance-list))
+  (get-checkbox-list-values "dance-styles")
+#+END_SRC
+
+#+RESULTS:
+| IL--Samba | Salsa |
+
+
+
 
 #+name: cha-cha-table
 : 7
@@ -246,17 +280,34 @@ NOTE: if the number does not appear in the list, you may type it in
       (list (append '(Couple) (mapcar 'char-to-string (number-sequence start end))))))
 
   (defun body (num_couples)
-    (loop for couple from 0 to num_couples
+    (loop for couple from 0 to num-couples
       collect(list "")))
 
-  (defun build-tables (num_judges num_couples)
-    (append(header num_judges)(list 'hline)(body num_couples)))
+  (defun build-tables (num-judges num-couples)
+    (append(header num-judges)(list 'hline)(body num-couples)))
 #+END_SRC
+
+#+BEGIN_SRC elisp : results output
+(build-tables num-judges num-couples)
+#+END_SRC
+
+#+RESULTS:
+| Couple | A | B | C | D | E |
+|--------+---+---+---+---+---|
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
 
 *** _NAME THE DANCE_
 #+BEGIN_SRC elisp :results silent
   (setq dance "cha-cha")
 #+END_SRC
+
 #+BEGIN_SRC elisp
  (set (intern (concat dance "-table")) (build-tables '(5) 5))
 #+END_SRC
@@ -279,36 +330,13 @@ NOTE: if the number does not appear in the list, you may type it in
 
 
 *** _Name the table for the dance_
+
 #+BEGIN_SRC elisp
   (when (search-backward (format "%c+RESULTS:" ?#) nil t)
     (replace-match (concat "#+name: " (symbol-name 'cha-cha-table)) t))  
 #+END_SRC
 
-** TEST FUNCTINOS AREA
-
-#+BEGIN_SRC elisp
-(header num_judges)
-#+END_SRC
-
-#+name: 
-| Couple | A | B | C | D | E |
-
-#+BEGIN_SRC elisp
-(body num_couples)
-#+END_SRC
-
-#+name: t-name
-|   |
-|   |
-|   |
-|   |
-|   |
-|   |
-|   |
-|   |
-
-
-
+** TEST FUNCTIONS AREA
 
 #+BEGIN_SRC elisp
 (setq dance "salsa")
@@ -320,19 +348,18 @@ NOTE: if the number does not appear in the list, you may type it in
 #+BEGIN_SRC elisp :results silent
   (defun set-table-name (table-name)
     (when (search-backward (format "%c+RESULTS:" ?#) nil t)
-      (replace-match (concat "#+name: " table-name) t)))
-      
+      (replace-match (concat "#+dance-style: " table-name) t)))
 
-   (defun stn ()
-     (interactive)
-     (set-table-name t-name))
+  (defun stn ()
+    (interactive)
+    (set-table-name t-name))
 #+END_SRC
 
 #+BEGIN_SRC elisp
-  (set (intern (setq t-name (concat dance "-table"))) (build-tables num_judges num_couples)) 
+  (set (intern (setq t-name (concat dance "-table"))) (build-tables num-judges num-couples)) 
 #+END_SRC
 
-#+RESULTS:
+#+name: cha-cha-table
 | Couple | A | B | C | D | E |
 |--------+---+---+---+---+---|
 |        |   |   |   |   |   |
@@ -345,3 +372,23 @@ NOTE: if the number does not appear in the list, you may type it in
 |        |   |   |   |   |   |
 
 [[elisp:(set-table-name%20t-name)][Set Table Name]]
+
+
+*** _build table with dance-styles list_
+#+BEGIN_SRC elisp
+  (defun evaluate-dance (dance-styles)
+    )
+#+END_SRC
+
+*** _export as html button_
+
+  [[elisp:(org-open-file (org-html-export-to-html))][export as html]]
+
+: The following code makes it so the export to html button will not ask for a prompt when executing.
+#+BEGIN_SRC elisp :results silent
+  (setq org-confirm-elisp-link-function nil)
+#+END_SRC
+
+#+RESULTS:
+
+*** _Area to import csv file when needed_
