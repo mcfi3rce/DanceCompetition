@@ -3,7 +3,7 @@
 ** Single Dance:
 *** Useful functions:
 **** Transpose Function
-***** Rotates the tables horizonal and verticle. 
+***** Rotates the tables horizontally and vertically. 
   #+BEGIN_SRC emacs-lisp :results raw
     (let ((flipped-lists (transpose '((1 2 3) (4 5 6)))))
       (remove (second flipped-lists) flipped-lists))
