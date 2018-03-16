@@ -1,5 +1,6 @@
 hello worldrother Neffs code of checklist and things to be added when making the tables for the competitions
 
+#+REVEAL_ROOT: http://cdn.jsdelivr.net/reveal.js/3.0.0 /
 
 _*NEFF CODE*_ 
 * Code
@@ -393,7 +394,7 @@ Gold 1
 
 #+BEGIN_SRC elisp :results silent
   (defun set-table-name (table-name)
-    (when (search-backward (format "%c+RESULTS:" ?#) nil t)
+  (when (search-backward (format "%c+RESULTS:" ?#) nil t)
       (replace-match (concat "#+dance-style: " table-name) t)))
 
   (defun stn ()
@@ -431,3 +432,6 @@ Gold 1
 *** _Area to import csv file when needed_
 
 
+#+BEGIN_SRC elisp
+(require 'ox
+#+END_SRC
