@@ -1,4 +1,4 @@
- This file adds Brother Neffs code of checklist and things to be added when making the tables for the competitions
+hello worldrother Neffs code of checklist and things to be added when making the tables for the competitions
 
 
 _*NEFF CODE*_ 
@@ -134,23 +134,12 @@ Gold 1
 
 
 
-** :example of table: 
-  | Couple | 	A | 	B | 	C | 	D | 	E | 	F | 	G | 	H |
-  |--------+-----+-----+-----+-----+-----+-----+-----+-----|
-  |    111 |   7 |   7 |   7 |   7 |   7 |     |     |     |
-  |    112 |   4 |   6 |   3 |   6 |   4 |     |     |     |
-  |    113 |   1 |   5 |   2 |   3 |   5 |     |     |     |
-  |    114 |   3 |   3 |   4 |   5 |   1 |     |     |     |
-  |    115 |   2 |   1 |   1 |   2 |   2 |     |     |     |
-  |    116 |   5 |   4 |   6 |   1 |   3 |     |     |     |
-  |    117 |   6 |   2 |   5 |   4 |   6 |     |     |     |
-
-
-**  _*DanceCompetition*_
-
-Please enter the number of judges needed for the competition
-NOTE: if the number does not appear in the list, you may type it in 
-      where the '--' indicators are.
+** _Completed_
+*** _Grab User Input_
+   
+: Please enter the number of judges needed for the competition
+: NOTE: if the number does not appear in the list, you may type it in 
+:      where the '--' indicators are.
 
 #+attr_org: :radio
 #+name: number-judges
@@ -206,30 +195,10 @@ NOTE: if the number does not appear in the list, you may type it in
   - [ ] Swing
   - [ ] Two Step
   - [ ] West Coast Swing
-  - [ ] Bonus Swing
+  - [ ] Bonus Swing 
+*** _VALIDATE THE INPUT_ 
 
-#+name: couples
-#+BEGIN_SRC elisp
-  (defun couple-generator (num-couples)
-    (loop for i from 0 to num-couples
-            collect (list "  - [ ] ")))
-#+END_SRC
-
-#+RESULTS: couples
-: couple-generator
-
-#+BEGIN_SRC elisp :results raw
-(couple-generator num-couples)
-#+END_SRC
-
-#+RESULTS:
-((  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ))
-((  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ))
-
-
-**  _VALIDATE THE INPUT_ 
-
-#+BEGIN_SRC elisp 
+#+BEGIN_SRC elisp :results silent 
   (defun validate-input ()
     (validate-radio-list (get-checkbox-list-values "number-judges"))
     (validate-radio-list (get-checkbox-list-values "number-couples"))
@@ -240,12 +209,10 @@ NOTE: if the number does not appear in the list, you may type it in
 (validate-input)
 #+END_SRC
 
-#+RESULTS:
-: 5
 
-** _SETUP THE VARIABLES_
 
-: sets up the number of dances, judges, couples, and dance 
+*** _SETUP THE VARIABLES_
+***** : sets up the number of dances, judges, couples, and dance 
 #+BEGIN_SRC elisp :results silent
   (setq num-dances (string-to-number (car (get-checkbox-list-values "number-dances"))))
   (setq num-judges (string-to-number (car (get-checkbox-list-values "number-judges"))))
@@ -254,7 +221,7 @@ NOTE: if the number does not appear in the list, you may type it in
         ans (org-element-property :name dance-list))
 #+END_SRC
 
-
+**** _REGISTER THE COUPLES PROMPT_
 #+BEGIN_SRC elisp :results silent
   (defun register-couples (starting-couple-number)
     (interactive "nEnter starting couple number: ")
@@ -270,6 +237,53 @@ NOTE: if the number does not appear in the list, you may type it in
 (119 120 121 122 123 124 125)
 #+END_SRC
 
+
+*** _export as html button_
+
+  [[elisp:(org-open-file (org-html-export-to-html))][export as html]]
+
+: The following code makes it so the export to html button will not ask for a prompt when executing.
+#+BEGIN_SRC elisp :results silent
+  (setq org-confirm-elisp-link-function nil)
+#+END_SRC
+
+
+** _DEVELOPMENT ARENA_
+*** :example of table: 
+  | Couple | 	A | 	B | 	C | 	D | 	E | 	F | 	G | 	H |
+  |--------+-----+-----+-----+-----+-----+-----+-----+-----|
+  |    111 |   7 |   7 |   7 |   7 |   7 |     |     |     |
+  |    112 |   4 |   6 |   3 |   6 |   4 |     |     |     |
+  |    113 |   1 |   5 |   2 |   3 |   5 |     |     |     |
+  |    114 |   3 |   3 |   4 |   5 |   1 |     |     |     |
+  |    115 |   2 |   1 |   1 |   2 |   2 |     |     |     |
+  |    116 |   5 |   4 |   6 |   1 |   3 |     |     |     |
+  |    117 |   6 |   2 |   5 |   4 |   6 |     |     |     |
+
+
+***  _COUPLE LIST GENERATOR_
+
+
+#+name: couples
+
+
+
+#+BEGIN_SRC elisp :results silent
+  (defun couple-generator (num-couples)
+    (loop for i from 0 to num-couples
+         do (string-rectangle 0 10 "  - [ ] ")))
+#+END_SRC
+
+#+RESULTS: couples
+: couple-generator
+
+#+BEGIN_SRC elisp :results raw
+(couple-generator num-couples)
+#+END_SRC
+
+#+RESULTS:
+((  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ))
+
 #+BEGIN_SRC elisp 
 (type-of couples)
 #+END_SRC
@@ -277,9 +291,8 @@ NOTE: if the number does not appear in the list, you may type it in
 #+RESULTS:
 : cons
 
-** TODO _Automate Table_
-
-*** _CONSTRUCT TABLE_ 
+*** TODO _Automate Table_
+**** _CONSTRUCT TABLE_ 
 
 #+BEGIN_SRC elisp :results silent 
   (defun header (num-judges)
@@ -299,7 +312,7 @@ NOTE: if the number does not appear in the list, you may type it in
 (build-tables num-judges num-couples)
 #+END_SRC
 
-#+RESULTS:
+#+name: cha-cha-table
 | Couple | A | B | C | D | E |
 |--------+---+---+---+---+---|
 |        |   |   |   |   |   |
@@ -311,17 +324,14 @@ NOTE: if the number does not appear in the list, you may type it in
 |        |   |   |   |   |   |
 |        |   |   |   |   |   |
 
-*** _NAME THE DANCE_
+
+**** _NAME THE DANCE_
 #+BEGIN_SRC elisp :results silent
   (setq dance "cha-cha")
 #+END_SRC
 
 #+BEGIN_SRC elisp
- (set (intern (concat dance "-table")) (build-tables '(5) 5))
-#+END_SRC
-
-#+BEGIN_SRC elisp 
-  cha-cha-table
+ (set (intern (concat dance "-table")) (build-tables num-judges num-couples))
 #+END_SRC
 
 #+RESULTS:
@@ -336,15 +346,43 @@ NOTE: if the number does not appear in the list, you may type it in
 |        |   |   |   |   |   |
 |        |   |   |   |   |   |
 
+#+BEGIN_SRC elisp 
+  cha-cha-table
+#+END_SRC
 
-*** _Name the table for the dance_
+#+name: cha-cha-table
+| Couple | A | B | C | D | E |
+|--------+---+---+---+---+---|
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+
+#+name: cha-cha-table
+| Couple | A | B | C | D | E |
+|--------+---+---+---+---+---|
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+|        |   |   |   |   |   |
+
+
+**** _search backwards and replace name_
 
 #+BEGIN_SRC elisp
   (when (search-backward (format "%c+RESULTS:" ?#) nil t)
     (replace-match (concat "#+name: " (symbol-name 'cha-cha-table)) t))  
 #+END_SRC
 
-** TEST FUNCTIONS AREA
+**** _Set Table Name_
 
 #+BEGIN_SRC elisp
 (setq dance "salsa")
@@ -389,15 +427,7 @@ NOTE: if the number does not appear in the list, you may type it in
     )
 #+END_SRC
 
-*** _export as html button_
-
-  [[elisp:(org-open-file (org-html-export-to-html))][export as html]]
-
-: The following code makes it so the export to html button will not ask for a prompt when executing.
-#+BEGIN_SRC elisp :results silent
-  (setq org-confirm-elisp-link-function nil)
-#+END_SRC
-
-#+RESULTS:
 
 *** _Area to import csv file when needed_
+
+
