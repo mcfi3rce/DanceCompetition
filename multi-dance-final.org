@@ -1,3 +1,4 @@
+#+REVEAL_ROOT: http://cdn.jsdelivr.net/reveal.js/3.0.0/
 * Development:
 ** Single Dance:
 *** Useful functions:
