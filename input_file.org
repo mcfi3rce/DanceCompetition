@@ -247,7 +247,7 @@ NOTE: if the number does not appear in the list, you may type it in
 
 : sets up the number of dances, judges, couples, and dance 
 #+BEGIN_SRC elisp :results silent
-  (setq num-dances (string-to-number (car (get-checkbox-list-values "number-dances"))))
+(setq num-dances (string-to-number (car (get-checkbox-list-values "number-dances"))))
   (setq num-judges (string-to-number (car (get-checkbox-list-values "number-judges"))))
   (setq num-couples (string-to-number (car (get-checkbox-list-values "number-couples"))))
   (setq dance-list (org-get-plain-list "dance-styles")
@@ -363,6 +363,7 @@ NOTE: if the number does not appear in the list, you may type it in
     (set-table-name t-name))
 #+END_SRC
 
+** TODO 
 #+BEGIN_SRC elisp
   (set (intern (setq t-name (concat dance "-table"))) (build-tables num-judges num-couples)) 
 #+END_SRC
@@ -401,3 +402,40 @@ NOTE: if the number does not appear in the list, you may type it in
 #+RESULTS:
 
 *** _Area to import csv file when needed_
+
+*** Create and Confirm Couples List
+#+BEGIN_SRC elisp :results silent
+  (defun format-list-item (list-item)
+    (format "  - [%c] %s" (if check-all ?X ? ) list-item))
+
+  (defun insert-org-list (lisp-list name &optional check-all)
+    (let ((pos 0)
+          (txt (mapconcat 'format-list-item lisp-list "\n")))
+      (forward-line)
+      (setq pos (point))
+      (insert (concat "\n#+name: " name "\n"))
+      (insert txt)
+      (insert "\n")
+      (goto-char pos)))
+
+  (defun create-couples-list ()
+    (insert-org-list (make-list num-couples "") "couples" t))
+
+  (defun confirm-couples-list ()
+    (setq couples (mapcar 'string-to-number
+                          (get-checkbox-list-values "couples"))
+          num-couples (length couples)))
+#+END_SRC
+
+[[elisp:(create-couples-list)][Create Couples List]]
+
+#+name: couples
+  - [X] 22
+  - [X] 56
+  - [X] 111 
+  - [X] 23 
+  - [X] 45 
+  - [X] 13 
+  - [X] 78
+
+[[elisp:(confirm-couples-list)][Confirm Couples List]]
