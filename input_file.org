@@ -206,7 +206,26 @@ NOTE: if the number does not appear in the list, you may type it in
   - [ ] Swing
   - [ ] Two Step
   - [ ] West Coast Swing
-  - [ ] Bonus Swing 
+  - [ ] Bonus Swing
+
+#+name: couples
+#+BEGIN_SRC elisp
+  (defun couple-generator (num-couples)
+    (loop for i from 0 to num-couples
+            collect (list "  - [ ] ")))
+#+END_SRC
+
+#+RESULTS: couples
+: couple-generator
+
+#+BEGIN_SRC elisp :results raw
+(couple-generator num-couples)
+#+END_SRC
+
+#+RESULTS:
+((  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ))
+((  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ))
+
 
 **  _VALIDATE THE INPUT_ 
 
@@ -225,49 +244,38 @@ NOTE: if the number does not appear in the list, you may type it in
 : 5
 
 ** _SETUP THE VARIABLES_
-#+BEGIN_SRC elisp :results value
-(setq num-dances (string-to-number (car (get-checkbox-list-values "number-dances"))))
-#+END_SRC
 
-#+RESULTS:
-: 5
-
-#+BEGIN_SRC elisp :results value 
-(symbol-value 'num-dances)
-#+END_SRC   
-
-#+RESULTS:
-: 5
-
-#+BEGIN_SRC elisp :results value
-(setq num-judges (string-to-number (car (get-checkbox-list-values "number-judges"))))
-#+END_SRC
-
-#+RESULTS:
-: 5
-
-#+BEGIN_SRC elisp :results value
-(setq num-couples (string-to-number (car (get-checkbox-list-values "number-couples"))))
-#+END_SRC
-
-#+RESULTS:
-: 7
-
-#+BEGIN_SRC emacs-lisp :results value
+: sets up the number of dances, judges, couples, and dance 
+#+BEGIN_SRC elisp :results silent
+  (setq num-dances (string-to-number (car (get-checkbox-list-values "number-dances"))))
+  (setq num-judges (string-to-number (car (get-checkbox-list-values "number-judges"))))
+  (setq num-couples (string-to-number (car (get-checkbox-list-values "number-couples"))))
   (setq dance-list (org-get-plain-list "dance-styles")
         ans (org-element-property :name dance-list))
-  (get-checkbox-list-values "dance-styles")
+#+END_SRC
+
+
+#+BEGIN_SRC elisp :results silent
+  (defun register-couples (starting-couple-number)
+    (interactive "nEnter starting couple number: ")
+    (setq couples (loop for i from 0 below num-couples collect (+ i starting-couple-number)))) 
+#+END_SRC
+ 
+#+BEGIN_SRC elisp :results code 
+(call-interactively 'register-couples)
 #+END_SRC
 
 #+RESULTS:
-| IL--Samba | Salsa |
+#+BEGIN_SRC elisp
+(119 120 121 122 123 124 125)
+#+END_SRC
 
+#+BEGIN_SRC elisp 
+(type-of couples)
+#+END_SRC
 
-
-
-#+name: cha-cha-table
-: 7
-
+#+RESULTS:
+: cons
 
 ** TODO _Automate Table_
 
@@ -279,7 +287,7 @@ NOTE: if the number does not appear in the list, you may type it in
            (end (+ start num-judges -1)))
       (list (append '(Couple) (mapcar 'char-to-string (number-sequence start end))))))
 
-  (defun body (num_couples)
+  (defun body (num-couples)
     (loop for couple from 0 to num-couples
       collect(list "")))
 
@@ -377,6 +385,7 @@ NOTE: if the number does not appear in the list, you may type it in
 *** _build table with dance-styles list_
 #+BEGIN_SRC elisp
   (defun evaluate-dance (dance-styles)
+  
     )
 #+END_SRC
 
