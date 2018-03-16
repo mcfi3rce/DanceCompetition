@@ -1,4 +1,6 @@
- This file adds Brother Neffs code of checklist and things to be added when making the tables for the competitions
+#+TITLE: Input File
+#+REVEAL_ROOT: http://cdn.jsdelivr.net/reveal.js/3.0.0/
+This file adds Brother Neffs code of checklist and things to be added when making the tables for the competitions
 
 
 _*NEFF CODE*_ 
@@ -145,9 +147,9 @@ Gold 1
   |    116 |   5 |   4 |   6 |   1 |   3 |     |     |     |
   |    117 |   6 |   2 |   5 |   4 |   6 |     |     |     |
 
-
+  
 **  _*DanceCompetition*_
-
+   
 Please enter the number of judges needed for the competition
 NOTE: if the number does not appear in the list, you may type it in 
       where the '--' indicators are.
@@ -402,10 +404,10 @@ NOTE: if the number does not appear in the list, you may type it in
 #+RESULTS:
 
 *** _Area to import csv file when needed_
-
+    
 *** Create and Confirm Couples List
 #+BEGIN_SRC elisp :results silent
-  (defun format-list-item (list-item)
+ (defun format-list-item (list-item)
     (format "  - [%c] %s" (if check-all ?X ? ) list-item))
 
   (defun insert-org-list (lisp-list name &optional check-all)
