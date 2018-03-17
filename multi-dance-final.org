@@ -3,7 +3,7 @@
 ** Single Dance:
 *** Useful functions:
 **** Transpose Function
-***** Rotates the tables horizonal and verticle. 
+***** Rotates the tables horizontally and vertically. 
   #+BEGIN_SRC emacs-lisp :results raw
     (let ((flipped-lists (transpose '((1 2 3) (4 5 6)))))
       (remove (second flipped-lists) flipped-lists))
@@ -16,8 +16,7 @@
   ((1 4) (3 6))
   ((1 4) (3 6))
 
-  #+BEGIN_SRC emacs-lis
- p :results value :var totals=tot1 112 2 1 3 116 117als
+  #+BEGIN_SRC emacs-lisp :results value 
     (transpose totals)
   #+END_SRC
 
@@ -25,8 +24,7 @@
   | 0 | 0 | 0 | 0 | 0 | 0 | 5 | 0 |
   | 0 | 0 | 1 | 2 | 0 | 2 | 0 | 0 |
   | 1 | 1 | 1 | 0 | 2 | 0 | 0 | 0 |
-  | 1 |
-  0 | 2 | 1 | 1 | 0 | 0 | 0 |
+  | 1 | 0 | 2 | 1 | 1 | 0 | 0 | 0 |
   | 2 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
   | 1 | 0 | 1 | 1 | 1 | 1 | 0 | 0 |
   | 0 | 1 | 0 | 1 | 1 | 2 | 0 | 0 |
@@ -1035,15 +1033,6 @@ couples
          dance-totals-columns (create-dance-columns totals couples)
          dance-totals-rows (transpose dance-totals-columns))
  #+END_SRC
-
-  #+RESULTS: totals-rows
-  | 111 | 0 | 0 | 0 | 0 | 0 | 2 | 5 | 5 |
-  | 112 | 0 | 0 | 1 | 1 | 3 | 5 | 5 | 5 |
-  | 113 | 2 | 3 | 5 | 5 | 5 | 5 | 5 | 5 |
-  | 114 | 0 | 1 | 2 | 5 | 5 | 5 | 5 | 5 |
-  | 115 | 3 | 5 | 5 | 5 | 5 | 5 | 5 | 5 |
-  | 116 | 0 | 0 | 1 | 3 | 4 | 5 | 5 | 5 |
-  | 117 | 0 | 1 | 1 | 1 | 3 | 3 | 5 | 5 |
 
  #+NAME: totals-columns
  #+BEGIN_SRC elisp
