@@ -276,6 +276,8 @@ NOTE: if the number does not appear in the list, you may type it in
 #+END_SRC
 
 [[elisp:(create-couples-list)][Create Couples List]]
+
+
 #+name: couples
   - [X] 111
   - [X] 112
@@ -312,28 +314,27 @@ NOTE: if the number does not appear in the list, you may type it in
       (list (append '(Couple) (mapcar 'char-to-string (number-sequence start end))))))
 
   (defun body (num-couples)
-    (loop for couple from 0 to num-couples
-      collect(list "")))
+    (loop for couple in couples
+      collect (list couple)))
 
   (defun build-tables (num-judges num-couples)
     (append(header num-judges)(list 'hline)(body num-couples)))
 #+END_SRC
 
-#+BEGIN_SRC elisp : results output
-(build-tables num-judges num-couples)
+#+BEGIN_SRC elisp : results value
+  (build-tables num-judges num-couples)
 #+END_SRC
 
 #+RESULTS:
 | Couple | A | B | C | D | E |
 |--------+---+---+---+---+---|
-|        |   |   |   |   |   |
-|        |   |   |   |   |   |
-|        |   |   |   |   |   |
-|        |   |   |   |   |   |
-|        |   |   |   |   |   |
-|        |   |   |   |   |   |
-|        |   |   |   |   |   |
-|        |   |   |   |   |   |
+|    111 |   |   |   |   |   |
+|    112 |   |   |   |   |   |
+|    113 |   |   |   |   |   |
+|    114 |   |   |   |   |   |
+|    115 |   |   |   |   |   |
+|    116 |   |   |   |   |   |
+|    117 |   |   |   |   |   |
 
 **** _NAME THE DANCE_
 #+BEGIN_SRC elisp :results silent
