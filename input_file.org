@@ -133,9 +133,6 @@ Gold 1
 
 
 * -- *BUILD TABLES* --
-
-
-
 ** :example of table: 
   | Couple | 	A | 	B | 	C | 	D | 	E | 	F | 	G | 	H |
   |--------+-----+-----+-----+-----+-----+-----+-----+-----|
@@ -153,6 +150,7 @@ Gold 1
 Please enter the number of judges needed for the competition
 NOTE: if the number does not appear in the list, you may type it in 
       where the '--' indicators are.
+
 ** _Completed_
 *** _Grab User Input_
    
@@ -215,6 +213,8 @@ NOTE: if the number does not appear in the list, you may type it in
   - [ ] Two Step
   - [ ] West Coast Swing
   - [ ] Bonus Swing 
+
+
 *** _VALIDATE THE INPUT_ 
 
 #+BEGIN_SRC elisp :results silent 
@@ -294,6 +294,7 @@ NOTE: if the number does not appear in the list, you may type it in
 [[elisp:(create-couples-list)][Create Couples List]]
 
 [[elisp:(confirm-couples-list)][Confirm Couples List]]
+
 ** _DEVELOPMENT ARENA_
 *** :example of table: 
   | Couple | 	A | 	B | 	C | 	D | 	E | 	F | 	G | 	H |
@@ -337,7 +338,9 @@ NOTE: if the number does not appear in the list, you may type it in
 #+RESULTS:
 : cons
 
+
 *** TODO _Automate Table_
+
 **** _CONSTRUCT TABLE_ 
 
 #+BEGIN_SRC elisp :results silent 
@@ -427,6 +430,7 @@ NOTE: if the number does not appear in the list, you may type it in
   (when (search-backward (format "%c+RESULTS:" ?#) nil t)
     (replace-match (concat "#+name: " (symbol-name 'cha-cha-table)) t))  
 #+END_SRC
+
 
 **** _Set Table Name_
 
