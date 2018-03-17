@@ -300,36 +300,6 @@ NOTE: if the number does not appear in the list, you may type it in
   |    117 |   6 |   2 |   5 |   4 |   6 |     |     |     |
 
 
-***  _COUPLE LIST GENERATOR_
-
-
-#+name: couples
-
-
-
-#+BEGIN_SRC elisp :results silent
-  (defun couple-generator (num-couples)
-    (loop for i from 0 to num-couples
-         do (string-rectangle 0 10 "  - [ ] ")))
-#+END_SRC
-
-#+RESULTS: couples
-: couple-generator
-
-#+BEGIN_SRC elisp :results raw
-(couple-generator num-couples)
-#+END_SRC
-
-#+RESULTS:
-((  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ) (  - [ ] ))
-
-#+BEGIN_SRC elisp 
-(type-of couples)
-#+END_SRC
-
-#+RESULTS:
-: cons
-
 
 *** TODO _Automate Table_
 
