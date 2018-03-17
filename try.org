@@ -1,0 +1,76 @@
+#+TITLE: Try
+#+AUTHOR: 
+#+DATE: 
+#+LANGUAGE: en
+#+OPTIONS: num:nil toc:nil \n:nil @:t ::t |:t ^:t *:t TeX:t LaTeX:t ':t d:(not "HELP" "HINT")
+#+STARTUP: showeverything entitiespretty
+#+REVEAL_ROOT: http://cdn.jsdelivr.net/reveal.js/3.0.0/
+
+* Setup                                                            :noexport:
+
+  [[elisp:(call-interactively 'org-reveal-export-to-html-and-browse)][Reveal to Browser]]
+
+  Generic functions meant to be called by specific functions:
+#+name: generic-setup
+#+BEGIN_SRC elisp :results silent
+  (defun set-symbol-from-string (symbol something-as-string)
+    (set symbol (car (read-from-string something-as-string))))
+
+  (defun insert-right-after-elisp-link (something &optional newline)
+    (forward-line)
+    (insert (format "%s%s" something (if newline "\n" ""))))
+#+END_SRC 
+
+  Specific functions (and helpers) meant for elisp execution links:
+#+name: specific-setup
+#+BEGIN_SRC elisp :results silent
+  (defun build-judges-list (num-judges)
+    (loop for j from 1 to num-judges
+          collect (char-to-string (+ j ?@))))
+
+  (defun build-dance-table (judges couples)
+    (append (list (cons 'Couples judges))
+            (list 'hline)
+            (mapcar 'list couples)))
+
+  (defun insert-dance-table ()
+    (insert-right-after-elisp-link
+     (with-temp-buffer
+       (insert "#+BEGIN_SRC elisp\ndance-table-blank\n#+END_SRC\n")
+       (org-ctrl-c-ctrl-c) ; same as typing ", ,"
+       (goto-char (point-min))
+       (kill-line 5)
+       (insert "#+name: dance-table-to-fill-out\n")
+       (goto-char (point-max))
+       (insert "\n[[elisp:(set-dance-table)][Set Dance Table (when ready)]]\n")
+       (buffer-substring-no-properties (point-min) (point-max)))))
+
+  (defun set-dance-table ()
+    (set-symbol-from-string 'dance-table (org-sbe dance-table-to-fill-out))) 
+#+END_SRC
+
+
+#+name: initialize-variables
+#+BEGIN_SRC elisp
+  (setq num-judges 5
+        judges (build-judges-list num-judges)
+        num-couples 7
+        couples (number-sequence 111 (+ num-couples 110))
+        dance-table-blank (build-dance-table judges couples))
+#+END_SRC
+
+* Introduction
+  This is a sample presentation of a setup and workflow.
+* Steps to Success 
+** Try
+   - [[elisp:(org-sbe%20generic-setup)][Generic Setup]]
+   - [[elisp:(org-sbe%20specific-setup)][Specific Setup]]
+   - [[elisp:(org-sbe%20initialize-variables)][Initialize Variables]]
+   - [[elisp:(insert-dance-table)][Insert Dance Table]]
+** Try Harder
+** Try Smarter
+* Conclusion
+** Said Yoda to Luke
+   Try not! Do or do not. There is no try.
+** Do Good
+   The ultimate formula for success!
