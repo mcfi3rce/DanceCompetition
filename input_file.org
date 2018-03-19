@@ -230,7 +230,7 @@ NOTE: if the number does not appear in the list, you may type it in
   - [ ] 11
   - [ ] --
 
-#+attr_org: :radiod
+#+attr_org: :radio
 #+name: number-dances
   - [ ] 3
   - [X] 5

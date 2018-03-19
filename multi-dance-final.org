@@ -963,6 +963,15 @@ couples
    (defun make-couples-list (couples-with-sum)
      (mapcar 'car couples-with-sum))
 
+   (defun build-rule-11 (couples-list)
+     (setq rule-11-dance-rows (rule-11-rows couples-list final-dance)
+           rule-11-dance-columns (transpose rule-11-dance-rows)
+           majority (1+ (/ (length (cdr (first rule-11-dance-rows))) 2))
+           starting-place (1+ (length places))
+           totals (calculate-totals rule-11-dance-rows number-of-places)
+           dance-totals-columns (create-dance-columns totals couples-list)
+           dance-totals-rows (transpose dance-totals-columns)))
+
    (defun multi-dance (number-of-places)
      (loop with tied-couples = nil
            with tied-sum = nil
