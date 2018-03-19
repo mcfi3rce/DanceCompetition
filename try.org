@@ -26,7 +26,7 @@
       (insert (format "* %s \n#+name: %s\n" name name))
       (goto-char (point-max))
       (when link-function
-        (insert (format "\n[[elisp:(%s)" link-function))
+        (insert (format "\n[[elisp:(%s %s)" link-function symbol))
         (insert (if link-name (format "][%s]]\n" link-name) "]]\n")))
       (buffer-substring-no-properties (point-min) (point-max))))
 #+END_SRC 
@@ -63,8 +63,6 @@
       dance-symbol
       'set-dance-table
       "Score Dance")))
-
-
 
   (defun set-dance-table (dance-symbol)
     (set-symbol-from-string dance-symbol (org-sbe dance-table-to-fill-out)))
@@ -177,25 +175,7 @@
 
 
 
-** Try Harder
-#+BEGIN_SRC elisp
-  (build-random-dance-table)
-#+END_SRC
 
-#+RESULTS:
-| 868 | 406 | 476 | 735 | 122 | 942 |
-| 122 | 942 | 476 | 406 | 735 | 868 |
-| 942 | 868 | 735 | 122 | 476 | 406 |
-
-** Try Smarter
-  - [[elisp:(insert-dance-table-to-compute-with)][Insert Dance Table To Compute With]]
-#+name: dance-table-to-compute-with
-| 127 | 1 | 6 | 3 |
-| 455 | 5 | 3 | 1 |
-| 539 | 2 | 1 | 6 |
-| 603 | 6 | 5 | 2 |
-| 796 | 4 | 4 | 5 |
-| 837 | 3 | 2 | 4 |
 
 * Conclusion
 ** Said Yoda to Luke
