@@ -4,12 +4,9 @@
 #+LANGUAGE: en
 #+OPTIONS: num:nil toc:nil \n:nil @:t ::t |:t ^:t *:t TeX:t LaTeX:t ':t d:(not "HELP" "HINT")
 #+STARTUP: showeverything entitiespretty
-#+REVEAL_ROOT: http://cdn.jsdelivr.net/reveal.js/3.0.0/
+#+REVEAL_ROOT: https://cdn.jsdelivr.net/reveal.js/3.0.0/
 
 * Setup                                                            :noexport:
-
-  [[elisp:(call-interactively 'org-reveal-export-to-html-and-browse)][Reveal to Browser]]
-
   Generic functions meant to be called by specific functions:
 #+name: generic-setup
 #+BEGIN_SRC elisp :results silent
@@ -19,6 +16,19 @@
   (defun insert-right-after-elisp-link (something &optional newline)
     (forward-line)
     (insert (format "%s%s" something (if newline "\n" ""))))
+
+  (defun eval-with-temp-buffer (symbol name &optional link-function link-name)
+    (with-temp-buffer
+      (insert (format "#+BEGIN_SRC elisp\n%s\n#+END_SRC\n" symbol))
+      (org-ctrl-c-ctrl-c) ; same as typing ", ,"
+      (goto-char (point-min))
+      (kill-line 5)
+      (insert (format "#+name: %s\n" name))
+      (goto-char (point-max))
+      (when link-function
+        (insert (format "\n[[elisp:(%s)" link-function))
+        (insert (if link-name (format "][%s]]\n" link-name) "]]\n")))
+      (buffer-substring-no-properties (point-min) (point-max))))
 #+END_SRC 
 
   Specific functions (and helpers) meant for elisp execution links:
@@ -28,35 +38,76 @@
     (loop for j from 1 to num-judges
           collect (char-to-string (+ j ?@))))
 
-  (defun build-dance-table (judges couples)
-    (append (list (cons 'Couples judges))
+  (defun build-dance-table (judges places)
+    (append (list (cons "" places))
             (list 'hline)
-            (mapcar 'list couples)))
+            (mapcar 'list judges)))
 
-  (defun insert-dance-table ()
+  (defun build-random-dance-table ()
+    (let (couples permutations num-permutations placements)
+      (setq couples (loop repeat num-couples
+                          collect (+ 100 (random 900)))
+            permutations (-permutations couples)
+            num-permutations (length permutations)
+            placements (loop repeat num-judges
+                             collect (nth (random num-permutations) permutations)))))
+
+  (defun insert-dance-table-to-fill-out ()
     (insert-right-after-elisp-link
-     (with-temp-buffer
-       (insert "#+BEGIN_SRC elisp\ndance-table-blank\n#+END_SRC\n")
-       (org-ctrl-c-ctrl-c) ; same as typing ", ,"
-       (goto-char (point-min))
-       (kill-line 5)
-       (insert "#+name: dance-table-to-fill-out\n")
-       (goto-char (point-max))
-       (insert "\n[[elisp:(set-dance-table)][Set Dance Table (when ready)]]\n")
-       (buffer-substring-no-properties (point-min) (point-max)))))
+     (eval-with-temp-buffer
+      'dance-table-blank
+      'dance-table-to-fill-out
+      'set-dance-table
+      "Set Dance Table (when ready)")))
 
   (defun set-dance-table ()
-    (set-symbol-from-string 'dance-table (org-sbe dance-table-to-fill-out))) 
-#+END_SRC
+    (set-symbol-from-string 'dance-table-filled-out (org-sbe dance-table-to-fill-out)))
 
+  (defun reorganize-dance-table (dance-table)
+    (let (dt-triples dt-triples-sorted dt-by-couples dt-reorganized)
+      (setq dt-triples
+            (loop for row in dance-table
+                  append (loop for place from 1 to num-couples
+                               collect (list (first row) place (nth place row))))
+            dt-triples-sorted
+            (sort dt-triples
+                  (lambda (x y) (< (third x) (third y))))
+            dt-by-couples
+            (loop for n from 0 below num-couples
+                  collect (subseq dt-triples-sorted
+                                  (* n num-judges) (* (1+ n) num-judges)))
+            dt-reorganized
+            (loop for couple-row in dt-by-couples
+                  collect (cons (third (first couple-row))
+                                (mapcar 'second couple-row))))))
+
+  (defun insert-dance-table-to-compute-with ()
+    (setq dance-table-reorganized (reorganize-dance-table dance-table-filled-out))
+    (insert-right-after-elisp-link
+     (eval-with-temp-buffer
+      'dance-table-reorganized
+      'dance-table-to-compute-with)))
+
+  (defun publish-results ()
+    (org-publish-initialize-cache "results")
+    (org-reveal-publish-to-reveal
+     publish-results-plist publish-file publish-directory)
+    (shell-command-to-string
+     (format "cd %s && git add %s && git commit -m '%s' && git push origin master"
+             publish-directory (concat (file-name-base publish-file) ".html")
+             "Updated results.")))
+#+END_SRC
 
 #+name: initialize-variables
 #+BEGIN_SRC elisp
-  (setq num-judges 5
+  (setq publish-file (buffer-file-name) 
+        publish-directory (expand-file-name "~/rickneff.github.io/")
+        publish-results-plist (list :html-preamble nil)
+        num-judges 3
         judges (build-judges-list num-judges)
-        num-couples 7
-        couples (number-sequence 111 (+ num-couples 110))
-        dance-table-blank (build-dance-table judges couples))
+        num-couples 6
+        places (number-sequence 1 num-couples)
+        dance-table-blank (build-dance-table judges places))
 #+END_SRC
 
 * Introduction
@@ -66,11 +117,42 @@
    - [[elisp:(org-sbe%20generic-setup)][Generic Setup]]
    - [[elisp:(org-sbe%20specific-setup)][Specific Setup]]
    - [[elisp:(org-sbe%20initialize-variables)][Initialize Variables]]
-   - [[elisp:(insert-dance-table)][Insert Dance Table]]
+   - [[elisp:(insert-dance-table-to-fill-out)][Insert Dance Table To Fill Out]]
+#+name: dance-table-to-fill-out
+|   |   1 |   2 |   3 |   4 |   5 |   6 | 
+|---+-----+-----+-----+-----+-----+-----|
+| A | 127 | 539 | 837 | 796 | 455 | 603 |
+| B | 539 | 837 | 455 | 796 | 603 | 127 |
+| C | 455 | 603 | 127 | 837 | 796 | 539 |
+
+[[elisp:(set-dance-table)][Set Dance Table (when ready)]]
+
 ** Try Harder
+#+BEGIN_SRC elisp
+  (build-random-dance-table)
+#+END_SRC
+
+#+RESULTS:
+| 868 | 406 | 476 | 735 | 122 | 942 |
+| 122 | 942 | 476 | 406 | 735 | 868 |
+| 942 | 868 | 735 | 122 | 476 | 406 |
+
 ** Try Smarter
+  - [[elisp:(insert-dance-table-to-compute-with)][Insert Dance Table To Compute With]]
+#+name: dance-table-to-compute-with
+| 127 | 1 | 6 | 3 |
+| 455 | 5 | 3 | 1 |
+| 539 | 2 | 1 | 6 |
+| 603 | 6 | 5 | 2 |
+| 796 | 4 | 4 | 5 |
+| 837 | 3 | 2 | 4 |
+
 * Conclusion
 ** Said Yoda to Luke
    Try not! Do or do not. There is no try.
 ** Do Good
    The ultimate formula for success!
+
+  [[elisp:(call-interactively 'org-reveal-export-to-html-and-browse)][Reveal to Browser]]
+
+  [[elisp:(publish-results)][Publish Results]]
