@@ -151,58 +151,56 @@ _DANCE COMPETITION_
 Please enter the number of judges needed for the competition
 NOTE: if the number does not appear in the list, you may type it in 
       where the '--' indicators are.
-
-
+ 
 * Completed
 ** CODE
 #+BEGIN_SRC elisp :results silent 
-  (defun validate-input ()
-    (validate-radio-list (get-checkbox-list-values "number-judges"))
-    (validate-radio-list (get-checkbox-list-values "number-couples"))
-    (validate-radio-list (get-checkbox-list-values "number-dances"))
-    ;; if error message 
-    )
+      (defun validate-input ()
+        (validate-radio-list (get-checkbox-list-values "number-judges"))
+        (validate-radio-list (get-checkbox-list-values "number-couples"))
+        (validate-radio-list (get-checkbox-list-values "number-dances"))
+        ;; if error message 
+        )
 
-  (defun format-list-item (list-item)
-    (format "  - [%c] %s" (if check-all ?X ? ) list-item))
+      (defun format-list-item (list-item)
+        (format "  - [%c] %s" (if check-all ?X ? ) list-item))
 
-  (defun insert-org-list (lisp-list name &optional check-all)
-    (let ((pos 0)
-          (txt (mapconcat 'format-list-item lisp-list "\n")))
-      (forward-line)
-      (setq pos (point))
-      (insert (concat "\n#+name: " name "\n"))
-      (insert txt)
-      (insert "\n")
-      (goto-char pos)))
+      (defun insert-org-list (lisp-list name &optional check-all)
+        (let ((pos 0)
+              (txt (mapconcat 'format-list-item lisp-list "\n")))
+          (forward-line)
+          (setq pos (point))
+          (insert (concat "\n#+name: " name "\n"))
+          (insert txt)
+          (insert "\n")
+          (goto-char pos)))
 
-  (defun create-couples-list ()
-    (insert-org-list (make-list num-couples "") "couples" t))
+      (defun create-couples-list ()
+        (insert-org-list (make-list num-couples "") "couples" t))
 
-  (defun confirm-couples-list ()
-    (setq couples (mapcar 'string-to-number
-                          (get-checkbox-list-values "couples"))
-          num-couples (length couples)))
+      (defun confirm-couples-list ()
+        (setq couples (mapcar 'string-to-number
+                              (get-checkbox-list-values "couples"))
+              num-couples (length couples)))
 
-  (defun header (num-judges)
-    (let* ((start ?A) 
-           (end (+ start num-judges -1)))
-      (list (append '(Couple) (mapcar 'char-to-string (number-sequence start end))))))
+      (defun header (num-judges)
+        (let* ((start ?A) 
+               (end (+ start num-judges -1)))
+          (list (append '(Couple) (mapcar 'char-to-string (number-sequence start end))))))
 
-  (defun body (num-couples)
-    (loop for couple in couples
-      collect (list couple)))
+      (defun body (num-couples)
+        (loop for couple in couples
+          collect (list couple)))
 
-  (defun build-tables (num-judges num-couples)
-    (append(header num-judges)(list 'hline)(body num-couples)))
+      (defun build-tables (num-judges num-couples)
+        (append(header num-judges)(list 'hline)(body num-couples)))
 
-;; initialize variables 
-  (setq num-dances (string-to-number (car (get-checkbox-list-values "number-dances"))))
-  (setq num-judges (string-to-number (car (get-checkbox-list-values "number-judges"))))
-  (setq num-couples (string-to-number (car (get-checkbox-list-values "number-couples"))))
-  (setq dance-list (org-get-plain-list "dance-styles")
-        ans (org-element-property :name dance-list))
-
+    ;; initialize variables 
+      (setq num-dances (string-to-number (car (get-checkbox-list-values "number-dances")))
+            num-judges (string-to-number (car (get-checkbox-list-values "number-judges")))
+            num-couples (string-to-number (car (get-checkbox-list-values "number-couples")))
+            dance-list  (mapcar 'string-to-symbol (get-checkbox-list-values "dance-styles"))
+            dance-results-list (make-results-symbols dance-list))
 #+END_SRC
 
 
@@ -243,22 +241,22 @@ NOTE: if the number does not appear in the list, you may type it in
   - [ ] IS--Quickstep
   - [ ] IS--Slow Foxtrot
   - [ ] IS--Tango
-  - [ ] IS--Viennese Waltz
-  - [ ] IS--Waltz 
+  - [X] IS--Viennese Waltz
+  - [ ] IS--Waltz
   - [ ] IL--Cha Cha
-  - [ ] IL--Jive
+  - [X] IL--Jive
   - [ ] IL--Paso Doble
   - [ ] IL--Rumba
-  - [X] IL--Samba 
+  - [X] IL--Samba
   - [ ] AS--Foxtrot
   - [ ] AS--Tango
   - [ ] AS--Viennese Waltz
   - [ ] AS--Waltz
   - [ ] AR--Bolero
   - [ ] AR--Cha Cha
-  - [ ] AR--East Coast Swing
+  - [X] AR--East Coast Swing
   - [ ] AR--Mambo
-  - [ ] AR--Rumba 
+  - [ ] AR--Rumba
   - [ ] Cabaret
   - [X] Salsa
   - [ ] NY Hustle
@@ -267,7 +265,6 @@ NOTE: if the number does not appear in the list, you may type it in
   - [ ] Two Step
   - [ ] West Coast Swing
   - [ ] Bonus Swing 
-
 
 ** VALIDATE THE INPUT 
 #+BEGIN_SRC elisp :results silent
@@ -289,7 +286,6 @@ NOTE: if the number does not appear in the list, you may type it in
   - [X] 117
 
 [[elisp:(confirm-couples-list)][Confirm Couples List]]
-
 
 ** export as html button
 
@@ -317,7 +313,6 @@ NOTE: if the number does not appear in the list, you may type it in
 |    115 |   |   |   |   |   |
 |    116 |   |   |   |   |   |
 |    117 |   |   |   |   |   |
-
 
 * DEVELOPMENT ARENA
 *** TODO _Automate Table_
@@ -403,7 +398,7 @@ This create a variable named after the dance + table and the table
 *** Results Table
 #+BEGIN_SRC elisp 
   (defun results-table (num-couples couples)
-    (append (list (append '(Couples) '(Rank)))
+  (append (list (append '(Couples) '(Rank)))
     (list 'hline)(body num-couples)))
 #+END_SRC
 
@@ -424,3 +419,22 @@ This create a variable named after the dance + table and the table
 |     115 |      |
 |     116 |      |
 |     117 |      |
+#+BEGIN_SRC emacs-lisp :results code
+  (defun string-to-symbol (string)
+    (intern (downcase (replace-regexp-in-string " " "-" string))))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (defun make-results-symbols (dance-symbols)
+    (mapcar (lambda (dance-symbol) (intern (concat (symbol-name dance-symbol) "-results"))) dance-symbols))
+#+END_SRC
+
+#+RESULTS:
+: make-results-symbols
+
+#+BEGIN_SRC emacs-lisp
+  (make-results-symbols dance-list)
+#+END_SRC
+
+#+RESULTS:
+| is--viennese-waltz-results | il--jive-results | il--samba-results | ar--east-coast-swing-results | salsa-results |
