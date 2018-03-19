@@ -870,8 +870,23 @@ couples
                       couple-sums)
                    (t (really-tied couple-sums place-val couples-list)))))))))
 
-   (defun score-single-dance (num-places)
-     (loop for place from 1 to num-places
+   (defun build-single-dance (dance)
+     (setq couples (mapcar 'first dance)
+           couples-line (list couples 'hline)
+           couple-scores (mapcar (lambda (row)
+                                   (loop for score in (remove-if 'stringp row)
+                                         collect score))
+                                 dance)
+           majority (calculate-majority (cdr (first dance)))
+           number-of-places (length couples)
+           places ()
+           totals (calculate-totals dance number-of-places)
+           dance-totals-columns (create-dance-columns totals couples)
+           dance-totals-rows (transpose dance-totals-columns)))
+
+   (defun score-single-dance (dance)
+     (build-single-dance dance)
+     (loop for place from 1 to number-of-places
            do (single-complex-majority (elt dance-totals-columns place) place (car dance-totals-columns)))
      (print-standings places))
 
@@ -944,22 +959,22 @@ couples
                                  if (= (car single-dance) couple)
                                  do (setq final-couple (append final-couple (cdr single-dance)))
                                  finally return final-couple))))
-                                 
- (defun make-couples-list (couples-with-sum)
-    (mapcar 'car couples-with-sum))
 
- (defun multi-dance (number-of-places)
-      (loop with tied-couples = nil
-            with tied-sum = nil
-            for x from 0 to number-of-places
-            do (setq tied-sum (remove-untied-couples final-couple-sums x))
-            if (= (length places) number-of-places)
-            return places
-            do (setq tied-couples (couples-with-sum final-couple-sums tied-sum))
-            (build-rule-11 (make-couples-list tied-couples))
-            (score-multi-dance starting-place number-of-places (make-couples-list tied-couples))
-            (update-sums places final-couple-sums)
-            (setq x (length places))))
+   (defun make-couples-list (couples-with-sum)
+     (mapcar 'car couples-with-sum))
+
+   (defun multi-dance (number-of-places)
+     (loop with tied-couples = nil
+           with tied-sum = nil
+           for x from 0 to number-of-places
+           do (setq tied-sum (remove-untied-couples final-couple-sums x))
+           if (= (length places) number-of-places)
+           return places
+           do (setq tied-couples (couples-with-sum final-couple-sums tied-sum))
+           (build-rule-11 (make-couples-list tied-couples))
+           (score-multi-dance starting-place number-of-places (make-couples-list tied-couples))
+           (update-sums places final-couple-sums)
+           (setq x (length places))))
   #+END_SRC 
 
 ** Single-Dance:
@@ -1018,21 +1033,34 @@ couples
  |     27 | 6 | 4 | 2 | 7 | 5 | 3 | 1 |
 
 **** Build Data:
- #+name: totals-rows
-  #+BEGIN_SRC emacs-lisp :var dances=swing :results value
-   (setq couples (mapcar 'first dances)
-         couples-line (list couples 'hline)
-         couple-scores (mapcar (lambda (row)
-                                 (loop for score in (remove-if 'stringp row)
-                                       collect score))
-                               dances)
-         majority (calculate-majority (cdr (first dances)))
-         number-of-places (1+ (length couples))
-         places ()
-         totals (calculate-totals dances number-of-places)
-         dance-totals-columns (create-dance-columns totals couples)
-         dance-totals-rows (transpose dance-totals-columns))
- #+END_SRC
+
+ #+RESULTS: totals-rows
+ : build-single-dance
+#+BEGIN_SRC emacs-lisp :results value :var dances=cha-cha
+  (build-single-dance dances)
+#+END_SRC
+
+#+RESULTS:
+| 111 | 0 | 0 | 0 | 0 | 0 | 0 | 5 |
+| 112 | 0 | 0 | 1 | 3 | 3 | 5 | 5 |
+| 113 | 1 | 2 | 3 | 3 | 5 | 5 | 5 |
+| 114 | 1 | 1 | 3 | 4 | 5 | 5 | 5 |
+| 115 | 2 | 5 | 5 | 5 | 5 | 5 | 5 |
+| 116 | 1 | 1 | 2 | 3 | 4 | 5 | 5 |
+| 117 | 0 | 1 | 1 | 2 | 3 | 5 | 5 |
+
+#+BEGIN_SRC emacs-lisp :results value :var dance=cha-cha
+  (score-single-dance dance)
+#+END_SRC
+
+#+RESULTS:
+| 1 | 115 |
+| 2 | 113 |
+| 3 | 114 |
+| 4 | 116 |
+| 5 | 112 |
+| 6 | 117 |
+| 7 | 111 |
 
  #+NAME: totals-columns
  #+BEGIN_SRC elisp
@@ -1078,6 +1106,13 @@ couples
  | 5 | 112 |
  | 6 | 117 |
  | 7 | 111 |
+
+#+BEGIN_SRC emacs-lisp :var test=cha-cha-results
+ (equal test (print-standings places)) 
+#+END_SRC
+
+#+RESULTS:
+: t
 
  #+tblname: rumba
  | Couple | 	A | 	B | 	C | 	D | 	E |
