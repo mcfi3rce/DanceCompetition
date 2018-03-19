@@ -1,7 +1,7 @@
-#+TITLE: Input File
+#+TITLE: User Interface File
 #+REVEAL_ROOT: http://cdn.jsdelivr.net/reveal.js/3.0.0/
-This file adds Brother Neffs code of checklist and things to be added when making the tables for the competitions
-hello worldrother Neffs code of checklist and things to be added when making the tables for the competitions
+#+note: This file adds Brother Neffs code of checklist and things to be added when making the tables for the competitions
+#+note: hello world Brother Neffs code of checklist and things to be added when making the tables for the competitions
 
 _*NEFF CODE*_ 
 * Code
@@ -11,7 +11,7 @@ _*NEFF CODE*_
   (require 'dash)
 
   (defun check-hook-fn ()
-    (wh,,en (-contains? (org-element-property
+    (when (-contains? (org-element-property
                        :attr_org
                        (org-element-property :parent (org-element-context)))
                       ":radio")
@@ -231,8 +231,8 @@ NOTE: if the number does not appear in the list, you may type it in
 #+attr_org: :radio
 #+name: number-dances
   - [ ] 3
-  - [X] 5
-  - [ ] 7
+  - [ ] 5
+  - [X] 7
   - [ ] 9
   - [ ] 11
   - [ ] --
@@ -304,15 +304,15 @@ NOTE: if the number does not appear in the list, you may type it in
 #+END_SRC
 
 #+RESULTS:
-| Couple | A | B | C | D | E |
-|--------+---+---+---+---+---|
-|    111 |   |   |   |   |   |
-|    112 |   |   |   |   |   |
-|    113 |   |   |   |   |   |
-|    114 |   |   |   |   |   |
-|    115 |   |   |   |   |   |
-|    116 |   |   |   |   |   |
-|    117 |   |   |   |   |   |
+| Couple | A | B | C |
+|--------+---+---+---|
+|    111 |   |   |   |
+|    112 |   |   |   |
+|    113 |   |   |   |
+|    114 |   |   |   |
+|    115 |   |   |   |
+|    116 |   |   |   |
+|    117 |   |   |   |
 
 * DEVELOPMENT ARENA
 *** TODO _Automate Table_
@@ -409,19 +409,15 @@ This create a variable named after the dance + table and the table
 (results-table num-couples couples)
 #+END_SRC
 
-#+RESULTS:
-| Couples | Rank |
-|---------+------|
-|     111 |      |
-|     112 |      |
-|     113 |      |
-|     114 |      |
-|     115 |      |
-|     116 |      |
-|     117 |      |
+
 #+BEGIN_SRC emacs-lisp :results code
   (defun string-to-symbol (string)
     (intern (downcase (replace-regexp-in-string " " "-" string))))
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_SRC emacs-lisp
+string-to-symbol
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
