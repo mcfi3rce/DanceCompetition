@@ -199,8 +199,8 @@ NOTE: if the number does not appear in the list, you may type it in
       (setq num-dances (string-to-number (car (get-checkbox-list-values "number-dances")))
             num-judges (string-to-number (car (get-checkbox-list-values "number-judges")))
             num-couples (string-to-number (car (get-checkbox-list-values "number-couples")))
-            dance-list  (mapcar 'string-to-symbol (get-checkbox-list-values "dance-styles"))
-            dance-results-list (make-results-symbols dance-list))
+            dance-symbols  (mapcar 'string-to-symbol (get-checkbox-list-values "dance-styles"))
+            dance-results-symbols (make-results-symbols dance-list))
 #+END_SRC
 
 

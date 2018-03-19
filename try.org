@@ -23,7 +23,7 @@
       (org-ctrl-c-ctrl-c) ; same as typing ", ,"
       (goto-char (point-min))
       (kill-line 5)
-      (insert (format "#+name: %s\n" name))
+      (insert (format "* %s \n#+name: %s\n" name name))
       (goto-char (point-max))
       (when link-function
         (insert (format "\n[[elisp:(%s)" link-function))
@@ -52,16 +52,22 @@
             placements (loop repeat num-judges
                              collect (nth (random num-permutations) permutations)))))
 
-  (defun insert-dance-table-to-fill-out ()
+  (defun insert-dance-tables-to-fill-out ()
+    (loop for dance-symbol in dance-symbols
+          do (insert-dance-table-to-fill-out dance-symbol)))
+
+  (defun insert-dance-table-to-fill-out (dance-symbol)
     (insert-right-after-elisp-link
      (eval-with-temp-buffer
       'dance-table-blank
-      'dance-table-to-fill-out
+      dance-symbol
       'set-dance-table
-      "Set Dance Table (when ready)")))
+      "Score Dance")))
 
-  (defun set-dance-table ()
-    (set-symbol-from-string 'dance-table-filled-out (org-sbe dance-table-to-fill-out)))
+
+
+  (defun set-dance-table (dance-symbol)
+    (set-symbol-from-string dance-symbol (org-sbe dance-table-to-fill-out)))
 
   (defun reorganize-dance-table (dance-table)
     (let (dt-triples dt-triples-sorted dt-by-couples dt-reorganized)
@@ -81,12 +87,12 @@
                   collect (cons (third (first couple-row))
                                 (mapcar 'second couple-row))))))
 
-  (defun insert-dance-table-to-compute-with ()
+  (defun insert-dance-table-to-compute-with (dance-symbol)
     (setq dance-table-reorganized (reorganize-dance-table dance-table-filled-out))
     (insert-right-after-elisp-link
      (eval-with-temp-buffer
-      'dance-table-reorganized
-      'dance-table-to-compute-with)))
+      dance-symbol
+      dance-symbol)))
 
   (defun publish-results ()
     (org-publish-initialize-cache "results")
@@ -117,15 +123,59 @@
    - [[elisp:(org-sbe%20generic-setup)][Generic Setup]]
    - [[elisp:(org-sbe%20specific-setup)][Specific Setup]]
    - [[elisp:(org-sbe%20initialize-variables)][Initialize Variables]]
-   - [[elisp:(insert-dance-table-to-fill-out)][Insert Dance Table To Fill Out]]
-#+name: dance-table-to-fill-out
-|   |   1 |   2 |   3 |   4 |   5 |   6 | 
-|---+-----+-----+-----+-----+-----+-----|
-| A | 127 | 539 | 837 | 796 | 455 | 603 |
-| B | 539 | 837 | 455 | 796 | 603 | 127 |
-| C | 455 | 603 | 127 | 837 | 796 | 539 |
+   - [[elisp:(insert-dance-tables-to-fill-out)][Insert Dance Table To Fill Out]]
+* is--viennese-waltz 
+#+name: is--viennese-waltz
+|   | 1 | 2 | 3 | 4 | 5 | 6 |
+|---+---+---+---+---+---+---|
+| A |   |   |   |   |   |   |
+| B |   |   |   |   |   |   |
+| C |   |   |   |   |   |   |
 
-[[elisp:(set-dance-table)][Set Dance Table (when ready)]]
+[[elisp:(set-dance-table)][Score Dance]]
+
+* il--jive 
+#+name: il--jive
+|   | 1 | 2 | 3 | 4 | 5 | 6 |
+|---+---+---+---+---+---+---|
+| A |   |   |   |   |   |   |
+| B |   |   |   |   |   |   |
+| C |   |   |   |   |   |   |
+
+[[elisp:(set-dance-table)][Score Dance]]
+
+* il--samba 
+#+name: il--samba
+|   | 1 | 2 | 3 | 4 | 5 | 6 |
+|---+---+---+---+---+---+---|
+| A |   |   |   |   |   |   |
+| B |   |   |   |   |   |   |
+| C |   |   |   |   |   |   |
+
+[[elisp:(set-dance-table)][Score Dance]]
+
+* ar--east-coast-swing 
+#+name: ar--east-coast-swing
+|   | 1 | 2 | 3 | 4 | 5 | 6 |
+|---+---+---+---+---+---+---|
+| A |   |   |   |   |   |   |
+| B |   |   |   |   |   |   |
+| C |   |   |   |   |   |   |
+
+[[elisp:(set-dance-table)][Score Dance]]
+
+* salsa 
+#+name: salsa
+|   | 1 | 2 | 3 | 4 | 5 | 6 |
+|---+---+---+---+---+---+---|
+| A |   |   |   |   |   |   |
+| B |   |   |   |   |   |   |
+| C |   |   |   |   |   |   |
+
+[[elisp:(set-dance-table)][Score Dance]]
+
+
+
 
 ** Try Harder
 #+BEGIN_SRC elisp
