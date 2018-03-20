@@ -241,13 +241,13 @@ NOTE: if the number does not appear in the list, you may type it in
   - [ ] IS--Quickstep
   - [ ] IS--Slow Foxtrot
   - [ ] IS--Tango
-  - [X] IS--Viennese Waltz
+  - [ ] IS--Viennese Waltz
   - [ ] IS--Waltz
-  - [ ] IL--Cha Cha
-  - [X] IL--Jive
+  - [X] IL--Cha Cha
+  - [ ] IL--Jive
   - [ ] IL--Paso Doble
-  - [ ] IL--Rumba
-  - [X] IL--Samba
+  - [X] IL--Rumba
+  - [ ] IL--Samba
   - [ ] AS--Foxtrot
   - [ ] AS--Tango
   - [ ] AS--Viennese Waltz
@@ -255,10 +255,10 @@ NOTE: if the number does not appear in the list, you may type it in
   - [ ] AR--Bolero
   - [ ] AR--Cha Cha
   - [X] AR--East Coast Swing
-  - [ ] AR--Mambo
+  - [X] AR--Mambo
   - [ ] AR--Rumba
   - [ ] Cabaret
-  - [X] Salsa
+  - [ ] Salsa
   - [ ] NY Hustle
   - [ ] Lindy
   - [ ] Swing
@@ -409,6 +409,17 @@ This create a variable named after the dance + table and the table
 (results-table num-couples couples)
 #+END_SRC
 
+#+RESULTS:
+| Couples | Rank |
+|---------+------|
+|     111 |      |
+|     112 |      |
+|     113 |      |
+|     114 |      |
+|     115 |      |
+|     116 |      |
+|     117 |      |
+
 
 #+BEGIN_SRC emacs-lisp :results code
   (defun string-to-symbol (string)
@@ -422,11 +433,18 @@ string-to-symbol
 
 #+BEGIN_SRC emacs-lisp
   (defun make-results-symbols (dance-symbols)
-    (mapcar (lambda (dance-symbol) (intern (concat (symbol-name dance-symbol) "-results"))) dance-symbols))
+    (mapcar 'make-results-symbol dance-symbols))
 #+END_SRC
 
 #+RESULTS:
 : make-results-symbols
+
+#+BEGIN_SRC emacs-lisp
+  (defun make-results-symbol (dance-symbol)
+    (intern (concat (symbol-name dance-symbol) "-results")))
+#+END_SRC
+#+RESULTS:
+: make-results-symbol
 
 #+BEGIN_SRC emacs-lisp
   (make-results-symbols dance-list)
