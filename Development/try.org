@@ -270,3 +270,5 @@
   [[elisp:(call-interactively 'org-reveal-export-to-html-and-browse)][Reveal to Browser]]
 
   [[elisp:(publish-results)][Publish Results]]
+
+[[elisp:(org-html-export-as-html)][Print]]
