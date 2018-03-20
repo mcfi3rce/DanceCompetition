@@ -16,6 +16,8 @@ Program Description:
 * Code 
 #+NAME: BEGIN
 #+BEGIN_SRC emacs-lisp :results silent
+  (setq org-confirm-elisp-link-function nil)
+
   ;; Single Dance Functions all the documentation is in development
   (require 'cl)
   (require 'dash)
