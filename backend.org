@@ -373,7 +373,7 @@ Program Description:
 
   (defun validate-radio-list (choices)
     "Validates that a just one choice was made then returns
-        that choice, otherwise returns an error message."
+          that choice, otherwise returns an error message."
     (if (= 1 (length choices))
         (first choices) "Invalid or unanswered."))
 
@@ -448,10 +448,10 @@ Program Description:
     (loop for j from 1 to num-judges
           collect (char-to-string (+ j ?@))))
 
-  (defun build-dance-table (judges places)
-    (append (list (cons "" places))
+  (defun build-dance-table-blank ()
+    (append (list (cons "" (number-sequence 1 num-couples)))
             (list 'hline)
-            (mapcar 'list judges)))
+            (mapcar 'list (build-judges-list num-judges))))
 
   (defun build-random-dance-table ()
     (let (couples permutations num-permutations placements)
@@ -476,7 +476,7 @@ Program Description:
 
   (defun set-dance-table (dance-symbol)
     (set-symbol-from-string dance-symbol (eval (list 'org-sbe (symbol-name dance-symbol))))
-    ;;(set-symbol-after-reorganizing dance-symbol))
+    (set-symbol-after-reorganizing dance-symbol)
     (let ((results-symbol (make-results-symbol dance-symbol)))
       (set results-symbol (score-single-dance (symbol-value dance-symbol)))
       (insert-right-after-elisp-link (eval-with-temp-buffer results-symbol results-symbol))))
@@ -525,9 +525,10 @@ Program Description:
           publish-results-plist (list :html-preamble nil)))
 
   (defun initialize-variables ()
-    (setq num-dances (string-to-number (car (get-checkbox-list-values "number-dances")))
-          num-judges (string-to-number (car (get-checkbox-list-values "number-judges")))
+    (setq num-judges (string-to-number (car (get-checkbox-list-values "number-judges")))
+          dance-table-blank (build-dance-table-blank)
           num-couples (string-to-number (car (get-checkbox-list-values "number-couples")))
           dance-symbols (mapcar 'string-to-symbol (get-checkbox-list-values "dance-styles"))
-          dance-symbols-results (make-results-symbols dance-symbols)))
+          dance-symbols-results (make-results-symbols dance-symbols)
+          num-dances (length dance-symbols)))
 #+END_SRC

@@ -37,6 +37,12 @@ Program Use:
           the calculated ranks. To rotate between dances and results the presentation allow horizontal and vertical rotating. 
 #+END_INFO
 
+* Publish For Viewers                                              :noexport:
+
+  - [[elisp:(call-interactively 'org-reveal-export-to-html-and-browse)][Reveal to Browser]]
+
+  - [[elisp:(publish-results)][Publish Results]]
+
 * Begin Scrutineering                                              :noexport:
 
   - [[elisp:(org-sbe%20backend.org:BEGIN)][Click me to begin]]
@@ -47,15 +53,6 @@ Program Use:
 
 #+attr_org: :radio
 #+name: number-judges
-  - [X] 3
-  - [ ] 5
-  - [ ] 7
-  - [ ] 9
-  - [ ] 11
-  - [ ] --
-
-#+attr_org: :radio
-#+name: number-couples
   - [ ] 3
   - [X] 5
   - [ ] 7
@@ -64,21 +61,23 @@ Program Use:
   - [ ] --
 
 #+attr_org: :radio
-#+name: number-dances
-  - [X] 3
+#+name: number-couples
+  - [ ] 2
+  - [ ] 3
+  - [ ] 4
   - [ ] 5
-  - [ ] 7
-  - [ ] 9
-  - [ ] 11
+  - [ ] 6
+  - [X] 7
+  - [ ] 8
   - [ ] --
 
 #+name: dance-styles
   - [ ] IS--Quickstep
   - [ ] IS--Slow Foxtrot
-  - [X] IS--Tango
+  - [ ] IS--Tango
   - [ ] IS--Viennese Waltz
   - [ ] IS--Waltz
-  - [ ] IL--Cha Cha
+  - [X] IL--Cha Cha
   - [ ] IL--Jive
   - [ ] IL--Paso Doble
   - [ ] IL--Rumba
@@ -100,12 +99,6 @@ Program Use:
   - [ ] Two Step
   - [ ] West Coast Swing
   - [ ] Bonus Swing 
-
-* Publish For Viewers                                              :noexport:
-
-  - [[elisp:(call-interactively 'org-reveal-export-to-html-and-browse)][Reveal to Browser]]
-
-  - [[elisp:(publish-results)][Publish Results]]
 
 * Begin Ranking
 
