@@ -14,6 +14,7 @@ Program Description:
 #+END_INFO
 
 * Code 
+#+NAME: BEGIN
 #+BEGIN_SRC emacs-lisp :results silent
    ;; Single Dance Functions all the documentation is in development   
    (defun calculate-majority (row)
@@ -419,24 +420,14 @@ Program Description:
   (defun make-results-symbols (dance-symbols)
     (mapcar 'make-results-symbol dance-symbols))
 
-#+END_SRC
 
-: Error occurs within this source block, need to figure out why...
-: been coppied over several times and error still occurs.
-: ERROR TYPE STRINGP NIL 
-
-#+BEGIN_SRC emacs-lisp :results silent
-  ;; initialize variables 
-  (setq num-dances (string-to-number (car (get-checkbox-list-values "number-dances")))
-        num-judges (string-to-number (car (get-checkbox-list-values "number-judges")))
-        num-couples (string-to-number (car (get-checkbox-list-values "number-couples")))
-        dance-symbols  (mapcar 'string-to-symbol (get-checkbox-list-values "dance-styles"))
-        dance-symbols-results (make-results-symbols dance-symbols))
-#+END_SRC
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 
-#+BEGIN_SRC emacs-lisp :results silent
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
   (defun set-table-name (table-name)
   (when (search-backward (format "%c+RESULTS:" ?#) nil t)
       (replace-match (concat "#+NAME: " table-name) t)))
@@ -559,3 +550,19 @@ Program Description:
         places (number-sequence 1 num-couples)
         dance-table-blank (build-dance-table judges places))
 #+END_SRC
+
+
+: Error occurs within this source block, need to figure out why...
+: been coppied over several times and error still occurs.
+: ERROR TYPE STRINGP NIL 
+
+#+BEGIN_SRC emacs-lisp :results silent
+  ;; initialize variables 
+  (setq num-dances (string-to-number (car (get-checkbox-list-values "number-dances")))
+        num-judges (string-to-number (car (get-checkbox-list-values "number-judges")))
+        num-couples (string-to-number (car (get-checkbox-list-values "number-couples")))
+        dance-symbols  (mapcar 'string-to-symbol (get-checkbox-list-values "dance-styles"))
+        dance-symbols-results (make-results-symbols dance-symbols))
+#+END_SRC
+
+
