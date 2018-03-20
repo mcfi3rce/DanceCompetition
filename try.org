@@ -21,15 +21,7 @@
     (with-temp-buffer
       (insert (format "#+BEGIN_SRC elisp\n%s\n#+END_SRC\n" symbol))
       (org-ctrl-c-ctrl-c) ; same as typing ", ,"
-      (goto-char (point-min))(defun build-rule-11 (couples-list)
-  (setq rule-11-dance-rows (rule-11-rows couples-list final-dance)
-        rule-11-dance-columns (transpose rule-11-dance-rows)
-        majority (1+ (/ (length (cdr (first rule-11-dance-rows))) 2))
-        starting-place (1+ (length places))
-        totals (calculate-totals rule-11-dance-rows number-of-places)
-        dance-totals-columns (create-dance-columns totals couples-list)
-        dance-totals-rows (transpose dance-totals-columns)))
-
+      (goto-char (point-min))
       (kill-line 5)
       (insert (format "* %s \n#+name: %s\n" name name))
       (goto-char (point-max))
@@ -239,7 +231,17 @@
 | 6 | 117 |
 | 7 | 111 |
 
+[[elisp:(insert-right-after-elisp-link%20(eval-with-temp-buffer%20'(print-standings%20(multi-dance%20dance-symbols-results))%20'multi-dance-results))][Score Multi-Dance]]
 
+* multi-dance-results 
+#+name: multi-dance-results
+| 1 | 115 |
+| 2 | 113 |
+| 3 | 114 |
+| 4 | 116 |
+| 5 | 112 |
+| 6 | 117 |
+| 7 | 111 |
 
 ** Try Harder
 #+BEGIN_SRC elisp
