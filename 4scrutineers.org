@@ -111,6 +111,6 @@
   - [ ] Bonus Swing 
 
 * Begin Ranking
-
+  - [[elisp:(insert-right-after-elisp-link%20(eval-with-temp-buffer%20'(print-standings%20(multi-dance%20dance-symbols-results))%20'multi-dance-results))][Score Multi-Dance]] 
   - [[elisp:(prog1%20(initialize-variables)%20(insert-dance-tables-to-fill-out))][Insert Dance Table To Fill Out]] 
 
