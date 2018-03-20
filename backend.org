@@ -1,0 +1,20 @@
+#+Title: Backend.org
+#+Author: Rick Neff, Adam Mcpherson, Brad Rydalch
+#+LANGUAGE: en
+#+OPTIONS: num:nil toc:nil \n:nil @:t ::t |:t ^:t *:t TeX:t LaTeX:t ':t d:(not "HELP" "HINT")
+#+STARTUP: showeverything entitiespretty
+#+REVEAL_ROOT: https://cdn.jsdelivr.net/reveal.js/3.0.0/
+
+#+BEGIN_INFO
+Program Description: 
+    This file contains the code to computing the ranks of each single dance and multi-dance. Changes
+    to this file should be authorized by Rick Neff and his designated software developers. Any changes
+    made without authorization or testing can result in error for the front-end calculations stored in 
+    4scrutineers.org file. 
+#+END_INFO
+
+* Code 
+#+BEGIN_SRC emacs-lisp :results silent
+
+
+#+END_SRC
