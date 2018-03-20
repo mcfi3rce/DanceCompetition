@@ -964,7 +964,8 @@ couples
      (mapcar 'car couples-with-sum))
 
    (defun build-rule-11 (couples-list)
-     (setq rule-11-dance-rows (rule-11-rows couples-list final-dance)
+     (setq final-dance (apply 'append (mapcar 'symbol-value dance-symbols))
+           rule-11-dance-rows (rule-11-rows couples-list final-dance)
            rule-11-dance-columns (transpose rule-11-dance-rows)
            majority (1+ (/ (length (cdr (first rule-11-dance-rows))) 2))
            starting-place (1+ (length places))
@@ -972,8 +973,22 @@ couples
            dance-totals-columns (create-dance-columns totals couples-list)
            dance-totals-rows (transpose dance-totals-columns)))
 
-   (defun multi-dance (number-of-places)
-     (loop with tied-couples = nil
+   (defun build-multi-dance (results-symbols)
+     (setq multi-dance-scores (apply 'append (mapcar 'symbol-value results-symbols))
+           couples (sort (mapcar 'cadr (symbol-value (first results-symbols))) (lambda (a b) (< a b)))
+           places ()
+           number-of-places (length couples)
+           ;; this is name the same so we can use get-scores function
+           couple-scores (final-scores couples multi-dance-scores)
+           final-couple-sums (final-sum-values couple-scores)
+           sum-values (all-sum-values final-couple-sums)
+           totals (calculate-totals couple-scores number-of-places)
+           dance-totals-columns (create-dance-columns totals couples)
+           dance-totals-rows (transpose dance-totals-columns)))
+
+   (defun multi-dance (results-symbols)
+     (build-multi-dance results-symbols)
+      (loop with tied-couples = nil
            with tied-sum = nil
            for x from 0 to number-of-places
            do (setq tied-sum (remove-untied-couples final-couple-sums x))
@@ -1199,28 +1214,11 @@ couples
  | 7 | 111 |
 
 **** Build Rule 10 Scores:
- #+BEGIN_SRC emacs-lisp :var cha-cha=cha-cha-results swing=swing-results rumba=rumba-results mambo=mambo-results
-   (setq multi-dance-scores (append cha-cha rumba swing mambo)
-         couples (sort (mapcar 'cadr cha-cha) (lambda (a b) (< a b)))
-         places ()
-         number-of-places 7
-         ;; this is name the same so we can use get-scores function
-         couple-scores (final-scores couples multi-dance-scores)
-         final-couple-sums (final-sum-values couple-scores)
-         sum-values (all-sum-values final-couple-sums)
-         totals (calculate-totals couple-scores number-of-places)
-         dance-totals-columns (create-dance-columns totals couples)
-         dance-totals-rows (transpose dance-totals-columns))
+ #+BEGIN_SRC emacs-lisp 
  #+END_SRC
 
  #+RESULTS:
- | 111 | 0 | 0 | 0 | 0 | 0 | 0 | 4 |
- | 112 | 0 | 0 | 0 | 2 | 3 | 4 | 4 |
- | 113 | 0 | 3 | 4 | 4 | 4 | 4 | 4 |
- | 114 | 0 | 1 | 4 | 4 | 4 | 4 | 4 |
- | 115 | 4 | 4 | 4 | 4 | 4 | 4 | 4 |
- | 116 | 0 | 0 | 0 | 2 | 3 | 4 | 4 |
- | 117 | 0 | 0 | 0 | 0 | 2 | 4 | 4 |
+ : build-multi-dance
 
  #+RESULT:
  | 111 | 0 | 0 | 0 | 0 | 0 | 0 | 4 |
@@ -1329,21 +1327,6 @@ couples
 #+RESULTS:
 :var
 (:var cha-cha=cha-cha)
-
-#+BEGIN_SRC emacs-lisp :results silent :var cha-cha=cha-cha rumba=rumba swing=swing mambo=mambo
- (setq final-dance (append cha-cha rumba swing mambo))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-  (defun build-rule-11 (couples-list)
-    (setq rule-11-dance-rows (rule-11-rows couples-list final-dance)
-          rule-11-dance-columns (transpose rule-11-dance-rows)
-          majority (1+ (/ (length (cdr (first rule-11-dance-rows))) 2))
-          starting-place (1+ (length places))
-          totals (calculate-totals rule-11-dance-rows number-of-places)
-          dance-totals-columns (create-dance-columns totals couples-list)
-          dance-totals-rows (transpose dance-totals-columns)))
-#+END_SRC
 
 #+RESULTS:
 : build-rule-11
