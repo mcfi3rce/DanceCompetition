@@ -526,8 +526,8 @@ Program Description:
 
   (defun initialize-variables ()
     (setq num-judges (string-to-number (car (get-checkbox-list-values "number-judges")))
-          dance-table-blank (build-dance-table-blank)
           num-couples (string-to-number (car (get-checkbox-list-values "number-couples")))
+          dance-table-blank (build-dance-table-blank)
           dance-symbols (mapcar 'string-to-symbol (get-checkbox-list-values "dance-styles"))
           dance-symbols-results (make-results-symbols dance-symbols)
           num-dances (length dance-symbols)))
