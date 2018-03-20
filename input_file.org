@@ -63,7 +63,7 @@ _*NEFF CODE*_
 
 * Samples
 ** A Normal Checkbox List
-#+name: groceries
+   #+name: groceries
   - [X] milk
   - [ ] eggs
   - [X] butter
@@ -195,12 +195,22 @@ NOTE: if the number does not appear in the list, you may type it in
       (defun build-tables (num-judges num-couples)
         (append(header num-judges)(list 'hline)(body num-couples)))
 
+    (defun string-to-symbol (string)
+      (intern (downcase (replace-regexp-in-string " " "-" string))))
+
+  (defun make-results-symbol (dance-symbol)
+      (intern (concat (symbol-name dance-symbol) "-results")))
+
+   (defun make-results-symbols (dance-symbols)
+      (mapcar 'make-results-symbol dance-symbols))
+
+
     ;; initialize variables 
       (setq num-dances (string-to-number (car (get-checkbox-list-values "number-dances")))
             num-judges (string-to-number (car (get-checkbox-list-values "number-judges")))
             num-couples (string-to-number (car (get-checkbox-list-values "number-couples")))
             dance-symbols  (mapcar 'string-to-symbol (get-checkbox-list-values "dance-styles"))
-            dance-results-symbols (make-results-symbols dance-list))
+            dance-symbols-results (make-results-symbols dance-symbols))
 #+END_SRC
 
 
@@ -241,13 +251,13 @@ NOTE: if the number does not appear in the list, you may type it in
   - [ ] IS--Quickstep
   - [ ] IS--Slow Foxtrot
   - [ ] IS--Tango
-  - [X] IS--Viennese Waltz
+  - [ ] IS--Viennese Waltz
   - [ ] IS--Waltz
-  - [ ] IL--Cha Cha
-  - [X] IL--Jive
+  - [X] IL--Cha Cha
+  - [ ] IL--Jive
   - [ ] IL--Paso Doble
-  - [ ] IL--Rumba
-  - [X] IL--Samba
+  - [X] IL--Rumba
+  - [ ] IL--Samba
   - [ ] AS--Foxtrot
   - [ ] AS--Tango
   - [ ] AS--Viennese Waltz
@@ -255,10 +265,10 @@ NOTE: if the number does not appear in the list, you may type it in
   - [ ] AR--Bolero
   - [ ] AR--Cha Cha
   - [X] AR--East Coast Swing
-  - [ ] AR--Mambo
+  - [X] AR--Mambo
   - [ ] AR--Rumba
   - [ ] Cabaret
-  - [X] Salsa
+  - [ ] Salsa
   - [ ] NY Hustle
   - [ ] Lindy
   - [ ] Swing
@@ -409,24 +419,30 @@ This create a variable named after the dance + table and the table
 (results-table num-couples couples)
 #+END_SRC
 
-
-#+BEGIN_SRC emacs-lisp :results code
-  (defun string-to-symbol (string)
-    (intern (downcase (replace-regexp-in-string " " "-" string))))
-#+END_SRC
+#+RESULTS:
+| Couples | Rank |
+|---------+------|
+|     111 |      |
+|     112 |      |
+|     113 |      |
+|     114 |      |
+|     115 |      |
+|     116 |      |
+|     117 |      |
 
 #+RESULTS:
 #+BEGIN_SRC emacs-lisp
 string-to-symbol
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
-  (defun make-results-symbols (dance-symbols)
-    (mapcar (lambda (dance-symbol) (intern (concat (symbol-name dance-symbol) "-results"))) dance-symbols))
-#+END_SRC
-
 #+RESULTS:
 : make-results-symbols
+
+#+BEGIN_SRC emacs-lisp
+  
+#+END_SRC
+#+RESULTS:
+: make-results-symbol
 
 #+BEGIN_SRC emacs-lisp
   (make-results-symbols dance-list)
