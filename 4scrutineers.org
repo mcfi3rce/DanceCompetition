@@ -4,7 +4,7 @@
 #+STARTUP: showeverything entitiespretty
 #+REVEAL_ROOT: https://cdn.jsdelivr.net/reveal.js/3.0.0/
 
-* README                                                           :NOEXPORT:
+* README                                                           :noexport:
 #+BEGIN_INFO
 Program Description:
     This program is to ease the ranking process for scrutineers during a single and multi-dance 
@@ -37,9 +37,9 @@ Program Use:
           the calculated ranks. To rotate between dances and results the presentation allow horizontal and vertical rotating. 
 #+END_INFO
 
-* Begin Scrutineering                                              :NOEXPORT:
+* Begin Scrutineering                                              :noexport:
 
-  - [[elisp:org-sbe backend.org:BEGIN][Click me to begin]]
+  - [[elisp:(org-sbe%20backend.org:BEGIN)][Click me to begin]]
 
 : Please enter the number of judges needed for the competition by pressing (comma comma)
 : NOTE: If the number does not appear in the list, you may type it in 
@@ -47,8 +47,8 @@ Program Use:
 
 #+attr_org: :radio
 #+name: number-judges
-  - [ ] 3
-  - [X] 5
+  - [X] 3
+  - [ ] 5
   - [ ] 7
   - [ ] 9
   - [ ] 11
@@ -57,16 +57,16 @@ Program Use:
 #+attr_org: :radio
 #+name: number-couples
   - [ ] 3
-  - [ ] 5
-  - [X] 7
+  - [X] 5
+  - [ ] 7
   - [ ] 9
   - [ ] 11
   - [ ] --
 
 #+attr_org: :radio
 #+name: number-dances
-  - [ ] 3
-  - [X] 5
+  - [X] 3
+  - [ ] 5
   - [ ] 7
   - [ ] 9
   - [ ] 11
@@ -75,25 +75,25 @@ Program Use:
 #+name: dance-styles
   - [ ] IS--Quickstep
   - [ ] IS--Slow Foxtrot
-  - [ ] IS--Tango
-  - [X] IS--Viennese Waltz
+  - [X] IS--Tango
+  - [ ] IS--Viennese Waltz
   - [ ] IS--Waltz
   - [ ] IL--Cha Cha
-  - [X] IL--Jive
+  - [ ] IL--Jive
   - [ ] IL--Paso Doble
   - [ ] IL--Rumba
-  - [X] IL--Samba
+  - [ ] IL--Samba
   - [ ] AS--Foxtrot
   - [ ] AS--Tango
   - [ ] AS--Viennese Waltz
   - [ ] AS--Waltz
   - [ ] AR--Bolero
   - [ ] AR--Cha Cha
-  - [X] AR--East Coast Swing
+  - [ ] AR--East Coast Swing
   - [ ] AR--Mambo
   - [ ] AR--Rumba
   - [ ] Cabaret
-  - [X] Salsa
+  - [ ] Salsa
   - [ ] NY Hustle
   - [ ] Lindy
   - [ ] Swing
@@ -101,29 +101,7 @@ Program Use:
   - [ ] West Coast Swing
   - [ ] Bonus Swing 
 
-
-: Create and Confirm Couples List
-
-  - [[elisp:(create-couples-list)][Create Couples List]]
-
-#+name: couples
-  - [X] 111
-  - [X] 112
-  - [X] 113
-  - [X] 114
-  - [X] 115
-  - [X] 116
-  - [X] 117
-
-  - [[elisp:(confirm-couples-list)][Confirm Couples List]]
-
-  - [[elisp:(org-sbe%20generic-setup)][Generic Setup]]
-
-  - [[elisp:(org-sbe%20specific-setup)][Specific Setup]]
-
-  - [[elisp:(org-sbe%20initialize-variables)][Initialize Variables]]
-
-* Publish For viewers                                              :NOEXPORT:
+* Publish For Viewers                                              :noexport:
 
   - [[elisp:(call-interactively 'org-reveal-export-to-html-and-browse)][Reveal to Browser]]
 
@@ -131,5 +109,5 @@ Program Use:
 
 * Begin Ranking
 
-  - [[elisp:(insert-dance-tables-to-fill-out)][Insert Dance Table To Fill Out]] 
+  - [[elisp:(prog1%20(initialize-variables)%20(insert-dance-tables-to-fill-out))][Insert Dance Table To Fill Out]] 
 
