@@ -5,7 +5,7 @@
 #+REVEAL_ROOT: https://cdn.jsdelivr.net/reveal.js/3.0.0/
 
 * README                                                           :NOEXPORT:
-#+BEGIN_NOTE
+#+BEGIN_INFO
 Program Description:
     This program is to ease the ranking process for scrutineers during a single and multi-dance 
     competition. This program will allow any number of judges, dances, and couples and will perform
@@ -35,8 +35,7 @@ Program Use:
     - PRESENTATION:  
         - After Rankings have been placed. If desired, there is a link that will provide a powerpoint viewing of 
           the calculated ranks. To rotate between dances and results the presentation allow horizontal and vertical rotating. 
-
-#+END_NOTE
+#+END_INFO
 
 * Begin Scrutineering                                              :NOEXPORT:
 
