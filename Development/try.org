@@ -1,0 +1,272 @@
+#+TITLE: Try
+#+AUTHOR: 
+#+DATE: 
+#+LANGUAGE: en
+#+OPTIONS: num:nil toc:nil \n:nil @:t ::t |:t ^:t *:t TeX:t LaTeX:t ':t d:(not "HELP" "HINT")
+#+STARTUP: showeverything entitiespretty
+#+REVEAL_ROOT: https://cdn.jsdelivr.net/reveal.js/3.0.0/
+
+* Setup                                                            :noexport:
+  Generic functions meant to be called by specific functions:
+#+name: generic-setup
+#+BEGIN_SRC elisp :results silent
+  (defun set-symbol-from-string (symbol something-as-string)
+    (set symbol (car (read-from-string something-as-string))))
+
+  (defun insert-right-after-elisp-link (something &optional newline)
+    (forward-line)
+    (insert (format "%s%s" something (if newline "\n" ""))))
+
+  (defun eval-with-temp-buffer (symbol name &optional link-function link-name)
+    (with-temp-buffer
+      (insert (format "#+BEGIN_SRC elisp\n%s\n#+END_SRC\n" symbol))
+      (org-ctrl-c-ctrl-c) ; same as typing ", ,"
+      (goto-char (point-min))
+      (kill-line 5)
+      (insert (format "* %s \n#+name: %s\n" name name))
+      (goto-char (point-max))
+      (when link-function
+        (insert (format "\n[[elisp:(%s '%s)" link-function name))
+        (insert (if link-name (format "][%s]]\n" link-name) "]]\n")))
+      (buffer-substring-no-properties (point-min) (point-max))))
+#+END_SRC 
+
+  Specific functions (and helpers) meant for elisp execution links:
+#+name: specific-setup
+#+BEGIN_SRC elisp :results silent
+  (defun build-judges-list (num-judges)
+    (loop for j from 1 to num-judges
+          collect (char-to-string (+ j ?@))))
+
+  (defun build-dance-table (judges places)
+    (append (list (cons "" places))
+            (list 'hline)
+            (mapcar 'list judges)))
+
+  (defun build-random-dance-table ()
+    (let (couples permutations num-permutations placements)
+      (setq couples (loop repeat num-couples
+                          collect (+ 100 (random 900)))
+            permutations (-permutations couples)
+            num-permutations (length permutations)
+            placements (loop repeat num-judges
+                             collect (nth (random num-permutations) permutations)))))
+
+  (defun insert-dance-tables-to-fill-out ()
+    (loop for dance-symbol in dance-symbols
+          do (insert-dance-table-to-fill-out dance-symbol)))
+
+  (defun insert-dance-table-to-fill-out (dance-symbol)
+    (insert-right-after-elisp-link
+     (eval-with-temp-buffer
+      'dance-table-blank
+      dance-symbol
+      'set-dance-table
+      "Score Dance")))
+
+  (defun set-dance-table (dance-symbol)
+    (set-symbol-from-string dance-symbol (eval (list 'org-sbe (symbol-name dance-symbol))))
+    ;;(set-symbol-after-reorganizing dance-symbol))
+    (let ((results-symbol (make-results-symbol dance-symbol)))
+      (set results-symbol (score-single-dance (symbol-value dance-symbol)))
+      (insert-right-after-elisp-link (eval-with-temp-buffer results-symbol results-symbol))))
+
+  (defun reorganize-dance-table (dance-table)
+    (let (dt-triples dt-triples-sorted dt-by-couples dt-reorganized)
+      (setq dt-triples
+            (loop for row in dance-table
+                  append (loop for place from 1 to num-couples
+                               collect (list (first row) place (nth place row))))
+            dt-triples-sorted
+            (sort dt-triples
+                  (lambda (x y) (< (third x) (third y))))
+            dt-by-couples
+            (loop for n from 0 below num-couples
+                  collect (subseq dt-triples-sorted
+                                  (* n num-judges) (* (1+ n) num-judges)))
+            dt-reorganized
+            (loop for couple-row in dt-by-couples
+                  collect (cons (third (first couple-row))
+                                (mapcar 'second couple-row))))))
+
+  (defun set-symbol-after-reorganizing (dance-symbol)
+    (set dance-symbol (reorganize-dance-table (symbol-value dance-symbol))))
+
+  (defun insert-dance-table-to-compute-with (dance-symbol)
+    (setq dance-table-reorganized (reorganize-dance-table dance-table-filled-out))
+    (insert-right-after-elisp-link
+     (eval-with-temp-buffer
+      dance-symbol
+      dance-symbol)))
+
+  (defun publish-results ()
+    (org-publish-initialize-cache "results")
+    (org-reveal-publish-to-reveal
+     publish-results-plist publish-file publish-directory)
+    (shell-command-to-string
+     (format "cd %s && git add %s && git commit -m '%s' && git push origin master"
+             publish-directory (concat (file-name-base publish-file) ".html")
+             "Updated results.")))
+#+END_SRC
+
+#+name: initialize-variables
+#+BEGIN_SRC elisp
+  (setq publish-file (buffer-file-name) 
+        publish-directory (expand-file-name "~/rickneff.github.io/")
+        publish-results-plist (list :html-preamble nil)
+        num-judges 3
+        judges (build-judges-list num-judges)
+        num-couples 6
+        places (number-sequence 1 num-couples)
+        dance-table-blank (build-dance-table judges places))
+#+END_SRC
+
+#+RESULTS: initialize-variables
+|   | 1 | 2 | 3 | 4 | 5 | 6 |
+|---+---+---+---+---+---+---|
+| A |   |   |   |   |   |   |
+| B |   |   |   |   |   |   |
+| C |   |   |   |   |   |   |
+
+* Introduction
+  This is a sample presentation of a setup and workflow.
+* Steps to Success 
+** Try
+   - [[elisp:(org-sbe%20generic-setup)][Generic Setup]]
+   - [[elisp:(org-sbe%20specific-setup)][Specific Setup]]
+   - [[elisp:(org-sbe%20initialize-variables)][Initialize Variables]]
+   - [[elisp:(insert-dance-tables-to-fill-out)][Insert Dance Table To Fill Out]]
+* il--cha-cha 
+#+name: il--cha-cha
+ | Couple | 	A | 	B | 	C | 	D | 	E |
+ |--------+-----+-----+-----+-----+-----|
+ |    111 |   7 |   7 |   7 |   7 |   7 |
+ |    112 |   4 |   6 |   3 |   6 |   4 |
+ |    113 |   1 |   5 |   2 |   3 |   5 |
+ |    114 |   3 |   3 |   4 |   5 |   1 |
+ |    115 |   2 |   1 |   1 |   2 |   2 |
+ |    116 |   5 |   4 |   6 |   1 |   3 |
+ |    117 |   6 |   2 |   5 |   4 |   6 |
+
+[[elisp:(set-dance-table 'il--cha-cha)][Score Dance]]
+
+* il--cha-cha-results 
+#+name: il--cha-cha-results
+| 1 | 115 |
+| 2 | 113 |
+| 3 | 114 |
+| 4 | 116 |
+| 5 | 112 |
+| 6 | 117 |
+| 7 | 111 |
+
+* il--rumba 
+#+name: il--rumba
+ | Couple | 	A | 	B | 	C | 	D | 	E |
+ |--------+-----+-----+-----+-----+-----|
+ |    111 |   7 |   7 |   7 |   7 |   7 |
+ |    112 |   4 |   6 |   3 |   6 |   4 |
+ |    113 |   2 |   4 |   2 |   5 |   6 |
+ |    114 |   3 |   3 |   4 |   2 |   2 |
+ |    115 |   1 |   1 |   1 |   1 |   1 |
+ |    116 |   5 |   5 |   6 |   4 |   3 |
+ |    117 |   6 |   2 |   5 |   3 |   5 |
+
+
+[[elisp:(set-dance-table 'il--rumba)][Score Dance]]
+* il--rumba-results 
+#+name: il--rumba-results
+| 1 | 115 |
+| 2 | 114 |
+| 3 | 113 |
+| 4 | 112 |
+| 5 | 117 |
+| 6 | 116 |
+| 7 | 111 |
+
+* ar--east-coast-swing 
+#+name: ar--east-coast-swing
+ | Couple | 	A | 	B | 	C | 	D | 	E |
+ |--------+-----+-----+-----+-----+-----|
+ |    111 |   6 |   7 |   7 |   7 |   6 |
+ |    112 |   5 |   6 |   3 |   6 |   5 |
+ |    113 |   3 |   3 |   1 |   2 |   1 |
+ |    114 |   2 |   4 |   4 |   3 |   4 |
+ |    115 |   1 |   1 |   2 |   1 |   2 |
+ |    116 |   4 |   5 |   6 |   4 |   3 |
+ |    117 |   7 |   2 |   5 |   5 |   7 |
+
+[[elisp:(set-dance-table 'ar--east-coast-swing)][Score Dance]]
+* ar--east-coast-swing-results 
+#+name: ar--east-coast-swing-results
+| 1 | 115 |
+| 2 | 113 |
+| 3 | 114 |
+| 4 | 116 |
+| 5 | 117 |
+| 6 | 112 |
+| 7 | 111 |
+
+* ar--mambo 
+#+name: ar--mambo
+ | Couple | 	A | 	B | 	C | 	D | 	E |
+ |--------+-----+-----+-----+-----+-----|
+ |    111 |   7 |   7 |   7 |   7 |   6 |
+ |    112 |   4 |   6 |   1 |   5 |   5 |
+ |    113 |   2 |   2 |   3 |   2 |   1 |
+ |    114 |   3 |   4 |   4 |   3 |   3 |
+ |    115 |   1 |   1 |   2 |   1 |   2 |
+ |    116 |   5 |   5 |   6 |   4 |   4 |
+ |    117 |   6 |   3 |   5 |   6 |   7 |
+
+[[elisp:(set-dance-table 'ar--mambo)][Score Dance]]
+
+* ar--mambo-results 
+#+name: ar--mambo-results
+| 1 | 115 |
+| 2 | 113 |
+| 3 | 114 |
+| 4 | 112 |
+| 5 | 116 |
+| 6 | 117 |
+| 7 | 111 |
+
+[[elisp:(insert-right-after-elisp-link%20(eval-with-temp-buffer%20'(print-standings%20(multi-dance%20dance-symbols-results))%20'multi-dance-results))][Score Multi-Dance]]
+
+* multi-dance-results 
+#+name: multi-dance-results
+| 1 | 115 |
+| 2 | 113 |
+| 3 | 114 |
+| 4 | 116 |
+| 5 | 112 |
+| 6 | 117 |
+| 7 | 111 |
+
+** Try Harder
+#+BEGIN_SRC elisp
+  (build-random-dance-table)
+#+END_SRC
+
+#+RESULTS:
+
+** Try Smarter
+  - [[elisp:(insert-dance-table-to-compute-with)][Insert Dance Table To Compute With]]
+#+name: dance-table-to-compute-with
+| 127 | 1 | 6 | 3 |
+| 455 | 5 | 3 | 1 |
+| 539 | 2 | 1 | 6 |
+| 603 | 6 | 5 | 2 |
+| 796 | 4 | 4 | 5 |
+| 837 | 3 | 2 | 4 |
+
+
+* Conclusion
+** Said Yoda to Luke
+   Try not! Do or do not. There is no try.
+** Do Good
+   The ultimate formula for success!
+
+  [[elisp:(call-interactively 'org-reveal-export-to-html-and-browse)][Reveal to Browser]]
+
+  [[elisp:(publish-results)][Publish Results]]

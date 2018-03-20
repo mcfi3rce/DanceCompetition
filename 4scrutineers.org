@@ -1,0 +1,116 @@
+#+TITLE: Welcome to the dance competition ranking system
+#+LANGUAGE: en
+#+OPTIONS: num:nil toc:nil \n:nil @:t ::t |:t ^:t *:t TeX:t LaTeX:t ':t d:(not "HELP" "HINT")
+#+STARTUP: showeverything entitiespretty
+#+REVEAL_ROOT: https://cdn.jsdelivr.net/reveal.js/3.0.0/
+
+* README                                                           :noexport:
+
+** Program Description
+    This program is to ease the ranking process for scrutineers during a single
+    and multi-dance competition. This program will allow any number of judges,
+    dances, and couples and will perform the ranks of each couple according to
+    the rule book provided by the USA Dance Inc.
+
+** Program Requirements
+    There are a few things that must be met and learned for the scrutineers to
+    use this program.
+    - Any computer with an Operating system that can execute the Spacemacs
+      environment.
+    - Spacemacs must be installed on computer to be able to handle the org file
+      formats. If spacemacs is not installed, please follow the link to install
+      and please do not skip steps. [[https://rickneff.github.io/#outline-container-orgd0360a3][Spacemacs installation]]
+    - Program does not require internet access, but it is recommended to allow
+      the calculated postings be pushed to the GitHub account for access to
+      those who wish to view it.
+
+** Program Use
+    - QUICK KEYS: Be mindful of the following in order to properly use and
+      execute the ranking process.
+       - Obtain a yellow key indicator by pressing escape key. 
+       - "Insert mode" is obtained by beginning with a yellow indicator then
+         press the letter 'i'. The insert mode indicator will be shown in the
+         bottom left hand corner and the user should now be able to type text
+         when needed.
+       - To begin using the program please select "Click me to begin" before
+         doing anything with the program. Failure to do so will result in lack
+         of program functionality.
+       - To fill in an area for the selected number of judges, couples, dances,
+         etc. Begin with the yellow indicator. Then select the desired value by
+         pressing the comma key twice. EG. ", ," (comma comma). User should see
+         a bold X appear within the square to show the desired value is now
+         placed into the program. WARNING! If the user TYPES in the x value
+         within the square. The program will not take the value properly.
+    - PRESENTATION:  
+        - After Rankings have been placed. If desired, there is a link that will
+          provide a powerpoint viewing of the calculated ranks. To rotate
+          between dances and results the presentation allow horizontal and
+          vertical rotating.
+
+* Publish For Viewers                                              :noexport:
+
+  - [[elisp:(call-interactively 'org-reveal-export-to-html-and-browse)][Reveal to Browser]]
+
+  - [[elisp:(publish-results)][Publish Results]]
+
+* Begin Scrutineering                                              :noexport:
+
+  - [[elisp:(org-sbe%20backend.org:BEGIN)][Click me to begin]]
+
+: Please enter the number of judges needed for the competition by pressing (comma comma)
+: NOTE: If the number does not appear in the list, you may type it in 
+:       where the '--' indicators are.
+
+#+attr_org: :radio
+#+name: number-judges
+  - [ ] 3
+  - [X] 5
+  - [ ] 7
+  - [ ] 9
+  - [ ] 11
+  - [ ] --
+
+#+attr_org: :radio
+#+name: number-couples
+  - [ ] 2
+  - [ ] 3
+  - [ ] 4
+  - [ ] 5
+  - [ ] 6
+  - [X] 7
+  - [ ] 8
+  - [ ] --
+
+#+name: dance-styles
+  - [ ] IS--Quickstep
+  - [ ] IS--Slow Foxtrot
+  - [ ] IS--Tango
+  - [ ] IS--Viennese Waltz
+  - [ ] IS--Waltz
+  - [X] IL--Cha Cha
+  - [ ] IL--Jive
+  - [ ] IL--Paso Doble
+  - [ ] IL--Rumba
+  - [ ] IL--Samba
+  - [ ] AS--Foxtrot
+  - [ ] AS--Tango
+  - [ ] AS--Viennese Waltz
+  - [ ] AS--Waltz
+  - [ ] AR--Bolero
+  - [ ] AR--Cha Cha
+  - [ ] AR--East Coast Swing
+  - [ ] AR--Mambo
+  - [ ] AR--Rumba
+  - [ ] Cabaret
+  - [ ] Salsa
+  - [ ] NY Hustle
+  - [ ] Lindy
+  - [ ] Swing
+  - [ ] Two Step
+  - [ ] West Coast Swing
+  - [ ] Bonus Swing 
+
+* Begin Ranking
+
+  - [[elisp:(prog1%20(initialize-variables)%20(insert-dance-tables-to-fill-out))][Insert Dance Table To Fill Out]] 
+
