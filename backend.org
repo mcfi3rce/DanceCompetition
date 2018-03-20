@@ -377,15 +377,6 @@ Program Description:
     (validate-radio-list (get-checkbox-list-values "number-couples"))
     (validate-radio-list (get-checkbox-list-values "number-dances")))
 
-#+END_SRC
-
-: Error occurs within this source block, need to figure out why...
-: been coppied over several times and error still occurs.
-: ERROR TYPE STRINGP NIL 
-
-#+BEGIN_SRC emacs-lisp :results silent
-
-
   (defun format-list-item (list-item)
     (format "  - [%c] %s" (if check-all ?X ? ) list-item))
 
@@ -428,14 +419,19 @@ Program Description:
   (defun make-results-symbols (dance-symbols)
     (mapcar 'make-results-symbol dance-symbols))
 
+#+END_SRC
 
+: Error occurs within this source block, need to figure out why...
+: been coppied over several times and error still occurs.
+: ERROR TYPE STRINGP NIL 
+
+#+BEGIN_SRC emacs-lisp :results silent
   ;; initialize variables 
   (setq num-dances (string-to-number (car (get-checkbox-list-values "number-dances")))
         num-judges (string-to-number (car (get-checkbox-list-values "number-judges")))
         num-couples (string-to-number (car (get-checkbox-list-values "number-couples")))
         dance-symbols  (mapcar 'string-to-symbol (get-checkbox-list-values "dance-styles"))
         dance-symbols-results (make-results-symbols dance-symbols))
-
 #+END_SRC
 
 
