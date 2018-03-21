@@ -16,12 +16,11 @@ Program Description:
 * Code 
 #+NAME: BEGIN
 #+BEGIN_SRC emacs-lisp :results silent
-  (setq org-confirm-elisp-link-function nil)
-
   ;; Single Dance Functions all the documentation is in development
   (require 'cl)
   (require 'dash)
   (require 'org-element)
+  (require 'ox-reveal)
 
   (defun calculate-majority (row)
     (1+ (/ (length (remove-if 'stringp row)) 2)))
@@ -334,6 +333,12 @@ Program Description:
           (score-multi-dance starting-place number-of-places (make-couples-list tied-couples))
           (update-sums places final-couple-sums)
           (setq x (length places))))
+
+  (defun score-multi-dance-and-insert ()
+    (insert-right-after-elisp-link
+     (eval-with-temp-buffer
+      '(print-standings (multi-dance dance-symbols-results))
+      'multi-dance-results)))
 
   (defun check-hook-fn ()
     (when (-contains? (org-element-property
