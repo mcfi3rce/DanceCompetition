@@ -75,14 +75,14 @@
   - [ ] 2
   - [ ] 3
   - [ ] 4
-  - [ ] 5
+  - [X] 5
   - [ ] 6
   - [X] 7
   - [ ] 8
   - [ ] --
 
 #+name: dance-styles
-  - [ ] IS--Quickstep
+  - [X] IS--Quickstep
   - [ ] IS--Slow Foxtrot
   - [ ] IS--Tango
   - [ ] IS--Viennese Waltz
@@ -113,4 +113,26 @@
 * Begin Ranking
   - [[elisp:(insert-right-after-elisp-link%20(eval-with-temp-buffer%20'(print-standings%20(multi-dance%20dance-symbols-results))%20'multi-dance-results))][Score Multi-Dance]] 
   - [[elisp:(prog1%20(initialize-variables)%20(insert-dance-tables-to-fill-out))][Insert Dance Table To Fill Out]] 
+* is--quickstep 
+#+name: is--quickstep
+|   |   1 |   2 |   3 |   4 |   5 |
+|---+-----+-----+-----+-----+-----|
+| A | 113 | 115 | 114 | 112 | 111 |
+| B | 115 | 112 | 114 | 113 | 111 |
+| C | 115 | 113 | 112 | 114 | 111 |
+| D | 114 | 113 | 115 | 112 | 111 |
+| E | 113 | 115 | 114 | 112 | 111 |
 
+[[elisp:(set-dance-table 'is--quickstep)][Score Dance]]
+
+* il--cha-cha 
+#+name: il--cha-cha
+|   | 1 | 2 | 3 | 4 | 5 |
+|---+---+---+---+---+---|
+| A |   |   |   |   |   |
+| B |   |   |   |   |   |
+| C |   |   |   |   |   |
+| D |   |   |   |   |   |
+| E |   |   |   |   |   |
+
+[[elisp:(set-dance-table 'il--cha-cha)][Score Dance]]

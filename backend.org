@@ -140,8 +140,8 @@ Program Description:
           ;;for couple in tied-couples
           do (if (tied-all-the-way comparing-columns)
                  (remove-tied still-tied)
-               (loop for place from place to 7
-                     do (single-complex-majority (elt comparing-columns place) place couples-list)))
+               (loop for place from (1+ place) to 7
+                     do (single-complex-majority (elt comparing-columns place) place (mapcar 'car tied-couples))))
           return (if (null not-tied)
                      'done
                    remove-couples not-tied)))
