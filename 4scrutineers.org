@@ -108,7 +108,7 @@
   - [ ] Swing
   - [ ] Two Step
   - [ ] West Coast Swing
-  - [ ] Bonus Swing 
+  - [ ] Bonus Swing
 
 * Begin Ranking
   - [[elisp:(score-multi-dance-and-insert)][Score Multi-Dance and Insert]]
