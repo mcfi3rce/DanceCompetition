@@ -63,8 +63,8 @@
 
 #+attr_org: :radio
 #+name: number-judges
-  - [ ] 3
-  - [X] 5
+  - [X] 3
+  - [ ] 5
   - [ ] 7
   - [ ] 9
   - [ ] 11
@@ -73,16 +73,16 @@
 #+attr_org: :radio
 #+name: number-couples
   - [ ] 2
-  - [ ] 3
+  - [X] 3
   - [ ] 4
   - [ ] 5
   - [ ] 6
-  - [X] 7
+  - [ ] 7
   - [ ] 8
   - [ ] --
 
 #+name: dance-styles
-  - [ ] IS--Quickstep
+  - [X] IS--Quickstep
   - [ ] IS--Slow Foxtrot
   - [ ] IS--Tango
   - [ ] IS--Viennese Waltz
@@ -112,5 +112,39 @@
 
 * Begin Ranking
   - [[elisp:(score-multi-dance-and-insert)][Score Multi-Dance and Insert]]
-  - [[elisp:(prog1%20(initialize-variables)%20(insert-dance-tables-to-fill-out))][Insert Dance Table To Fill Out]] 
+* multi-dance-results 
+#+name: multi-dance-results
+| 1 | 11 |
+| 2 | 22 |
+| 3 | 33 |
 
+  - [[elisp:(prog1%20(initialize-variables)%20(insert-dance-tables-to-fill-out))][Insert Dance Table To Fill Out]] 
+* is--quickstep 
+#+name: is--quickstep
+|   |  1 |  2 |  3 |
+|---+----+----+----|
+| A | 11 | 33 | 22 |
+| B | 22 | 11 | 33 |
+| C | 11 | 22 | 33 |
+
+[[elisp:(set-dance-table 'is--quickstep)][Score Dance]]
+* is--quickstep-results 
+#+name: is--quickstep-results
+| 1 | 11 |
+| 2 | 22 |
+| 3 | 33 |
+
+* il--cha-cha 
+#+name: il--cha-cha
+|   |  1 |  2 |  3 |
+|---+----+----+----|
+| A | 11 | 22 | 33 |
+| B | 22 | 11 | 33 |
+| C | 33 | 11 | 22 |
+
+[[elisp:(set-dance-table 'il--cha-cha)][Score Dance]]
+* il--cha-cha-results 
+#+name: il--cha-cha-results
+| 1 | 11 |
+| 2 | 22 |
+| 3 | 33 |

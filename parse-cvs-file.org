@@ -1,0 +1,29 @@
+#+BEGIN_SRC emacs-lisp :results silent :tangle yes
+  (defun parse-csv-file (file)
+    (interactive
+     (list (read-file-name "CSV file: ")))
+    (let ((buf (find-file-noselect file))
+          (result nil))
+      (with-current-buffer buf
+        (goto-char (point-min))
+        (while (not (eobp))
+          (let* ((line (buffer-substring-no-properties
+                        (line-beginning-position) (line-end-position)))
+                 (quotelessline (replace-regexp-in-string "\"" "" line)))
+            (push (split-string quotelessline ",") result))
+          (forward-line 1)))
+      (reverse result)))
+#+END_SRC
+
+#+BEGIN_SRC elisp :results value
+  (parse-csv-file "test.csv")
+#+END_SRC
+
+#+RESULTS:
+| 51 | 2 | 6 | 2 |
+| 52 | 4 | 3 | 3 |
+| 53 | 3 | 7 | 5 |
+| 54 | 1 | 1 | 1 |
+| 55 | 5 | 4 | 4 |
+| 56 | 7 | 2 | 7 |
+| 57 | 6 | 5 | 6 |

@@ -34,7 +34,8 @@ Program Description:
   (defun calculate-totals (dance number-of-places)
     ;; dance looks like this (couple-num 1 2 1 1 3)
     (loop for place from 1 to number-of-places
-          collect (extract-place place dance)))
+
+      collect (extract-place place dance)))
 
   (defun create-dance-columns (totals-val couples-list)
     (append (list couples-list)
@@ -140,9 +141,12 @@ Program Description:
           do (if (tied-all-the-way comparing-columns)
                  (remove-tied still-tied)
                (loop for place from place to 7
-                     do (single-complex-majority (elt comparing-columns place) place couples-list)))
+                     if (member (caar tied-couples) couples)
+                     do (single-complex-majority (elt comparing-columns place) place (mapcar 'car tied-couples))
+                     else
+                     return place)) 
           return (if (null not-tied)
-                     'done
+                     place
                    remove-couples not-tied)))
 
   (defun tied-all-the-way (l)
@@ -198,7 +202,7 @@ Program Description:
                 (case (length winning-couple)
                   (1 (remove-couples couple-sums)
                      couple-sums)
-                  (t (really-tied couple-sums place-val couples-list)))))))))
+                  (t (really-tied couple-sums (1+ place-val) couples-list)))))))))
 
   (defun build-single-dance (dance)
     (setq couples (mapcar 'first dance)
@@ -269,14 +273,15 @@ Program Description:
           (remove-couple (caar couple-sums))
           (remove-sum (caar couple-sums)))
       (setq sum (loop for (couple sum) in couple-sums
-                      for (next-couple next-sum) in (cdr couple-sums)
-                      for place from place to number-of-places
+                      for (next-couple next-sum) in (append (cdr couple-sums) (list (list 0 0)))
+                      for _ from place to number-of-places
                       if (not (= sum next-sum))
                       do
                       (remove-couple couple)
                       (remove-sum couple)
                       else
-                      return sum))
+                      return sum
+                      ))
       (if (= (length (cdr couple-sums)) 1)
           (progn
             (remove-couple (caadr couple-sums))
@@ -326,6 +331,8 @@ Program Description:
           with tied-sum = nil
           for x from 0 to number-of-places
           do (setq tied-sum (remove-untied-couples final-couple-sums x))
+          if (null tied-sum)
+          return places
           if (= (length places) number-of-places)
           return places
           do (setq tied-couples (couples-with-sum final-couple-sums tied-sum))
