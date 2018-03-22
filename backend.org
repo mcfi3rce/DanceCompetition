@@ -273,14 +273,15 @@ Program Description:
           (remove-couple (caar couple-sums))
           (remove-sum (caar couple-sums)))
       (setq sum (loop for (couple sum) in couple-sums
-                      for (next-couple next-sum) in (cdr couple-sums)
-                      for place from place to number-of-places
+                      for (next-couple next-sum) in (append (cdr couple-sums) (list (list 0 0)))
+                      for _ from place to number-of-places
                       if (not (= sum next-sum))
                       do
                       (remove-couple couple)
                       (remove-sum couple)
                       else
-                      return sum))
+                      return sum
+                      ))
       (if (= (length (cdr couple-sums)) 1)
           (progn
             (remove-couple (caadr couple-sums))
@@ -330,6 +331,8 @@ Program Description:
           with tied-sum = nil
           for x from 0 to number-of-places
           do (setq tied-sum (remove-untied-couples final-couple-sums x))
+          if (null tied-sum)
+          return places
           if (= (length places) number-of-places)
           return places
           do (setq tied-couples (couples-with-sum final-couple-sums tied-sum))
