@@ -110,7 +110,7 @@ Program Description:
 
   (defun print-standings (standings)
     (loop for (a b) on (build-standings standings)
-          when (<= a 7)
+          when (<= a number-of-places)
           collect (list a b)))
 
   (defun build-standings (standings)
