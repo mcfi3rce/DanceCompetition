@@ -194,7 +194,10 @@ Program Description:
         ;; tie-break 1 largest-majority
         (t (setq tied-majorities (find-couples-with-largest-majority number-majorities))
            (case (length tied-majorities)
-             (1 (remove-couples number-majorities))
+             (1
+              (if (= (length (find-winning-couples (setq couple-sums (compare-n-sums (cdr number-majorities) place-val)))) 1)
+                  (remove-couples (append tied-majorities couple-sums))
+                (really-tied couple-sums (1+ place-val couples-list))))
              ;; tie-break 2 sums
              (t (setq couple-sums (compare-n-sums tied-majorities place-val)
                       winning-couple (find-winning-couples couple-sums))
