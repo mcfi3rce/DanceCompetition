@@ -5,13 +5,12 @@
 #+STARTUP: showeverything entitiespretty
 #+REVEAL_ROOT: https://cdn.jsdelivr.net/reveal.js/3.0.0/
 
-#+BEGIN_INFO
-Program Description: 
-    This file contains the code to computing the ranks of each single dance and multi-dance. Changes
-    to this file should be authorized by Rick Neff and his designated software developers. Any changes
-    made without authorization or testing can result in error for the front-end calculations stored in 
-    4scrutineers.org file. 
-#+END_INFO
+* Program Description
+  This file contains the code to computing the ranks of each single dance and
+  multi-dance. Changes to this file should be authorized by Rick Neff and his
+  designated software developers. Any changes made without authorization or
+  testing can result in error for the front-end calculations stored in
+  4scrutineers.org file.
 
 * Code 
 #+NAME: BEGIN
@@ -34,8 +33,7 @@ Program Description:
   (defun calculate-totals (dance number-of-places)
     ;; dance looks like this (couple-num 1 2 1 1 3)
     (loop for place from 1 to number-of-places
-
-      collect (extract-place place dance)))
+          collect (extract-place place dance)))
 
   (defun create-dance-columns (totals-val couples-list)
     (append (list couples-list)
@@ -63,7 +61,7 @@ Program Description:
     (mapcar (lambda (x) (elt couples (car x))) tied-couples))
 
   (defun find-couples-with-largest-majority (tied-couples)
-    (let ((max  (apply 'max (mapcar 'cdr tied-couples))))
+    (let ((max (apply 'max (mapcar 'cdr tied-couples))))
       (remove-if-not (lambda (couple) (= max (cdr couple))) tied-couples)))
 
   (defun remove-couple (couple)
@@ -110,7 +108,7 @@ Program Description:
 
   (defun print-standings (standings)
     (loop for (a b) on (build-standings standings)
-          when (<= a 7)
+          when (<= a number-of-places)
           collect (list a b)))
 
   (defun build-standings (standings)
@@ -120,7 +118,7 @@ Program Description:
           append (loop for tied in couple
                        collect (tied-value (length couple) place) into list1
                        collect tied into list1
-                       finally (incf place (1-(length couple)))
+                       finally (incf place (1- (length couple)))
                        finally return list1)
           else
           append (list place couple)))
@@ -144,23 +142,22 @@ Program Description:
                      if (member (caar tied-couples) couples)
                      do (single-complex-majority (elt comparing-columns place) place (mapcar 'car tied-couples))
                      else
-                     return place)) 
+                     return place))
           return (if (null not-tied)
                      place
-                   remove-couples not-tied)))
+                   (remove-couples not-tied))))
 
   (defun tied-all-the-way (l)
     (setq l (cdr l)) ;remove the couple names
-    (-all-p (lambda (cell) (= (first cell)(second cell))) l))
+    (-all-p (lambda (cell) (= (first cell) (second cell))) l))
 
   (defun remove-single-tied (couple)
     (setq dance-totals-rows (remove (assoc couple dance-totals-rows) dance-totals-rows))
     (if (null dance-totals-rows)
         (setq dance-totals-columns nil
               couples nil)
-      (setq
-       dance-totals-columns (transpose dance-totals-rows)
-       couples (remove couple couples))))
+      (setq dance-totals-columns (transpose dance-totals-rows)
+            couples (remove couple couples))))
 
   (defun remove-tied (tied-couples)
     (setq places (append places (list (couples-list tied-couples))))
@@ -194,7 +191,10 @@ Program Description:
         ;; tie-break 1 largest-majority
         (t (setq tied-majorities (find-couples-with-largest-majority number-majorities))
            (case (length tied-majorities)
-             (1 (remove-couples number-majorities))
+             (1
+              (if (= (length (find-winning-couples (setq couple-sums (compare-n-sums (cdr number-majorities) place-val)))) 1)
+                  (remove-couples (append tied-majorities couple-sums))
+                (really-tied couple-sums (1+ place-val couples-list))))
              ;; tie-break 2 sums
              (t (setq couple-sums (compare-n-sums tied-majorities place-val)
                       winning-couple (find-winning-couples couple-sums))
@@ -250,6 +250,10 @@ Program Description:
   (defun remove-sum (couple)
     (setq final-couple-sums (remove (assoc couple final-couple-sums) final-couple-sums)))
 
+  (defun remove-couple-and-sum (couple)
+    (remove-couple couple)
+    (remove-sum couple))
+
   (defun final-sum-values (rows)
     (sort (mapcar (lambda (couple) (list (car couple) (apply '+ (cdr couple)))) rows)
           (lambda (a b) (< (cadr a) (cadr b)))))
@@ -269,25 +273,19 @@ Program Description:
 
   (defun remove-untied-couples (couple-sums place)
     (if (null (cdr couple-sums))
-        (progn
-          (remove-couple (caar couple-sums))
-          (remove-sum (caar couple-sums)))
+        (remove-couple-and-sum (caar couple-sums))
       (setq sum (loop for (couple sum) in couple-sums
                       for (next-couple next-sum) in (append (cdr couple-sums) (list (list 0 0)))
                       for _ from place to number-of-places
                       if (not (= sum next-sum))
                       do
-                      (remove-couple couple)
-                      (remove-sum couple)
+                      (remove-couple-and-sum couple)
                       else
                       return sum
                       ))
       (if (= (length (cdr couple-sums)) 1)
-          (progn
-            (remove-couple (caadr couple-sums))
-            (remove-sum (caadr couple-sums)))
+          (remove-couple-and-sum (caadr couple-sums))
         sum)))
-
 
   (defun rule-11-rows (couples dances)
     (loop for couple in couples
@@ -342,6 +340,7 @@ Program Description:
           (setq x (length places))))
 
   (defun score-multi-dance-and-insert ()
+    (string-to-symbol "Multi-Dance Results")
     (insert-right-after-elisp-link
      (eval-with-temp-buffer
       '(print-standings (multi-dance dance-symbols-results))
@@ -386,8 +385,8 @@ Program Description:
                       (match-string 1 item)))))
 
   (defun validate-radio-list (choices)
-    "Validates that a just one choice was made then returns
-          that choice, otherwise returns an error message."
+    "Validates that just one choice was made then returns
+     that choice, otherwise returns an error message."
     (if (= 1 (length choices))
         (first choices) "Invalid or unanswered."))
 
@@ -430,10 +429,15 @@ Program Description:
     (append(header num-judges)(list 'hline)(body num-couples)))
 
   (defun string-to-symbol (string)
-    (intern (downcase (replace-regexp-in-string " " "-" string))))
+    (let (string-to-map-to symbol-to-map-from)
+      (setq string-to-map-to (replace-regexp-in-string "-" " " string)
+            symbol-to-map-from
+            (intern (downcase (replace-regexp-in-string " " "-" string))))
+      (push (cons symbol-to-map-from string-to-map-to) dance-symbol-string-alist)
+      symbol-to-map-from))
 
   (defun make-results-symbol (dance-symbol)
-    (intern (concat (symbol-name dance-symbol) "-results")))
+    (string-to-symbol (concat (cdr (assq dance-symbol dance-symbol-string-alist)) " Results")))
 
   (defun make-results-symbols (dance-symbols)
     (mapcar 'make-results-symbol dance-symbols))
@@ -451,7 +455,7 @@ Program Description:
       (org-ctrl-c-ctrl-c) ; same as typing ", ,"
       (goto-char (point-min))
       (kill-line 5)
-      (insert (format "* %s \n#+name: %s\n" name name))
+      (insert (format "\n* %s \n#+name: %s\n" (cdr (assq name dance-symbol-string-alist)) name))
       (goto-char (point-max))
       (when link-function
         (insert (format "\n[[elisp:(%s '%s)" link-function name))
@@ -465,25 +469,37 @@ Program Description:
   (defun build-dance-table-blank ()
     (append (list (cons "" (number-sequence 1 num-couples)))
             (list 'hline)
-            (mapcar 'list (build-judges-list num-judges))))
+            (if use-random
+                (mapcar* 'cons (build-judges-list num-judges)
+                         (build-random-dance-table))
+            (mapcar 'list (build-judges-list num-judges)))))
 
   (defun build-random-dance-table ()
     (let (couples permutations num-permutations placements)
-      (setq couples (loop repeat num-couples
-                          collect (+ 100 (random 900)))
-            permutations (-permutations couples)
+      (setq couples (if (boundp 'cached-random-couples)
+                        cached-random-couples
+                      (setq cached-random-couples
+                            (loop repeat num-couples
+                                  collect (+ 100 (random 900)))))
+            permutations (if (boundp 'cached-random-permutations)
+                             cached-random-permutations
+                           (setq cached-random-permutations
+                                 (-permutations couples)))
             num-permutations (length permutations)
             placements (loop repeat num-judges
                              collect (nth (random num-permutations) permutations)))))
 
   (defun insert-dance-tables-to-fill-out ()
+    (initialize-variables)
     (loop for dance-symbol in dance-symbols
           do (insert-dance-table-to-fill-out dance-symbol)))
 
   (defun insert-dance-table-to-fill-out (dance-symbol)
     (insert-right-after-elisp-link
      (eval-with-temp-buffer
-      'dance-table-blank
+      (if use-random
+          '(build-dance-table-blank)
+        'dance-table-blank)
       dance-symbol
       'set-dance-table
       "Score Dance")))
@@ -493,7 +509,12 @@ Program Description:
     (set-symbol-after-reorganizing dance-symbol)
     (let ((results-symbol (make-results-symbol dance-symbol)))
       (set results-symbol (score-single-dance (symbol-value dance-symbol)))
-      (insert-right-after-elisp-link (eval-with-temp-buffer results-symbol results-symbol))))
+      (insert-right-after-elisp-link (eval-with-temp-buffer results-symbol results-symbol))
+      (if (= 1 (length dance-symbols))
+          (insert-publish-links)
+        (when (eq dance-symbol (first (last dance-symbols)))
+          (score-multi-dance-and-insert)
+          (insert-publish-links)))))
 
   (defun reorganize-dance-table (dance-table)
     (let (dt-triples dt-triples-sorted dt-by-couples dt-reorganized)
@@ -539,10 +560,44 @@ Program Description:
           publish-results-plist (list :html-preamble nil)))
 
   (defun initialize-variables ()
-    (setq num-judges (string-to-number (car (get-checkbox-list-values "number-judges")))
+    (makunbound 'cached-random-couples)
+    (makunbound 'cached-random-permutations)
+    (setq use-random nil
+          num-judges (string-to-number (car (get-checkbox-list-values "number-judges")))
           num-couples (string-to-number (car (get-checkbox-list-values "number-couples")))
           dance-table-blank (build-dance-table-blank)
+          dance-symbol-string-alist nil
           dance-symbols (mapcar 'string-to-symbol (get-checkbox-list-values "dance-styles"))
           dance-symbols-results (make-results-symbols dance-symbols)
           num-dances (length dance-symbols)))
+
+  (defun begin-with-fresh-copy ()
+    ;; This setq-chain can go away when the issue regarding the placement of
+    ;; custom-set-variables in "~/.spacemacs.d/init.el" is resolved.
+    (setq org-confirm-babel-evaluate nil
+          org-confirm-elisp-link-function nil)
+    (let ((new-file-name (concat (format-time-string "%Y-%m-%d-%H:%M:%S") ".org"))
+          (current-position (point)))
+      (copy-file "4scrutineers.org" new-file-name)
+      (find-file new-file-name)
+      (pop-to-buffer-same-window new-file-name)
+      (goto-char current-position)
+      (beginning-of-line)
+      (kill-line 2)
+      (goto-char (point-min))
+      (when (search-forward "README")
+        (org-cycle)
+        (search-forward "Begin Scrutineering")
+        (org-cycle)
+        (beginning-of-line)
+        (recenter-top-bottom)
+        (save-buffer))))
+
+  (defun insert-publish-links ()
+    (insert "\n* Publish For Viewers                                              :noexport:\n")
+    (insert "\n  [[elisp:(call-interactively 'org-reveal-export-to-html-and-browse)][Reveal to Browser]]\n\n")
+    (insert "  [[elisp:(publish-results)][Publish Results]]\n")
+    (forward-line -3)
+    (forward-char 4)
+    (save-buffer))
 #+END_SRC

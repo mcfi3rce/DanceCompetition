@@ -47,15 +47,9 @@
           between dances and results the presentation allow horizontal and
           vertical rotating.
 
-* Publish For Viewers                                              :noexport:
-
-  - [[elisp:(call-interactively 'org-reveal-export-to-html-and-browse)][Reveal to Browser]]
-
-  - [[elisp:(publish-results)][Publish Results]]
-
 * Begin Scrutineering                                              :noexport:
 
-  - [[elisp:(org-sbe%20backend.org:BEGIN)][Click me to begin]]
+  [[elisp:(progn%20(org-sbe%20backend.org:BEGIN)%20(begin-with-fresh-copy))][Begin with Fresh Copy]]
 
 : Please enter the number of judges needed for the competition by pressing (comma comma)
 : NOTE: If the number does not appear in the list, you may type it in 
@@ -82,12 +76,12 @@
   - [ ] --
 
 #+name: dance-styles
-  - [X] IS--Quickstep
+  - [ ] IS--Quickstep
   - [ ] IS--Slow Foxtrot
   - [ ] IS--Tango
   - [ ] IS--Viennese Waltz
   - [ ] IS--Waltz
-  - [X] IL--Cha Cha
+  - [ ] IL--Cha Cha
   - [ ] IL--Jive
   - [ ] IL--Paso Doble
   - [ ] IL--Rumba
@@ -111,40 +105,5 @@
   - [ ] Bonus Swing
 
 * Begin Ranking
-  - [[elisp:(score-multi-dance-and-insert)][Score Multi-Dance and Insert]]
-* multi-dance-results 
-#+name: multi-dance-results
-| 1 | 11 |
-| 2 | 22 |
-| 3 | 33 |
+  [[elisp:(insert-dance-tables-to-fill-out)][Insert Dance Table(s) To Fill Out]]
 
-  - [[elisp:(prog1%20(initialize-variables)%20(insert-dance-tables-to-fill-out))][Insert Dance Table To Fill Out]] 
-* is--quickstep 
-#+name: is--quickstep
-|   |  1 |  2 |  3 |
-|---+----+----+----|
-| A | 11 | 33 | 22 |
-| B | 22 | 11 | 33 |
-| C | 11 | 22 | 33 |
-
-[[elisp:(set-dance-table 'is--quickstep)][Score Dance]]
-* is--quickstep-results 
-#+name: is--quickstep-results
-| 1 | 11 |
-| 2 | 22 |
-| 3 | 33 |
-
-* il--cha-cha 
-#+name: il--cha-cha
-|   |  1 |  2 |  3 |
-|---+----+----+----|
-| A | 11 | 22 | 33 |
-| B | 22 | 11 | 33 |
-| C | 33 | 11 | 22 |
-
-[[elisp:(set-dance-table 'il--cha-cha)][Score Dance]]
-* il--cha-cha-results 
-#+name: il--cha-cha-results
-| 1 | 11 |
-| 2 | 22 |
-| 3 | 33 |
