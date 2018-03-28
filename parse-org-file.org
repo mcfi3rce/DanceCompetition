@@ -31,7 +31,7 @@
           (setq table-name (org-element-property :name data))
           (when (not (null table-name))
             (setq table-symbol (intern table-name))
-            (set table-symbol (parse-table data))
+            (set table-symbol (remove-if 'null (parse-table data)))
             (push table-symbol table-symbols)))))
     (reverse table-symbols))
 #+END_SRC
@@ -64,6 +64,9 @@
 #+BEGIN_SRC elisp :results raw
   (parse-tables-and-set-table-symbols)
 #+END_SRC
+
+#+RESULTS:
+(rule-5-example-1 rule-5-example-2)
 
 #+BEGIN_SRC elisp
   rule-5-example-1
