@@ -12,7 +12,7 @@
                  (quotelessline (replace-regexp-in-string "\"" "" line)))
             (push (split-string quotelessline ",") result))
           (forward-line 1)))
-          (reverse result)))
+          (rself.boxSize:everse result)))
 #+END_SRC
 
 #+BEGIN_SRC elisp :results value
@@ -34,30 +34,41 @@ table
 | 56 | 4 | 5 | 5 |
 
 #+BEGIN_SRC emacs-lisp :var table=mixed-rules-example-1
-(defun eval-without-buffer (table) 
-      (insert (format "#+BEGIN_SRC elisp :var table=%s \n(setq mixed (append table mixed))\n#+END_SRC\n" table))
-      (org-ctrl-c-ctrl-c) ; same as typing ", ,"
-      (goto-char (point-min))
-      (kill-line 5))
+  (defun eval-without-buffer (table) 
+        (insert (format "#+BEGIN_SRC elisp :var table=%s \n(setq mixed (append table mixed))\n#+END_SRC\n" table))
+        (org-ctrl-c-ctrl-c) ; same as typing ", ,"
+        (goto-char (point-min))
+        (kill-line 5))
 
-  (defun build-mixed-symbols ()
-    (setq mixed-symbols
-        (loop for x from 1 to 150
-            collect (string-to-symbol (concat "mixed-rules-example-" (number-to-string x))))))
+    (defun build-mixed-symbols ()
+      (setq mixed-symbols
+          (loop for x from 1 to 150
+              collect (string-to-symbol (concat "mixed-rules-example-" (number-to-string x))))))
 #+END_SRC
 
+#+RESULTS:
+: build-mixed-symbols
+
 #+BEGIN_SRC emacs-lisp :results silent
-  (setq tables (parse-tables-and-set-table-symbols))
+  (setq tables (parse-tables-and-set-table-symbols)
+        data (subseq tables 0 497)
+        targets (subseq tables 498))
+#+END_SRC
+
+* Create the ultimate test table
+#+BEGIN_SRC emacs-lisp :results silent
+  (setq ultimate-table (apply 'append (loop for table in targets
+                                            collect (mapcar 'cdr (transpose (symbol-value table))))))
 #+END_SRC
 
 * Test One Rule:
 #+BEGIN_SRC emacs-lisp
   (defun format-results (dance)
     (mapcar 'car (sort (score-single-dance dance) (lambda (a b) (< (cadr a) (cadr b))))))
-  (defun format-answer (dance &optional num)
-    (remove-if 'zerop (elt (transpose dance) num)))
+  (defun format-answer (answer)
+    (remove-if 'zerop answer))
  (list (format-results rule-5-example-18)
-        (format-answer rule-5-answers-11-20 7))
+        (format-answer (elt (transpose rule-5-answers-11-20) 7)))
 #+END_SRC
 
 #+RESULTS:
@@ -65,19 +76,17 @@ table
 | 4 | 2 | 3 | 6 | 5 | 1 |
 
 * Test Rule 5 on 10:
-#+BEGIN_SRC emacs-lisp
-  (let ((loc 9))
-    (loop for y from 498 to 501
-          collect (loop for x from 1 to 9
-                        collect (eq (format-answer (symbol-value (elt tables y)) (% (incf loc) 10))
-                                    (format-results (symbol-value (elt tables loc)))))))
+#+BEGIN_SRC emacs-lisp :results value
+  (loop with prediction = nil
+        with target = nil
+   for dance from 160 to 160
+        for target in ultimate-table
+        if (not (equal (setq prediction (format-results (symbol-value (elt data dance))))(setq target (format-answer target))))
+        collect (list (1+ dance) (% (1+ dance) 50) prediction target))
 #+END_SRC
 
 #+RESULTS:
-| nil | nil | nil | nil | nil | nil | nil | nil | nil |
-| nil | nil | nil | nil | nil | nil | nil | nil | nil |
-| nil | nil | nil | nil | nil | nil | nil | nil | nil |
-| nil | nil | nil | nil | nil | nil | nil | nil | nil |
+| 46 | 46 | (3 5 6 1 4 7 2) | (3 5 6 4 1 7 2) |
 
 * Rule 5:
 #+name: rule-5-example-1 
@@ -291,6 +300,7 @@ table
 | 54 | 7 | 6 | 5 | 6 | 6 | 7 | 6 | 3 | 7 |
 | 55 | 4 | 1 | 1 | 1 | 3 | 1 | 1 | 1 | 1 |
 | 56 | 2 | 3 | 2 | 3 | 2 | 3 | 5 | 5 | 6 |
+| 57 | 1 | 2 | 4 | 2 | 1 | 2 | 3 | 4 | 4 |
 
 #+name: rule-5-example-32 
 | 51 | 3 | 3 | 3 | 3 | 4 | 3 | 3 | 3 | 3 |
@@ -460,6 +470,7 @@ table
 | 65 | 2 | 8 | 5 |
 | 66 | 8 | 5 | 6 |
 | 67 | 3 | 2 | 7 |
+| 68 | 5 | 1 | 1 |
 
 #+name: rule-6-example-5 
 | 61 | 6 | 6 | 6 |
@@ -468,6 +479,7 @@ table
 | 64 | 5 | 1 | 1 |
 | 65 | 1 | 3 | 3 |
 | 66 | 4 | 5 | 5 |
+
 #+name: rule-6-example-6 
 | 61 | 2 | 6 | 2 |
 | 62 | 1 | 3 | 3 |
@@ -475,6 +487,7 @@ table
 | 64 | 4 | 1 | 1 |
 | 65 | 5 | 4 | 4 |
 | 66 | 7 | 7 | 7 |
+| 67 | 6 | 5 | 6 |
 
 #+name: rule-6-example-7 
 | 61 | 3 | 2 | 3 |
@@ -522,6 +535,7 @@ table
 | 66 | 5 | 2 | 2 | 4 | 5 |
 | 67 | 2 | 4 | 3 | 2 | 2 |
 | 68 | 7 | 6 | 6 | 6 | 4 |
+
 #+name: rule-6-example-13 
 | 61 | 3 | 4 | 2 | 4 | 5 |
 | 62 | 4 | 3 | 5 | 5 | 4 |
@@ -570,7 +584,6 @@ table
 | 64 | 3 | 2 | 3 | 4 | 5 |
 | 65 | 1 | 1 | 4 | 1 | 1 |
 #+name: rule-6-example-20 
-| No. | A | B | C | D | E |
 |  61 | 6 | 4 | 1 | 1 | 2 |
 |  62 | 2 | 2 | 5 | 3 | 3 |
 |  63 | 4 | 5 | 2 | 5 | 4 |
@@ -583,7 +596,7 @@ table
 | 63 | 5 | 2 | 3 | 1 | 5 | 5 | 4 |
 | 64 | 1 | 1 | 1 | 3 | 4 | 1 | 5 |
 | 65 | 3 | 3 | 5 | 5 | 2 | 4 | 3 |
-|    |   |   |   |   |   |   |   |
+
 #+name: rule-6-example-22 
 | 61 | 5 | 7 | 7 | 5 | 5 | 7 | 4 |
 | 62 | 3 | 3 | 2 | 3 | 3 | 5 | 2 |
@@ -592,6 +605,7 @@ table
 | 65 | 6 | 6 | 3 | 7 | 6 | 6 | 7 |
 | 66 | 8 | 8 | 8 | 8 | 8 | 8 | 8 |
 | 67 | 2 | 2 | 6 | 2 | 1 | 1 | 3 |
+| 68 | 1 | 1 | 1 | 1 | 2 | 2 | 1 |
 
 #+name: rule-6-example-23 
 | 61 | 1 | 1 | 2 | 1 | 1 | 2 | 1 |
@@ -623,6 +637,7 @@ table
 | 65 | 8 | 7 | 7 | 7 | 5 | 6 | 7 |
 | 66 | 7 | 8 | 8 | 8 | 8 | 8 | 8 |
 | 67 | 2 | 2 | 5 | 2 | 1 | 1 | 3 |
+| 68 | 1 | 1 | 1 | 1 | 3 | 3 | 1 |
 
 #+name: rule-6-example-27 
 | 61 | 2 | 1 | 2 | 2 | 3 | 5 | 2 |
@@ -663,6 +678,7 @@ table
 | 64 | 3 | 5 | 4 | 7 | 5 | 4 | 7 | 5 | 6 |
 | 65 | 1 | 1 | 1 | 1 | 1 | 2 | 1 | 1 | 1 |
 | 66 | 5 | 6 | 6 | 6 | 7 | 7 | 6 | 7 | 7 |
+| 67 | 4 | 2 | 3 | 2 | 2 | 3 | 3 | 2 | 2 |
 
 #+name: rule-6-example-32 
 | 61 | 2 | 2 | 2 | 1 | 6 | 2 | 1 | 2 | 2 |
@@ -707,6 +723,7 @@ table
 | 64 | 4 | 4 | 5 | 6 | 4 | 2 | 6 | 6 | 3 |
 | 65 | 2 | 2 | 1 | 3 | 2 | 4 | 1 | 2 | 1 |
 | 66 | 5 | 5 | 6 | 4 | 5 | 6 | 4 | 7 | 5 |
+| 67 | 6 | 6 | 4 | 7 | 3 | 5 | 7 | 4 | 6 |
 
 #+name: rule-6-example-38 
 | 61 | 2 | 3 | 2 | 2 | 2 | 1 | 2 | 2 | 2 |
@@ -814,6 +831,7 @@ table
 | 74 | 4 | 7 | 4 |
 | 75 | 5 | 2 | 2 |
 | 76 | 3 | 3 | 5 |
+| 77 | 1 | 1 | 1 |
 
 #+name: rule-7-example-2 
 | 71 | 6 | 6 | 6 |
@@ -933,7 +951,6 @@ table
 | 74 | 4 | 4 | 6 | 4 | 5 |
 | 75 | 6 | 5 | 3 | 6 | 4 |
 | 76 | 2 | 3 | 1 | 1 | 2 |
-|    |   |   |   |   |   |
 #+name: rule-7-example-18 
 | 71 | 5 | 4 | 3 | 6 | 6 |
 | 72 | 6 | 6 | 4 | 3 | 5 |
@@ -943,21 +960,20 @@ table
 | 76 | 4 | 1 | 1 | 1 | 1 |
 
 #+name: rule-7-example-19 
-   | 71 | 4 | 6 | 3 | 3 | 3 |
-   | 72 | 2 | 2 | 2 | 4 | 2 |
-   | 73 | 5 | 5 | 8 | 7 | 8 |
-   | 74 | 8 | 7 | 7 | 8 | 7 |
-   | 75 | 3 | 3 | 6 | 2 | 6 |
-   | 76 | 1 | 1 | 1 | 1 | 1 |
-   | 77 | 6 | 4 | 5 | 5 | 4 |
-   | 78 | 7 | 8 | 4 | 6 | 5 |
+| 71 | 4 | 6 | 3 | 3 | 3 |
+| 72 | 2 | 2 | 2 | 4 | 2 |
+| 73 | 5 | 5 | 8 | 7 | 8 |
+| 74 | 8 | 7 | 7 | 8 | 7 |
+| 75 | 3 | 3 | 6 | 2 | 6 |
+| 76 | 1 | 1 | 1 | 1 | 1 |
+| 77 | 6 | 4 | 5 | 5 | 4 |
+| 78 | 7 | 8 | 4 | 6 | 5 |
 #+name: rule-7-example-20 
-    | No. | A | B | C | D | E |
-    |  71 | 5 | 2 | 3 | 4 | 3 |
-    |  72 | 4 | 3 | 2 | 3 | 4 |
-    |  73 | 1 | 4 | 4 | 1 | 1 |
-    |  74 | 3 | 5 | 5 | 5 | 5 |
-    |  75 | 2 | 1 | 1 | 2 | 2 |
+| 71 | 5 | 2 | 3 | 4 | 3 |
+| 72 | 4 | 3 | 2 | 3 | 4 |
+| 73 | 1 | 4 | 4 | 1 | 1 |
+| 74 | 3 | 5 | 5 | 5 | 5 |
+| 75 | 2 | 1 | 1 | 2 | 2 |
 #+name: rule-7-example-21 
 | 71 | 5 | 2 | 2 | 3 | 2 | 6 | 1 |
 | 72 | 4 | 1 | 4 | 6 | 6 | 4 | 5 |
@@ -975,6 +991,7 @@ table
 | 76 | 7 | 7 | 8 | 8 | 8 | 8 | 8 |
 | 77 | 2 | 2 | 3 | 2 | 2 | 2 | 2 |
 | 78 | 1 | 1 | 1 | 1 | 3 | 1 | 1 |
+
 #+name: rule-7-example-23 
 | 71 | 6 | 3 | 6 | 5 | 5 | 6 | 4 |
 | 72 | 5 | 6 | 4 | 4 | 6 | 3 | 6 |
@@ -982,7 +999,7 @@ table
 | 74 | 2 | 2 | 2 | 2 | 1 | 4 | 2 |
 | 75 | 4 | 5 | 3 | 3 | 3 | 5 | 3 |
 | 76 | 1 | 1 | 1 | 1 | 2 | 1 | 1 |
-|    |   |   |   |   |   |   |   |
+
 #+name: rule-7-example-24 
 | 71 | 4 | 3 | 4 | 7 | 5 | 6 | 5 |
 | 72 | 2 | 2 | 2 | 2 | 3 | 5 | 2 |
@@ -991,6 +1008,7 @@ table
 | 75 | 7 | 7 | 7 | 6 | 6 | 3 | 6 |
 | 76 | 5 | 6 | 6 | 5 | 7 | 7 | 7 |
 | 77 | 8 | 8 | 8 | 8 | 8 | 8 | 8 |
+| 78 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
 
 #+name: rule-7-example-25 
 | 71 | 6 | 5 | 5 | 6 | 6 | 5 | 4 |
@@ -1007,7 +1025,7 @@ table
 | 75 | 5 | 2 | 4 | 4 | 1 | 3 | 4 |
 | 76 | 3 | 6 | 2 | 2 | 3 | 1 | 3 |
 
-#+name: rule-7-example-24 
+#+name: rule-7-example-27
 | 71 | 3 | 2 | 2 | 3 | 1 | 3 | 2 |
 | 72 | 6 | 5 | 6 | 6 | 3 | 6 | 4 |
 | 73 | 5 | 4 | 4 | 4 | 6 | 4 | 6 |
@@ -1091,6 +1109,7 @@ table
 | 74 | 5 | 6 | 5 | 4 | 6 | 4 | 5 | 4 | 7 |
 | 75 | 6 | 3 | 6 | 5 | 5 | 6 | 3 | 2 | 3 |
 | 76 | 2 | 2 | 2 | 2 | 1 | 5 | 2 | 3 | 2 |
+| 77 | 1 | 1 | 1 | 1 | 2 | 1 | 1 | 5 | 1 |
 
 #+name: rule-7-example-38 
 | 71 | 3 | 4 | 5 | 6 | 3 | 6 | 4 | 3 | 3 |
@@ -1264,13 +1283,12 @@ table
 | 85 | 5 | 2 | 3 |
 | 86 | 2 | 4 | 1 |
 #+name: rule-8-example-10 
-| No. | A | B | C |
-|  81 | 5 | 5 | 6 |
-|  82 | 1 | 1 | 2 |
-|  83 | 2 | 4 | 5 |
-|  84 | 4 | 6 | 4 |
-|  85 | 6 | 2 | 3 |
-|  86 | 3 | 3 | 1 |
+| 81 | 5 | 5 | 6 |
+| 82 | 1 | 1 | 2 |
+| 83 | 2 | 4 | 5 |
+| 84 | 4 | 6 | 4 |
+| 85 | 6 | 2 | 3 |
+| 86 | 3 | 3 | 1 |
 
 #+name: rule-8-example-11 
 | 81 | 2 | 1 | 2 | 1 | 3 |
@@ -1338,7 +1356,6 @@ table
 | 86 | 7 | 5 | 3 | 5 | 6 |
 
 #+name: rule-8-example-20 
-| No. | A | B | C | D | E |
 |  81 | 4 | 3 | 2 | 5 | 3 |
 |  82 | 2 | 2 | 1 | 4 | 4 |
 |  83 | 3 | 5 | 5 | 2 | 5 |
@@ -2091,7 +2108,6 @@ table
 | 24 | 6 | 1 | 3 | 1 | 5 | 1 | 4 | 4 | 5 | 6 | 4 |
 | 25 | 3 | 3 | 1 | 3 | 2 | 3 | 3 | 3 | 3 | 1 | 1 |
 | 26 | 1 | 4 | 6 | 5 | 3 | 6 | 6 | 5 | 6 | 5 | 2 |
-|    |   |   |   |   |   |   |   |   |   |   |   |
 
 #+name: mixed-rules-example-66 
 | 21 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 |
@@ -2247,7 +2263,6 @@ table
 | 24 | 2 | 5 | 2 | 3 | 2 | 5 | 6 | 1 | 3 | 2 | 4 |
 | 25 | 1 | 6 | 3 | 1 | 6 | 2 | 1 | 2 | 5 | 1 | 5 |
 | 26 | 5 | 2 | 1 | 6 | 5 | 1 | 3 | 6 | 4 | 6 | 1 |
-|    |   |   |   |   |   |   |   |   |   |   |   |
 
 #+name: mixed-rules-example-86 
 | 21 | 1 | 2 | 3 | 6 | 1 |
@@ -2565,7 +2580,6 @@ table
 | 25 | 3 | 2 | 2 | 2 | 1 | 3 | 2 | 2 | 3 | 2 | 7 |
 | 26 | 2 | 3 | 4 | 3 | 3 | 2 | 6 | 3 | 2 | 3 | 6 |
 | 27 | 6 | 7 | 7 | 7 | 4 | 4 | 4 | 6 | 5 | 6 | 3 |
-|    |   |   |   |   |   |   |   |   |   |   |   |
 
 #+name: mixed-rules-example-126 
 | 21 | 4 | 4 | 4 | 4 | 4 |
@@ -4600,27 +4614,28 @@ table
 |                    114 | 1 | 1 | 1 | 2 | 1 | 1 | 1 | 1 | 1 |
 |                    115 | 2 | 2 | 2 | 4 | 4 | 4 | 2 | 6 | 6 |
 |                    116 | 5 | 4 | 4 | 3 | 5 | 5 | 3 | 4 | 2 |
-* Rule 5 Answers 
+* Rule 5 Answers
+
 #+name: rule-5-answers-11-20
-| rule-5-ex-11 | rule-5-ex-12 | rule-5-ex-13 | rule-5-ex-14 | rule-5-ex-15 | rule-5-ex-16 | rule-5-ex-17 | rule-5-ex-18 | rule-5-ex-19 | rule-5-ex-20 | 
-|            1 |            4 |            4 |            1 |            1 |            1 |            6 |            4 |            1 |            3 | 
-|            2 |            1 |            1 |            3 |            4 |            2 |            1 |            2 |            4 |            2 | 
-|            3 |            2 |            3 |            4 |            3 |            5 |            5 |            3 |            3 |            1 | 
-|            5 |            3 |            2 |            2 |            2 |            8 |            2 |            6 |            2 |            5 | 
-|            6 |            5 |            - |            - |            - |            6 |            4 |            5 |            - |            4 | 
-|            4 |            - |            - |            - |            - |            4 |            3 |            1 |            - |            - | 
-|            - |            - |            - |            - |            - |            7 |            - |            - |            - |            - | 
-|            - |            - |            - |            - |            - |            3 |            - |            - |            - |            - | 
+| rule-5-ex-11 | rule-5-ex-12 | rule-5-ex-13 | rule-5-ex-14 | rule-5-ex-15 | rule-5-ex-16 | rule-5-ex-17 | rule-5-ex-18 | rule-5-ex-19 | rule-5-ex-20 |
+|            1 |            4 | 4            | 1            | 1            |            1 |            6 |            4 | 1            |            3 |
+|            2 |            1 | 1            | 3            | 4            |            2 |            1 |            2 | 4            |            2 |
+|            3 |            2 | 3            | 4            | 3            |            5 |            5 |            3 | 3            |            1 |
+|            5 |            3 | 2            | 2            | 2            |            8 |            2 |            6 | 2            |            5 |
+|            6 |            5 | -            | -            | -            |            6 |            4 |            5 | -            |            4 |
+|            4 |            - | -            | -            | -            |            4 |            3 |            1 | -            |            - |
+|            - |            - | -            | -            | -            |            7 |            - |            - | -            |            - |
+|            - |            - | -            | -            | -            |            3 |            - |            - | -            |            - |
 #+name: rule-5-answers-21-30
-| rule-5-ex-21 | rule-5-ex-22 | rule-5-ex-23 | rule-5-ex-24 | rule-5-ex-25 | rule-5-ex-26 | rule-5-ex-27 | rule-5-ex-28 | rule-5-ex-29 | rule-5-ex-30 | 
-|            6 |            3 |            1 |            4 |            2 |            2 |            3 |            4 |            4 |            2 | 
-|            3 |            4 |            3 |            6 |            1 |            5 |            5 |            2 |            1 |            6 | 
-|            5 |            5 |            5 |            3 |            3 |            7 |            6 |            5 |            3 |            3 | 
-|            4 |            2 |            4 |            5 |            6 |            6 |            4 |            6 |            2 |            7 | 
-|            7 |            1 |            2 |            1 |            4 |            3 |            1 |            3 |            5 |            5 | 
-|            8 |            - |            - |            2 |            5 |            1 |            2 |            1 |            - |            4 | 
-|            2 |            - |            - |            - |            - |            4 |            - |            - |            - |            1 | 
-|            1 |            - |            - |            - |            - |            - |            - |            - |            - |            - | 
+| rule-5-ex-21 | rule-5-ex-22 | rule-5-ex-23 | rule-5-ex-24 | rule-5-ex-25 | rule-5-ex-26 | rule-5-ex-27 | rule-5-ex-28 | rule-5-ex-29 | rule-5-ex-30 |
+|            6 |            3 |            1 |            4 |            2 |            2 |            3 |            4 |            4 |            2 |
+|            3 |            4 |            3 |            6 |            1 |            5 |            5 |            2 |            1 |            6 |
+|            5 |            5 |            5 |            3 |            3 |            7 |            6 |            5 |            3 |            3 |
+|            4 |            2 |            4 |            5 |            6 |            6 |            4 |            6 |            2 |            7 |
+|            7 |            1 |            2 |            1 |            4 |            3 |            1 |            3 |            5 |            5 |
+|            8 |            - |            - |            2 |            5 |            1 |            2 |            1 |            - |            4 |
+|            2 |            - |            - |            - |            - |            4 |            - |            - |            - |            1 |
+|            1 |            - |            - |            - |            - |            - |            - |            - |            - |            - |
 #+name: rule-5-answers-31-40
 | rule-5-ex-31 | rule-5-ex-32 | rule-5-ex-33 | rule-5-ex-34 | rule-5-ex-35 | rule-5-ex-36 | rule-5-ex-37 | rule-5-ex-38 | rule-5-ex-39 | rule-5-ex-40 | 
 |            7 |            3 |            3 |            2 |            2 |            5 |            2 |            3 |            5 |            5 | 
