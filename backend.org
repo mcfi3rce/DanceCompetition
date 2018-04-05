@@ -197,13 +197,16 @@
                 (really-tied couple-sums (1+ place-val) couples-list)))
              ;; tie-break 2 sums
              (t (setq couple-sums (compare-n-sums tied-majorities place-val)
-                      remaining-couples (remove winning-couple couple-sums)
                       winning-couple (find-winning-couples couple-sums))
+                      remaining-couples (remove winning-couple couple-sums)
                 ;; since they are sorted from smallest to largest pass them both in
                 (case (length winning-couple)
                   (1
-                   (remove-couples couple-sums)
-                     couple-sums)
+                   ;; We need to check if there is a tie in the sums here too
+                   (remove-couple winning-couple)
+                   (if (test-for-tie remaining-couples)
+                       (really-tied (find-winning-couples remaining-couples) place couples-list)
+                     (remove-couples tied-majorities)))
                   (t (really-tied couple-sums (1+ place-val) couples-list)))))))))
 
   (defun build-single-dance (dance)
@@ -603,3 +606,16 @@
     (forward-char 4)
     (save-buffer))
 #+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (defun test-for-tie (couple-sums)
+    (setq couple-sums (compare-n-sums tied-majorities place-val)
+          winning-couple (car (find-winning-couples couple-sums))
+          remaining-couples (remove (assoc winning-couple couple-sums) couple-sums))
+    (if (null winning-couple)
+        t
+      nil))
+#+END_SRC
+
+#+RESULTS:
+: test-for-tie
