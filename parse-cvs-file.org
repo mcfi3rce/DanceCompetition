@@ -33,7 +33,7 @@ table
 | 54 | 2 | 1 | 1 |
 | 55 | 3 | 4 | 3 |
 | 56 | 4 | 5 | 5 |
-* TODO Functions to create test suite... Move this
+* TODO Functions
 #+BEGIN_SRC emacs-lisp :var table=mixed-rules-example-1
   (defun eval-without-buffer (table) 
         (insert (format "#+BEGIN_SRC elisp :var table=%s \n(setq mixed (append table mixed))\n#+END_SRC\n" table))
@@ -46,7 +46,10 @@ table
           (loop for x from 1 to 150
               collect (string-to-symbol (concat "mixed-rules-example-" (number-to-string x))))))
 #+END_SRC
-** Run this too
+
+#+RESULTS:
+: build-mixed-symbols
+
 #+BEGIN_SRC elisp :results silent
   (defun org-element-tree ()
     (let ((file-path "oet.el")
@@ -84,22 +87,12 @@ table
     (reverse table-symbols))
 #+END_SRC
 
-#+RESULTS:
-: build-mixed-symbols
-
 #+BEGIN_SRC emacs-lisp :results silent
   (setq tables (parse-tables-and-set-table-symbols)
         data (subseq tables 0 497)
         targets (subseq tables 498))
 #+END_SRC
 
-* Create the ultimate test table
-#+BEGIN_SRC emacs-lisp :results silent
-  (setq ultimate-table (apply 'append (loop for table in targets
-                                            collect (mapcar 'cdr (transpose (symbol-value table))))))
-#+END_SRC
-
-* Format results and answers functions.. move these too:
 #+BEGIN_SRC emacs-lisp
   (defun format-results (dance)
     (mapcar 'car (sort (score-single-dance dance) (lambda (a b) (< (cadr a) (cadr b))))))
@@ -113,6 +106,13 @@ table
 | 4 | 2 | 3 | 6 | 5 | 1 |
 | 4 | 2 | 3 | 6 | 5 | 1 |
 
+
+* Create the ultimate test table
+ #+BEGIN_SRC emacs-lisp :results silent
+   (setq ultimate-table (apply 'append (loop for table in targets
+                                             collect (mapcar 'cdr (transpose (symbol-value table))))))
+ #+END_SRC
+
 * Test Rule 5:
 #+BEGIN_SRC emacs-lisp :results value
   (loop with prediction = nil
@@ -123,59 +123,6 @@ table
                        (setq target (format-answer target))))
         collect (list (1+ dance) (% (1+ dance) 50) prediction target))
 #+END_SRC
-
-#+RESULTS:
-|  1 |  1 | (6 2 4 1 3 5)     | (1 2 3 5 6 4)     |
-|  2 |  2 | (2 3 5 1 4 7 6)   | (4 1 2 3 5)       |
-|  3 |  3 | (4 3 2 6 5 1)     | (4 1 3 2)         |
-|  4 |  4 | (6 1 4 3 5 2)     | (1 3 4 2)         |
-|  5 |  5 | (1 3 5 4 6 2)     | (1 4 3 2)         |
-|  6 |  6 | (7 6 1 4 5 3 2)   | (1 2 5 8 6 4 7 3) |
-|  7 |  7 | (3 4 6 5 1 2)     | (6 1 5 2 4 3)     |
-|  8 |  8 | (5 4 2 1 3)       | (4 2 3 6 5 1)     |
-|  9 |  9 | (2 1 5 3 4)       | (1 4 3 2)         |
-| 10 | 10 | (3 2 5 4 1)       | (3 2 1 5 4)       |
-| 11 | 11 | (1 2 3 5 6 4)     | (6 3 5 4 7 8 2 1) |
-| 12 | 12 | (4 1 2 3 5)       | (3 4 5 2 1)       |
-| 13 | 13 | (4 1 3 2)         | (1 3 5 4 2)       |
-| 14 | 14 | (1 3 4 2)         | (4 6 3 5 1 2)     |
-| 15 | 15 | (1 4 3 2)         | (2 1 3 6 4 5)     |
-| 16 | 16 | (1 2 5 8 6 4 7 3) | (2 5 7 6 3 1 4)   |
-| 17 | 17 | (6 1 5 2 4 3)     | (3 5 6 4 1 2)     |
-| 18 | 18 | (4 2 3 6 5 1)     | (4 2 5 6 3 1)     |
-| 19 | 19 | (1 4 3 2)         | (4 1 3 2 5)       |
-| 20 | 20 | (3 2 1 5 4)       | (2 6 3 7 5 4 1)   |
-| 21 | 21 | (6 3 5 4 7 8 2 1) | (7 5 4 6 1 3 2)   |
-| 22 | 22 | (3 4 5 2 1)       | (3 6 5 4 2 1)     |
-| 23 | 23 | (1 3 5 4 2)       | (3 5 6 4 2 1)     |
-| 24 | 24 | (4 6 3 5 1 2)     | (2 1 6 4 3 5)     |
-| 25 | 25 | (2 1 3 6 4 5)     | (2 6 3 1 5 4)     |
-| 26 | 26 | (2 5 7 6 3 1 4)   | (5 3 2 1 4)       |
-| 27 | 27 | (3 5 6 4 1 2)     | (2 5 3 1 6 4)     |
-| 28 | 28 | (4 2 5 6 3 1)     | (3 1 4 5 2)       |
-| 29 | 29 | (4 1 3 2 5)       | (5 4 2 1 3)       |
-| 30 | 30 | (2 6 3 7 5 4 1)   | (5 6 1 3 4 2)     |
-| 31 | 31 | (7 5 4 6 1 3 2)   | (2 6 1 4 3 5)     |
-| 32 | 32 | (3 6 5 4 2 1)     | (1 6 2 3 4 5)     |
-| 33 | 33 | (3 5 6 4 2 1)     | (3 4 6 1 5 2)     |
-| 34 | 34 | (2 1 6 4 3 5)     | (3 2 6 4 1 5)     |
-| 35 | 35 | (2 6 3 1 5 4)     | (3 1 7 4 5 2 6)   |
-| 36 | 36 | (5 3 2 1 4)       | (3 5 6 4 1 7 2)   |
-| 37 | 37 | (2 5 3 1 6 4)     | (5 2 3 4 1 6)     |
-| 38 | 38 | (3 1 4 5 2)       | (1 2 5 3 4 6)     |
-| 39 | 39 | (5 4 2 1 3)       | (5 1 3 2 4 6)     |
-| 40 | 40 | (5 6 1 3 4 2)     | (3 5 6 2 1 4)     |
-| 41 | 41 | (2 6 1 4 3 5)     | (2 3 5 1 4 6)     |
-| 42 | 42 | (1 6 2 3 4 5)     | (7 6 4 1 2 5 3)   |
-| 43 | 43 | (3 4 6 1 5 2)     | (5 1 2 3 4 6)     |
-| 44 | 44 | (3 2 6 4 1 5)     | (8 5 2 4 6 7 3 1) |
-| 45 | 45 | (3 1 7 4 5 2 6)   | (6 4 2 1 3 5)     |
-| 46 | 46 | (3 5 6 1 4 7 2)   | (2 3 4 1 5 7 6)   |
-| 47 | 47 | (5 2 3 4 1 6)     | (3 4 2 6 5 1)     |
-| 48 | 48 | (1 2 5 3 4 6)     | (6 1 4 3 5 2)     |
-| 49 | 49 | (5 1 3 2 4 6)     | (2 5 6 4 3 7 1)   |
-| 50 |  0 | (3 5 6 2 1 4)     | (6 1 4 3 5 2)     |
-| 51 |  1 | (2 3 5 1 4 6)     | (3 6 4 5 1 2)     |
 
 * Rule 5:
 #+name: rule-5-example-1 

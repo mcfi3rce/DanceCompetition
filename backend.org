@@ -19,7 +19,7 @@
   (require 'cl)
   (require 'dash)
   (require 'org-element)
-  (require 'ox-reveal)
+  ;(require 'ox-reveal)
 
   (defun calculate-majority (row)
     (1+ (/ (length (remove-if 'stringp row)) 2)))
