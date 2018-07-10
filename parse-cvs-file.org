@@ -46,6 +46,43 @@ table
           (loop for x from 1 to 150
               collect (string-to-symbol (concat "mixed-rules-example-" (number-to-string x))))))
 #+END_SRC
+** Run this too
+#+BEGIN_SRC elisp :results silent
+  (defun org-element-tree ()
+    (let ((file-path "oet.el")
+          (org-element-tree (org-element-parse-buffer))
+          (print-circle t))
+      (with-temp-buffer
+        (insert "(setq oet '")
+        (pp org-element-tree (current-buffer))
+        (insert ")\n")
+        (write-file file-path))
+      t))
+
+  (defun parse-table (data)
+    (let* ((interpreted (org-element-interpret-data data))
+           (table-contents-as-list-of-strings (split-string interpreted "\n"))
+           (table-contents (mapcar (lambda (x) (split-string x "|"))
+                                   (cdr table-contents-as-list-of-strings))))
+      (mapcar (lambda (row)
+                (loop for entry in row
+                      if (and (stringp entry) (plusp (length entry)))
+                      collect (string-to-number entry)))
+              table-contents)))
+
+  (defun parse-tables-and-set-table-symbols ()
+    (setq table-symbols nil)
+    (org-element-map (org-element-parse-buffer)
+        'table
+      (lambda (data)
+        (let (table-name table-symbol)
+          (setq table-name (org-element-property :name data))
+          (when (not (null table-name))
+            (setq table-symbol (intern table-name))
+            (set table-symbol (remove-if 'null (parse-table data)))
+            (push table-symbol table-symbols)))))
+    (reverse table-symbols))
+#+END_SRC
 
 #+RESULTS:
 : build-mixed-symbols
