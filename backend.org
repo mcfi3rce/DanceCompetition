@@ -29,7 +29,7 @@
 
   (defun ++ (l1 l2)
     (mapcar* '+ l1 l2))
-    
+
   (defun calculate-totals (dance number-of-places)
     ;; dance looks like this (couple-num 1 2 1 1 3)
     (loop for place from 1 to number-of-places
@@ -197,8 +197,8 @@
                 (really-tied couple-sums (1+ place-val) couples-list)))
              ;; tie-break 2 sums
              (t (setq couple-sums (compare-n-sums tied-majorities place-val)
-                      winning-couple (find-winning-couples couple-sums))
-                      remaining-couples (remove winning-couple couple-sums)
+                      winning-couple (find-winning-couples couple-sums)
+                      remaining-couples (remove winning-couple couple-sums))
                 ;; since they are sorted from smallest to largest pass them both in
                 (case (length winning-couple)
                   (1
