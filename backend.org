@@ -198,15 +198,16 @@
              ;; tie-break 2 sums
              (t (setq couple-sums (compare-n-sums tied-majorities place-val)
                       winning-couple (find-winning-couples couple-sums)
-                      remaining-couples (remove winning-couple couple-sums))
+                      remaining-couples (remove (assoc (car winning-couple) couple-sums) couple-sums))
                 ;; since they are sorted from smallest to largest pass them both in
                 (case (length winning-couple)
                   (1
                    ;; We need to check if there is a tie in the sums here too
-                   (remove-couple winning-couple)
-                   (if (test-for-tie remaining-couples)
-                       (really-tied (find-winning-couples remaining-couples) place couples-list)
-                     (remove-couples tied-majorities)))
+                   (remove-couples couple-sums)
+                   ;(if (test-for-tie remaining-couples)
+                       ;(really-tied (find-winning-couples remaining-couples) place couples-list)
+                                          ;(remove-couples tied-majorities)))
+                   )
                   (t (really-tied couple-sums (1+ place-val) couples-list)))))))))
 
   (defun build-single-dance (dance)

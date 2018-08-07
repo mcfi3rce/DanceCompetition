@@ -1271,9 +1271,9 @@ table
  #+BEGIN_SRC emacs-lisp :results value
    (loop with prediction = nil
          with target = nil
-         with dance-count = 100
+         with dance-count = 149
          with answer-count = (- dance-count 10)
-    for dance from 100 to dance-count
+    for dance from 10 to dance-count
          for target in ultimate-table
          if (not (equal (setq prediction (format-results (symbol-value (elt data dance))))
                         (setq target (format-answer target))))
