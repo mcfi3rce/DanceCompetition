@@ -1201,7 +1201,7 @@ Note: this splits the train and test data. Yes it's a mess. I am working on maki
 #+BEGIN_SRC emacs-lisp :results value
   (loop with prediction = nil
         with target = nil
-        with dance-count = 139
+        with dance-count = 140
    for dance from 1 to dance-count
         if (not (equal (setq prediction (test-dance-results dance-count))
                        (setq target (test-dance-scoring dance-count))))
@@ -1599,9 +1599,21 @@ Note: this splits the train and test data. Yes it's a mess. I am working on maki
 #+BEGIN_SRC emacs-lisp :results value
   (loop with prediction = nil
         with target = nil
+        with dance-count = 189
+        for dance from 1 to dance-count
+        if (not (equal (setq prediction (test-dance-scoring dance-count))
+                       (setq target (test-dance-results dance-count))))
+        collect (list dance (% dance 50) prediction target))
+ #+END_SRC
+
+ #+RESULTS:
+
+#+BEGIN_SRC emacs-lisp :results value
+  (loop with prediction = nil
+        with target = nil
         with dance-count = 199
         with answer-count = (- dance-count 10)
-   for dance from 10 to dance-count
+   for dance from 0 to dance-count
         for target in ultimate-table
         if (not (equal (setq prediction (format-results (symbol-value (elt data dance))))
                        (setq target (format-answer target))))
@@ -1609,20 +1621,21 @@ Note: this splits the train and test data. Yes it's a mess. I am working on maki
 #+END_SRC
 
 #+RESULTS:
-| 157 | 157 | (1.5 1.5 3 7 5 6 4) | (1.5 1.5 3 7 5.5 5.5 4) |
-| 161 | 161 | (1 2.5 5 4 2.5)     | (1 3.5 5 2 3.5)         |
-| 169 | 169 | (4.5 6 2 3 1 4.5)   | (5.5 7 2 3 1 5.5 4)     |
-| 172 | 172 | (6 3 1 2 5 4)       | (3 4 1 2 6 5)           |
-| 180 | 180 | (2 5 1 4 6 3)       | (3 5 1 4 6 2)           |
-| 186 | 186 | (3 4 2 1)           | (4 3 2 1)               |
-| 187 | 187 | (1 5 4 6 3 7 2)     | (1 4 5 6 3 7 2)         |
-| 190 |   1 | (5 3 1.5 1.5 4)     | (5 3 1 2 4)             |
-| 192 |   3 | (2 6 4 1 3 5)       | (2 5 4 1 3 6)           |
-| 194 |   5 | (2 5 4 6 1 3)       | (3 2 5 6 1 4)           |
-| 195 |   6 | (2 4 3 6 1 5)       | (2 5 3 6 1 4)           |
-| 196 |   7 | (2 6 3 4 1 5)       | (2 6 3 4.5 1 4.5)       |
-| 198 |   9 | (2 1 5 4 6 3)       | (2 1 6 4 5 3)           |
-| 200 |  11 | (4 1 3 2)           | (4 1 3 2 5.5 5.5)       |
+| 147 | 147 | (1.5 1.5 3 7 5 6 4) | (1.5 1.5 3 7 5.5 5.5 4) |
+| 151 | 151 | (1 2.5 5 4 2.5)     | (1 3.5 5 2 3.5)         |
+| 159 | 159 | (4.5 6 2 3 1 4.5)   | (5.5 7 2 3 1 5.5 4)     |
+| 162 | 162 | (6 3 1 2 5 4)       | (3 4 1 2 6 5)           |
+| 170 | 170 | (2 5 1 4 6 3)       | (3 5 1 4 6 2)           |
+| 176 | 176 | (3 4 2 1)           | (4 3 2 1)               |
+| 177 | 177 | (1 5 4 6 3 7 2)     | (1 4 5 6 3 7 2)         |
+| 180 | 180 | (5 3 1.5 1.5 4)     | (5 3 1 2 4)             |
+| 182 | 182 | (2 6 4 1 3 5)       | (2 5 4 1 3 6)           |
+| 184 | 184 | (2 5 4 6 1 3)       | (3 2 5 6 1 4)           |
+| 185 | 185 | (2 4 3 6 1 5)       | (2 5 3 6 1 4)           |
+| 186 | 186 | (2 6 3 4 1 5)       | (2 6 3 4.5 1 4.5)       |
+| 188 | 188 | (2 1 5 4 6 3)       | (2 1 6 4 5 3)           |
+| 190 |   1 | (4 1 3 2)           | (4 1 3 2 5.5 5.5)       |
+| 193 |   4 | (4 1 2.5 2.5 7 6 5) | (4 1 2.5 2.5 7 6 5 8)   |
 
 #+BEGIN_SRC elisp :results silent :var dance-num = 157
   (format-results (elt))
