@@ -33,7 +33,7 @@ table
 | 54 | 2 | 1 | 1 |
 | 55 | 3 | 4 | 3 |
 | 56 | 4 | 5 | 5 |
-* TODO Functions to create test suite... Move this
+* TODO Functions
 #+BEGIN_SRC emacs-lisp :var table=mixed-rules-example-1
   (defun eval-without-buffer (table) 
         (insert (format "#+BEGIN_SRC elisp :var table=%s \n(setq mixed (append table mixed))\n#+END_SRC\n" table))
@@ -50,19 +50,49 @@ table
 #+RESULTS:
 : build-mixed-symbols
 
+#+BEGIN_SRC elisp :results silent
+  (defun org-element-tree ()
+    (let ((file-path "oet.el")
+          (org-element-tree (org-element-parse-buffer))
+          (print-circle t))
+      (with-temp-buffer
+        (insert "(setq oet '")
+        (pp org-element-tree (current-buffer))
+        (insert ")\n")
+        (write-file file-path))
+      t))
+
+  (defun parse-table (data)
+    (let* ((interpreted (org-element-interpret-data data))
+           (table-contents-as-list-of-strings (split-string interpreted "\n"))
+           (table-contents (mapcar (lambda (x) (split-string x "|"))
+                                   (cdr table-contents-as-list-of-strings))))
+      (mapcar (lambda (row)
+                (loop for entry in row
+                      if (and (stringp entry) (plusp (length entry)))
+                      collect (string-to-number entry)))
+              table-contents)))
+
+  (defun parse-tables-and-set-table-symbols ()
+    (setq table-symbols nil)
+    (org-element-map (org-element-parse-buffer)
+        'table
+      (lambda (data)
+        (let (table-name table-symbol)
+          (setq table-name (org-element-property :name data))
+          (when (not (null table-name))
+            (setq table-symbol (intern table-name))
+            (set table-symbol (remove-if 'null (parse-table data)))
+            (push table-symbol table-symbols)))))
+    (reverse table-symbols))
+#+END_SRC
+
 #+BEGIN_SRC emacs-lisp :results silent
   (setq tables (parse-tables-and-set-table-symbols)
         data (subseq tables 0 497)
         targets (subseq tables 498))
 #+END_SRC
 
-* Create the ultimate test table
-#+BEGIN_SRC emacs-lisp :results silent
-  (setq ultimate-table (apply 'append (loop for table in targets
-                                            collect (mapcar 'cdr (transpose (symbol-value table))))))
-#+END_SRC
-
-* Format results and answers functions.. move these too:
 #+BEGIN_SRC emacs-lisp
   (defun format-results (dance)
     (mapcar 'car (sort (score-single-dance dance) (lambda (a b) (< (cadr a) (cadr b))))))
@@ -76,69 +106,11 @@ table
 | 4 | 2 | 3 | 6 | 5 | 1 |
 | 4 | 2 | 3 | 6 | 5 | 1 |
 
-* Test Rule 5:
-#+BEGIN_SRC emacs-lisp :results value
-  (loop with prediction = nil
-        with target = nil
-   for dance from 0 to 50 
-        for target in ultimate-table
-        if (not (equal (setq prediction (format-results (symbol-value (elt data dance))))
-                       (setq target (format-answer target))))
-        collect (list (1+ dance) (% (1+ dance) 50) prediction target))
-#+END_SRC
-
-#+RESULTS:
-|  1 |  1 | (6 2 4 1 3 5)     | (1 2 3 5 6 4)     |
-|  2 |  2 | (2 3 5 1 4 7 6)   | (4 1 2 3 5)       |
-|  3 |  3 | (4 3 2 6 5 1)     | (4 1 3 2)         |
-|  4 |  4 | (6 1 4 3 5 2)     | (1 3 4 2)         |
-|  5 |  5 | (1 3 5 4 6 2)     | (1 4 3 2)         |
-|  6 |  6 | (7 6 1 4 5 3 2)   | (1 2 5 8 6 4 7 3) |
-|  7 |  7 | (3 4 6 5 1 2)     | (6 1 5 2 4 3)     |
-|  8 |  8 | (5 4 2 1 3)       | (4 2 3 6 5 1)     |
-|  9 |  9 | (2 1 5 3 4)       | (1 4 3 2)         |
-| 10 | 10 | (3 2 5 4 1)       | (3 2 1 5 4)       |
-| 11 | 11 | (1 2 3 5 6 4)     | (6 3 5 4 7 8 2 1) |
-| 12 | 12 | (4 1 2 3 5)       | (3 4 5 2 1)       |
-| 13 | 13 | (4 1 3 2)         | (1 3 5 4 2)       |
-| 14 | 14 | (1 3 4 2)         | (4 6 3 5 1 2)     |
-| 15 | 15 | (1 4 3 2)         | (2 1 3 6 4 5)     |
-| 16 | 16 | (1 2 5 8 6 4 7 3) | (2 5 7 6 3 1 4)   |
-| 17 | 17 | (6 1 5 2 4 3)     | (3 5 6 4 1 2)     |
-| 18 | 18 | (4 2 3 6 5 1)     | (4 2 5 6 3 1)     |
-| 19 | 19 | (1 4 3 2)         | (4 1 3 2 5)       |
-| 20 | 20 | (3 2 1 5 4)       | (2 6 3 7 5 4 1)   |
-| 21 | 21 | (6 3 5 4 7 8 2 1) | (7 5 4 6 1 3 2)   |
-| 22 | 22 | (3 4 5 2 1)       | (3 6 5 4 2 1)     |
-| 23 | 23 | (1 3 5 4 2)       | (3 5 6 4 2 1)     |
-| 24 | 24 | (4 6 3 5 1 2)     | (2 1 6 4 3 5)     |
-| 25 | 25 | (2 1 3 6 4 5)     | (2 6 3 1 5 4)     |
-| 26 | 26 | (2 5 7 6 3 1 4)   | (5 3 2 1 4)       |
-| 27 | 27 | (3 5 6 4 1 2)     | (2 5 3 1 6 4)     |
-| 28 | 28 | (4 2 5 6 3 1)     | (3 1 4 5 2)       |
-| 29 | 29 | (4 1 3 2 5)       | (5 4 2 1 3)       |
-| 30 | 30 | (2 6 3 7 5 4 1)   | (5 6 1 3 4 2)     |
-| 31 | 31 | (7 5 4 6 1 3 2)   | (2 6 1 4 3 5)     |
-| 32 | 32 | (3 6 5 4 2 1)     | (1 6 2 3 4 5)     |
-| 33 | 33 | (3 5 6 4 2 1)     | (3 4 6 1 5 2)     |
-| 34 | 34 | (2 1 6 4 3 5)     | (3 2 6 4 1 5)     |
-| 35 | 35 | (2 6 3 1 5 4)     | (3 1 7 4 5 2 6)   |
-| 36 | 36 | (5 3 2 1 4)       | (3 5 6 4 1 7 2)   |
-| 37 | 37 | (2 5 3 1 6 4)     | (5 2 3 4 1 6)     |
-| 38 | 38 | (3 1 4 5 2)       | (1 2 5 3 4 6)     |
-| 39 | 39 | (5 4 2 1 3)       | (5 1 3 2 4 6)     |
-| 40 | 40 | (5 6 1 3 4 2)     | (3 5 6 2 1 4)     |
-| 41 | 41 | (2 6 1 4 3 5)     | (2 3 5 1 4 6)     |
-| 42 | 42 | (1 6 2 3 4 5)     | (7 6 4 1 2 5 3)   |
-| 43 | 43 | (3 4 6 1 5 2)     | (5 1 2 3 4 6)     |
-| 44 | 44 | (3 2 6 4 1 5)     | (8 5 2 4 6 7 3 1) |
-| 45 | 45 | (3 1 7 4 5 2 6)   | (6 4 2 1 3 5)     |
-| 46 | 46 | (3 5 6 1 4 7 2)   | (2 3 4 1 5 7 6)   |
-| 47 | 47 | (5 2 3 4 1 6)     | (3 4 2 6 5 1)     |
-| 48 | 48 | (1 2 5 3 4 6)     | (6 1 4 3 5 2)     |
-| 49 | 49 | (5 1 3 2 4 6)     | (2 5 6 4 3 7 1)   |
-| 50 |  0 | (3 5 6 2 1 4)     | (6 1 4 3 5 2)     |
-| 51 |  1 | (2 3 5 1 4 6)     | (3 6 4 5 1 2)     |
+* Create the ultimate test table
+ #+BEGIN_SRC emacs-lisp :results silent
+   (setq ultimate-table (apply 'append (loop for table in targets
+                                             collect (mapcar 'cdr (transpose (symbol-value table))))))
+ #+END_SRC
 
 * Rule 5:
 #+name: rule-5-example-1 
@@ -254,7 +226,6 @@ table
 | 54 | 4 | 1 | 2 | 1 | 2 |
 | 55 | 6 | 3 | 4 | 4 | 5 |
 | 56 | 2 | 5 | 3 | 5 | 3 |
-|    |   |   |   |   |   |
 #+name: rule-5-example-18 
 | 51 | 3 | 6 | 5 | 4 | 2 |
 | 52 | 4 | 2 | 2 | 2 | 3 |
@@ -262,7 +233,6 @@ table
 | 54 | 6 | 5 | 6 | 6 | 6 |
 | 55 | 5 | 4 | 4 | 5 | 5 |
 | 56 | 1 | 1 | 1 | 1 | 1 |
-|    |   |   |   |   |   |
 #+name: rule-5-example-19 
 | 51 | 1 | 1 | 1 | 1 | 1 |
 | 52 | 4 | 4 | 4 | 4 | 4 |
@@ -490,6 +460,23 @@ table
 | 55 | 1 | 4 | 2 | 2 | 1 | 1 | 1 | 1 | 5 | 1 | 3 |
 | 56 | 6 | 1 | 6 | 4 | 6 | 5 | 4 | 4 | 3 | 4 | 2 |
 
+* DONE Test Rule 5:
+  CLOSED: [2018-07-10 Tue 17:24]
+** NOTE: DON'T FORGET TO START TESTING FROM NUMBER 10 ON!!!
+#+BEGIN_SRC emacs-lisp :results value
+   (loop with prediction = nil
+         with target = nil
+         with dance-count = 49
+         with answer-count = (- dance-count 10)
+    for dance from 10 to dance-count
+         for target in ultimate-table
+         if (not (equal (setq prediction (format-results (symbol-value (elt data dance))))
+                        (setq target (format-answer target))))
+         collect (list (1+ dance) (% (1+ dance) answer-count) prediction target))
+ #+END_SRC
+
+ #+RESULTS:
+ 
 * Rule 6:
 #+name: rule-6-example-1 
 | 61 | 5 | 2 | 1 |
@@ -875,6 +862,22 @@ table
 | 65 | 1 | 1 | 2 | 4 | 1 | 5 | 3 | 1 | 3 | 1 | 1 |
 | 66 | 2 | 4 | 5 | 5 | 5 | 6 | 4 | 5 | 6 | 2 | 3 |
 
+* DONE Test Rule 6:
+  CLOSED: [2018-08-06 Mon 22:39]
+#+BEGIN_SRC emacs-lisp :results value
+  (loop with prediction = nil
+        with target = nil
+        with dance-count = 99
+        with answer-count = (- dance-count 10)
+   for dance from 10 to dance-count
+        for target in ultimate-table
+        if (not (equal (setq prediction (format-results (symbol-value (elt data dance))))
+                       (setq target (format-answer target))))
+        collect (list (1+ dance) (% (1+ dance) answer-count) prediction target))
+#+END_SRC
+
+#+RESULTS:
+
 * Rule 7:
 #+name: rule-7-example-1 
 | 71 | 6 | 4 | 3 |
@@ -892,7 +895,7 @@ table
 | 74 | 1 | 1 | 3 |
 | 75 | 2 | 4 | 2 |
 | 76 | 5 | 5 | 4 |
-|    |   |   |   |
+
 #+name: rule-7-example-3 
 | 71 | 2 | 2 | 5 |
 | 72 | 4 | 5 | 3 |
@@ -1262,6 +1265,35 @@ table
 | 75 | 2 | 1 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 1 | 7 |
 | 76 | 3 | 4 | 6 | 3 | 3 | 3 | 5 | 3 | 3 | 3 | 6 |
 | 77 | 4 | 6 | 7 | 5 | 4 | 4 | 4 | 7 | 4 | 6 | 3 |
+
+* Test Rule 7:
+#+BEGIN_SRC emacs-lisp :results value
+  (loop with prediction = nil
+        with target = nil
+        with dance-count = 199
+        with answer-count = (- dance-count 10)
+   for dance from 10 to dance-count
+        for target in ultimate-table
+        if (not (equal (setq prediction (format-results (symbol-value (elt data dance))))
+                       (setq target (format-answer target))))
+        collect (list (1+ dance) (% (1+ dance) answer-count) prediction target))
+#+END_SRC
+
+#+RESULTS:
+| 157 | 157 | (1.5 1.5 3 7 5 6 4) | (1.5 1.5 3 7 5.5 5.5 4) |
+| 161 | 161 | (1 2.5 5 4 2.5)     | (1 3.5 5 2 3.5)         |
+| 169 | 169 | (4.5 6 2 3 1 4.5)   | (5.5 7 2 3 1 5.5 4)     |
+| 172 | 172 | (6 3 1 2 5 4)       | (3 4 1 2 6 5)           |
+| 180 | 180 | (2 5 1 4 6 3)       | (3 5 1 4 6 2)           |
+| 186 | 186 | (3 4 2 1)           | (4 3 2 1)               |
+| 187 | 187 | (1 5 4 6 3 7 2)     | (1 4 5 6 3 7 2)         |
+| 190 |   1 | (5 3 1.5 1.5 4)     | (5 3 1 2 4)             |
+| 192 |   3 | (2 6 4 1 3 5)       | (2 5 4 1 3 6)           |
+| 194 |   5 | (2 5 4 6 1 3)       | (3 2 5 6 1 4)           |
+| 195 |   6 | (2 4 3 6 1 5)       | (2 5 3 6 1 4)           |
+| 196 |   7 | (2 6 3 4 1 5)       | (2 6 3 4.5 1 4.5)       |
+| 198 |   9 | (2 1 5 4 6 3)       | (2 1 6 4 5 3)           |
+| 200 |  11 | (4 1 3 2)           | (4 1 3 2 5.5 5.5)       |
 
 * Rule 8:
 #+name: rule-8-example-1 
@@ -4668,6 +4700,7 @@ table
 |                    115 | 2 | 2 | 2 | 4 | 4 | 4 | 2 | 6 | 6 |
 |                    116 | 5 | 4 | 4 | 3 | 5 | 5 | 3 | 4 | 2 |
 * Rule 5 Answers
+ - Note: This is a mess because element 0 is really element 11. Meaning that 40 is actually the first one in example 6
 
 #+name: rule-5-answers-11-20
 | rule-5-ex-11 | rule-5-ex-12 | rule-5-ex-13 | rule-5-ex-14 | rule-5-ex-15 | rule-5-ex-16 | rule-5-ex-17 | rule-5-ex-18 | rule-5-ex-19 | rule-5-ex-20 |
@@ -4699,14 +4732,14 @@ table
 |            3 |            1 |            1 |            5 |            4 |            - |            4 |            - |            - |            2 | 
 |            2 |            - |            - |            - |            - |            - |            - |            - |            - |            - | 
 #+name: rule-5-answers-41-50
-| rule-5-ex-41 | rule-5-ex-42 | rule-5-ex-43 | rule-5-ex-44 | rule-5-ex-45 | rule-5-ex-46 | rule-5-ex-47 | rule-5-ex-48 | rule-5-ex-49 | rule-5-ex-50 | 
-|            2 |            1 |            3 |            3 |            3 |            3 |            5 |            1 |            5 |            3 | 
-|            6 |            6 |            4 |            2 |            1 |            5 |            2 |            2 |            1 |            5 | 
-|            1 |            2 |            6 |            6 |            7 |            6 |            3 |            5 |            3 |            6 | 
-|            4 |            3 |            1 |            4 |            4 |            4 |            4 |            3 |            2 |            2 | 
-|            3 |            4 |            5 |            1 |            5 |            1 |            1 |            4 |            4 |            1 | 
-|            5 |            5 |            2 |            5 |            2 |            7 |            6 |            6 |            6 |            4 | 
-|            - |            - |            - |            - |            6 |            2 |            - |            - |            - |            - | 
+| rule-5-ex-41 | rule-5-ex-42 | rule-5-ex-43 | rule-5-ex-44 | rule-5-ex-45 | rule-5-ex-46 | rule-5-ex-47 | rule-5-ex-48 | rule-5-ex-49 | rule-5-ex-50 |
+|            2 |            1 |            3 |            3 |            3 |            3 |            5 |            1 |            5 |            3 |
+|            6 |            6 |            4 |            2 |            1 |            5 |            2 |            2 |            1 |            5 |
+|            1 |            2 |            6 |            6 |            7 |            6 |            3 |            5 |            3 |            6 |
+|            4 |            3 |            1 |            4 |            4 |            1 |            4 |            3 |            2 |            2 |
+|            3 |            4 |            5 |            1 |            5 |            4 |            1 |            4 |            4 |            1 |
+|            5 |            5 |            2 |            5 |            2 |            7 |            6 |            6 |            6 |            4 |
+|            - |            - |            - |            - |            6 |            2 |            - |            - |            - |            - |
 * Rule 6 Answers
 #+name: rule-6-answers-1-10
 |  rule-6-ex-1 |  rule-6-ex-2 |  rule-6-ex-3 |  rule-6-ex-4 |  rule-6-ex-5 |  rule-6-ex-6 |  rule-6-ex-7 |  rule-6-ex-8 |  rule-6-ex-9 | rule-6-ex-10 |
