@@ -183,7 +183,7 @@
     (let ((number-majorities nil)
           (tied-majorities nil)
           (couple-sums nil)
-          (winning-couple nil))
+          (winning-couples nil))
       (setq number-majorities (find-number-of-majorities row couples-list))
       (case (length number-majorities)
         (0)
@@ -197,17 +197,24 @@
                 (really-tied couple-sums (1+ place-val) couples-list)))
              ;; tie-break 2 sums
              (t (setq couple-sums (compare-n-sums tied-majorities place-val)
-                      winning-couple (find-winning-couples couple-sums)
-                      remaining-couples (remove (assoc (car winning-couple) couple-sums) couple-sums))
+                      winning-couples (find-winning-couples couple-sums))
+                ;; make a function to remove the couples that aren't tied
                 ;; since they are sorted from smallest to largest pass them both in
-                (case (length winning-couple)
+                (case (length winning-couples)
                   (1
                    ;; We need to check if there is a tie in the sums here too
-                   (remove-couples couple-sums)
+                   (setq remaining-couples
+                         (remove (assoc (car winning-couples) couple-sums) couple-sums))
+                   (remove-couple winning-couples)
+                   (case (length remaining-couples)
+                     (1
+                      (remove-couple remaining-couples)
+                      )
+                     (t (really-tied remaining-couples (1+ place-val) couples-list))
                    ;(if (test-for-tie remaining-couples)
                        ;(really-tied (find-winning-couples remaining-couples) place couples-list)
                                           ;(remove-couples tied-majorities)))
-                   )
+                   ))
                   (t (really-tied couple-sums (1+ place-val) couples-list)))))))))
 
   (defun build-single-dance (dance)

@@ -399,14 +399,11 @@ Note: this splits the train and test data. Yes it's a mess. I am working on maki
 * DONE Test Rule 5:
   CLOSED: [2018-07-10 Tue 17:24]
 #+BEGIN_SRC emacs-lisp :results value
-  (loop with prediction = nil
-        with target = nil
-        with dance-count = 39
-   for dance from 1 to dance-count
-        if (not (equal (setq prediction (test-dance-results dance-count))
-                       (setq target (test-dance-scoring dance-count))))
-        collect (list (1+ dance) (% (1+ dance) answer-count) prediction target))
- #+END_SRC
+(loop for dance from 1 to 40
+        if (not (equal (setq prediction (test-dance-scoring dance))
+                       (setq target (test-dance-results dance))))
+        collect (list dance prediction target))
+#+END_SRC
 
  #+RESULTS:
  
@@ -798,13 +795,10 @@ Note: this splits the train and test data. Yes it's a mess. I am working on maki
 * DONE Test Rule 6:
   CLOSED: [2018-08-06 Mon 22:39]
 #+BEGIN_SRC emacs-lisp :results value
-  (loop with prediction = nil
-        with target = nil
-        with dance-count = 89
-   for dance from 1 to dance-count
-        if (not (equal (setq prediction (test-dance-results dance-count))
-                       (setq target (test-dance-scoring dance-count))))
-        collect (list (1+ dance) (% (1+ dance) answer-count) prediction target))
+  (loop for dance from 41 to 90
+        if (not (equal (setq prediction (test-dance-scoring dance))
+                       (setq target (test-dance-results dance))))
+        collect (list dance prediction target))
  #+END_SRC
 
  #+RESULTS:
@@ -1199,13 +1193,10 @@ Note: this splits the train and test data. Yes it's a mess. I am working on maki
 
 * Test Rule 7:
 #+BEGIN_SRC emacs-lisp :results value
-  (loop with prediction = nil
-        with target = nil
-        with dance-count = 140
-   for dance from 1 to dance-count
-        if (not (equal (setq prediction (test-dance-results dance-count))
-                       (setq target (test-dance-scoring dance-count))))
-        collect (list (1+ dance) (% (1+ dance) answer-count) prediction target))
+  (loop for dance from 90 to 130
+        if (not (equal (setq prediction (test-dance-scoring dance))
+                       (setq target (test-dance-results dance))))
+        collect (list dance prediction target))
  #+END_SRC
 
  #+RESULTS:
@@ -1597,7 +1588,7 @@ Note: this splits the train and test data. Yes it's a mess. I am working on maki
 
 * TODO Test Rule 8:
 #+BEGIN_SRC emacs-lisp :results value
-  (loop for dance from 147 to 199
+  (loop for dance from 131 to 199
         if (not (equal (setq prediction (test-dance-scoring dance))
                        (setq target (test-dance-results dance))))
         collect (list dance prediction target))
@@ -1619,6 +1610,14 @@ Note: this splits the train and test data. Yes it's a mess. I am working on maki
  | 188 | (2 1 5 4 6 3)       | (2 1 6 4 5 3)           |
  | 190 | (4 1 3 2)           | (4 1 3 2 5.5 5.5)       |
  | 193 | (4 1 2.5 2.5 7 6 5) | (4 1 2.5 2.5 7 6 5 8)   |
+** Debugging the issue
+#+BEGIN_SRC elisp :results value
+; Data '((87 . 6)(85 . 9) (86 . 9)) 
+(test-dance-scoring 147) 
+#+END_SRC
+
+#+RESULTS:
+| 1.5 | 1.5 | 3 | 7 | 5 | 6 | 4 |
 
 * Mixed Rules:
 
