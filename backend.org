@@ -155,7 +155,7 @@
     (setq dance-totals-rows (remove (assoc couple dance-totals-rows) dance-totals-rows))
     (if (null dance-totals-rows)
         (setq dance-totals-columns nil
-              couples nil)
+        couples nil)
       (setq dance-totals-columns (transpose dance-totals-rows)
             couples (remove couple couples))))
 

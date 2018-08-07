@@ -460,11 +460,10 @@ table
 | 55 | 1 | 4 | 2 | 2 | 1 | 1 | 1 | 1 | 5 | 1 | 3 |
 | 56 | 6 | 1 | 6 | 4 | 6 | 5 | 4 | 4 | 3 | 4 | 2 |
 
-** DONE Test Rule 5:
-   CLOSED: [2018-07-10 Tue 17:24]
-*** NOTE: DON'T FORGET TO START TESTING FROM NUMBER 11 ON!!!
-*** NOTE2: Rule 46 has an error not with the tests.
- #+BEGIN_SRC emacs-lisp :results value
+* DONE Test Rule 5:
+  CLOSED: [2018-07-10 Tue 17:24]
+** NOTE: DON'T FORGET TO START TESTING FROM NUMBER 10 ON!!!
+#+BEGIN_SRC emacs-lisp :results value
    (loop with prediction = nil
          with target = nil
          with dance-count = 49
@@ -863,21 +862,21 @@ table
 | 65 | 1 | 1 | 2 | 4 | 1 | 5 | 3 | 1 | 3 | 1 | 1 |
 | 66 | 2 | 4 | 5 | 5 | 5 | 6 | 4 | 5 | 6 | 2 | 3 |
 
-** DONE Test Rule 6:
-   CLOSED: [2018-08-06 Mon 22:39]
- #+BEGIN_SRC emacs-lisp :results value
-   (loop with prediction = nil
-         with target = nil
-         with dance-count = 99
-         with answer-count = (- dance-count 10)
-    for dance from 10 to dance-count
-         for target in ultimate-table
-         if (not (equal (setq prediction (format-results (symbol-value (elt data dance))))
-                        (setq target (format-answer target))))
-         collect (list (1+ dance) (% (1+ dance) answer-count) prediction target))
- #+END_SRC
+* DONE Test Rule 6:
+  CLOSED: [2018-08-06 Mon 22:39]
+#+BEGIN_SRC emacs-lisp :results value
+  (loop with prediction = nil
+        with target = nil
+        with dance-count = 99
+        with answer-count = (- dance-count 10)
+   for dance from 10 to dance-count
+        for target in ultimate-table
+        if (not (equal (setq prediction (format-results (symbol-value (elt data dance))))
+                       (setq target (format-answer target))))
+        collect (list (1+ dance) (% (1+ dance) answer-count) prediction target))
+#+END_SRC
 
- #+RESULTS:
+#+RESULTS:
 
 * Rule 7:
 #+name: rule-7-example-1 
@@ -1267,20 +1266,34 @@ table
 | 76 | 3 | 4 | 6 | 3 | 3 | 3 | 5 | 3 | 3 | 3 | 6 |
 | 77 | 4 | 6 | 7 | 5 | 4 | 4 | 4 | 7 | 4 | 6 | 3 |
 
-** Test Rule 7:
- #+BEGIN_SRC emacs-lisp :results value
-   (loop with prediction = nil
-         with target = nil
-         with dance-count = 149
-         with answer-count = (- dance-count 10)
-    for dance from 10 to dance-count
-         for target in ultimate-table
-         if (not (equal (setq prediction (format-results (symbol-value (elt data dance))))
-                        (setq target (format-answer target))))
-         collect (list (1+ dance) (% (1+ dance) answer-count) prediction target))
- #+END_SRC
+* Test Rule 7:
+#+BEGIN_SRC emacs-lisp :results value
+  (loop with prediction = nil
+        with target = nil
+        with dance-count = 199
+        with answer-count = (- dance-count 10)
+   for dance from 10 to dance-count
+        for target in ultimate-table
+        if (not (equal (setq prediction (format-results (symbol-value (elt data dance))))
+                       (setq target (format-answer target))))
+        collect (list (1+ dance) (% (1+ dance) answer-count) prediction target))
+#+END_SRC
 
- #+RESULTS:
+#+RESULTS:
+| 157 | 157 | (1.5 1.5 3 7 5 6 4) | (1.5 1.5 3 7 5.5 5.5 4) |
+| 161 | 161 | (1 2.5 5 4 2.5)     | (1 3.5 5 2 3.5)         |
+| 169 | 169 | (4.5 6 2 3 1 4.5)   | (5.5 7 2 3 1 5.5 4)     |
+| 172 | 172 | (6 3 1 2 5 4)       | (3 4 1 2 6 5)           |
+| 180 | 180 | (2 5 1 4 6 3)       | (3 5 1 4 6 2)           |
+| 186 | 186 | (3 4 2 1)           | (4 3 2 1)               |
+| 187 | 187 | (1 5 4 6 3 7 2)     | (1 4 5 6 3 7 2)         |
+| 190 |   1 | (5 3 1.5 1.5 4)     | (5 3 1 2 4)             |
+| 192 |   3 | (2 6 4 1 3 5)       | (2 5 4 1 3 6)           |
+| 194 |   5 | (2 5 4 6 1 3)       | (3 2 5 6 1 4)           |
+| 195 |   6 | (2 4 3 6 1 5)       | (2 5 3 6 1 4)           |
+| 196 |   7 | (2 6 3 4 1 5)       | (2 6 3 4.5 1 4.5)       |
+| 198 |   9 | (2 1 5 4 6 3)       | (2 1 6 4 5 3)           |
+| 200 |  11 | (4 1 3 2)           | (4 1 3 2 5.5 5.5)       |
 
 * Rule 8:
 #+name: rule-8-example-1 
@@ -4689,7 +4702,7 @@ table
 * Rule 5 Answers
  - Note: This is a mess because element 0 is really element 11. Meaning that 40 is actually the first one in example 6
 
-  #+name: rule-5-answers-11-20
+#+name: rule-5-answers-11-20
 | rule-5-ex-11 | rule-5-ex-12 | rule-5-ex-13 | rule-5-ex-14 | rule-5-ex-15 | rule-5-ex-16 | rule-5-ex-17 | rule-5-ex-18 | rule-5-ex-19 | rule-5-ex-20 |
 |            1 |            4 | 4            | 1            | 1            |            1 |            6 |            4 | 1            |            3 |
 |            2 |            1 | 1            | 3            | 4            |            2 |            1 |            2 | 4            |            2 |
