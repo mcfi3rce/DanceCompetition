@@ -64,6 +64,13 @@
     (let ((max (apply 'max (mapcar 'cdr tied-couples))))
       (remove-if-not (lambda (couple) (= max (cdr couple))) tied-couples)))
 
+  (defun safe-remove-couple (couple)
+    (if (listp couple)
+        (if (consp (car couple))
+            (remove-couple (caar couple))
+          (remove-couple (car couple)))
+      (remove-couple couple)))
+
   (defun remove-couple (couple)
     (if (> (length dance-totals-rows) 1)
         (setq dance-totals-rows (remove (assoc couple dance-totals-rows) dance-totals-rows)
@@ -203,19 +210,20 @@
                 (case (length winning-couples)
                   (1
                    ;; We need to check if there is a tie in the sums here too
-                   (setq remaining-couples
-                         (remove (assoc (car winning-couples) couple-sums) couple-sums))
-                   (remove-couple winning-couples)
+                   (setq remaining-couples (find-remaining-couple winning-couples couple-sums))
+                   (safe-remove-couple winning-couples)
                    (case (length remaining-couples)
                      (1
-                      (remove-couple remaining-couples)
-                      )
-                     (t (really-tied remaining-couples (1+ place-val) couples-list))
-                   ;(if (test-for-tie remaining-couples)
-                       ;(really-tied (find-winning-couples remaining-couples) place couples-list)
-                                          ;(remove-couples tied-majorities)))
-                   ))
-                  (t (really-tied couple-sums (1+ place-val) couples-list)))))))))
+                      (safe-remove-couple remaining-couples))
+                     (t
+                      (setq winning-couples (find-winning-couples remaining-couples))
+                      (case (length winning-couples)
+                        (1 (safe-remove-couple winning-couples))
+                        (t (really-tied remaining-couples (1+ place-val) couples-list))))
+                  (t (really-tied couple-sums (1+ place-val) couples-list)))))))))))
+
+    (defun find-remaining-couple (winning-couples couple-sums)
+      (remove (assoc (car winning-couples) couple-sums) couple-sums))
 
   (defun build-single-dance (dance)
     (setq couples (mapcar 'first dance)
