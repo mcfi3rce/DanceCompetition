@@ -87,7 +87,6 @@ table
     (reverse table-symbols))
 #+END_SRC
 
-Note: this splits the train and test data. Yes it's a mess. I am working on making this easier. 
 #+BEGIN_SRC emacs-lisp :results silent
   (setq tables (parse-tables-and-set-table-symbols)
         data (subseq tables 0 488)
