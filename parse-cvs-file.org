@@ -1602,15 +1602,95 @@
   #+RESULTS:
   : rule-8-test
 *** Debugging the issue
+#+BEGIN_SRC elisp :results value
+ (rule-8-test)
+#+END_SRC
+
+#+RESULTS:
+| 151 | (1 2.5 5 4 2.5)   | (1 3.5 5 2 3.5)     |
+| 159 | (4.5 6 2 3 1 4.5) | (5.5 7 2 3 1 5.5 4) |
+| 162 | (6 3 1 2 5 4)     | (3 4 1 2 6 5)       |
+| 170 | (2 5 1 4 6 3)     | (3 5 1 4 6 2)       |
+| 176 | (3 4 2 1)         | (4 3 2 1)           |
+| 177 | (1 5 4 6 3 7 2)   | (1 4 5 6 3 7 2)     |
+| 180 | (5 3 1.5 1.5 4)   | (5 3 1 2 4)         |
+
+: Data for this test cases
+#+BEGIN_SRC elisp :results value
+ '((81 2 1 2 1 3) (82 4 3 1 2 4) (83 5 5 5 4 5) (84 3 2 3 5 1) (85 1 4 4 3 2)) 
+#+END_SRC
+
+#+RESULTS:
+| 81 | 2 | 1 | 2 | 1 | 3 |
+| 82 | 4 | 3 | 1 | 2 | 4 |
+| 83 | 5 | 5 | 5 | 4 | 5 |
+| 84 | 3 | 2 | 3 | 5 | 1 |
+| 85 | 1 | 4 | 4 | 3 | 2 |
+
  #+BEGIN_SRC elisp :results value
-   ; Data '((87 . 6)(85 . 9) (86 . 9)) 
-   (test-dance-scoring 174) 
+   ; Data '((84 . 4) (82 . 3) (85 . 3))
+   (list (test-dance-scoring 151) (test-dance-results 151)) 
  #+END_SRC
 
  #+RESULTS:
- | 6 | 3 | 5 | 7 | 1 | 4 | 2 |
+ | 3 | 6 | 5 | 4 | 1 | 2 |
+ | 3 | 6 | 5 | 4 | 1 | 2 |
 
  #+BEGIN_SRC elisp :results silent
+   (defun rule-5 (row place-val couples-list)
+     ;; Find the majorities
+     (setq number-majorities (find-number-of-majorities row couples-list))
+     (case (length number-majorities)
+       (0 t)
+       (1 (remove-couple (caar number-majorities)) t)
+       (t nil)))
+
+   (defun rule-6 (row place-val couples-list)
+     (setq number-majorities (find-number-of-majorities row couples-list)
+           majority-count (length number-majorities)
+           tied-majorities (find-couples-with-largest-majority number-majorities)
+           is-rule-6 nil) 
+     (while (not (zerop majority-count))
+       (case (length tied-majorities)
+         (0 (setq is-rule-6 t
+                  majority-count 0))
+         (1 (safe-remove-couple tied-majorities)
+            (setq number-majorities (remove-scored-couple number-majorities tied-majorities))
+            (decf majority-count)
+            (if (not (zerop majority-count))
+                (setq tied-majorities (find-couples-with-largest-majority number-majorities))
+              (setq is-rule-6 t)))
+         (t (setq is-rule-6 nil
+                  majority-count 0))))is-rule-6)
+
+   (defun rule-7 (row place-val couples-list)
+     (setq number-majorities (find-number-of-majorities row couples-list)
+           couple-sums (compare-n-sums (cdr number-majorities))
+           winning-couples (find-winning-couples couples-list)))
+
+   (defun remove-scored-couple (number-majorities tied-majorities)
+     (remove (car tied-majorities) number-majorities))
+
+   (defun score-single-dance (dance)
+     (build-single-dance dance)
+     (loop for place from 1 to number-of-places
+           do (new-single-dance-scorer
+               (elt dance-totals-columns place) place (car dance-totals-columns)))
+     (print-standings places))
+
+   (defun new-single-dance-scorer (row place-val couples-list)
+     (let ((number-majorities nil)
+           (tied-majorities nil)
+           (couple-sums nil)
+           (winning-couples nil))
+       (if (rule-5 row place-val couples-list)
+           t
+         (if (rule-6 row place-val couples-list)
+             t
+           (if (rule-7 row place-val couples-list)
+               t
+             (return "rule-8"))))))
+
    (defun single-complex-majority (row place-val couples-list)
      (let ((number-majorities nil)
            (tied-majorities nil)
@@ -1624,7 +1704,8 @@
          (t (setq tied-majorities (find-couples-with-largest-majority number-majorities))
             (case (length tied-majorities)
               (1
-               (if (= (length (find-winning-couples (setq couple-sums (compare-n-sums (cdr number-majorities) place-val)))) 1)
+               (if
+                   (= (length (find-winning-couples (setq couple-sums (compare-n-sums (cdr number-majorities) place-val)))) 1)
                    (remove-couples (append tied-majorities couple-sums))
                  (really-tied couple-sums (1+ place-val) couples-list)))
               ;; tie-break 2 sums
