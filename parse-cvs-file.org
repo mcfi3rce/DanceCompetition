@@ -90,7 +90,7 @@ table
 #+BEGIN_SRC emacs-lisp :results silent
   (setq tables (parse-tables-and-set-table-symbols)
         data (subseq tables 0 488)
-        targets (subseq tables 489))
+        targets (subseq tables 488))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -1620,41 +1620,41 @@ table
 | 6 | 3 | 5 | 7 | 1 | 4 | 2 |
 
 #+BEGIN_SRC elisp :results silent
-(defun single-complex-majority (row place-val couples-list)
-  (let ((number-majorities nil)
-        (tied-majorities nil)
-        (couple-sums nil)
-        (winning-couples nil))
-    (setq number-majorities (find-number-of-majorities row couples-list))
-    (case (length number-majorities)
-      (0)
-      (1 (remove-couple (caar number-majorities)))
-      ;; tie-break 1 largest-majority
-      (t (setq tied-majorities (find-couples-with-largest-majority number-majorities))
-         (case (length tied-majorities)
-           (1
-            (if (= (length (find-winning-couples (setq couple-sums (compare-n-sums (cdr number-majorities) place-val)))) 1)
-                (remove-couples (append tied-majorities couple-sums))
-              (really-tied couple-sums (1+ place-val) couples-list)))
-           ;; tie-break 2 sums
-           (t (setq couple-sums (compare-n-sums tied-majorities place-val)
-                    winning-couples (find-winning-couples couple-sums))
-              ;; make a function to remove the couples that aren't tied
-              ;; since they are sorted from smallest to largest pass them both in
-              (case (length winning-couples)
-                (1
-                 ;; We need to check if there is a tie in the sums here too
-                 (setq remaining-couples (find-remaining-couple winning-couples couple-sums))
-                 (safe-remove-couple winning-couples)
-                 (case (length remaining-couples)
-                   (1
-                    (safe-remove-couple remaining-couples))
-                   (t
-                    (setq winning-couples (find-winning-couples remaining-couples))
-                    (case (length winning-couples)
-                      (1 (safe-remove-couple winning-couples))
-                      (t (really-tied remaining-couples (1+ place-val) couples-list))))
-                (t (really-tied couple-sums (1+ place-val) couples-list)))))))))))  
+  (defun single-complex-majority (row place-val couples-list)
+    (let ((number-majorities nil)
+          (tied-majorities nil)
+          (couple-sums nil)
+          (winning-couples nil))
+      (setq number-majorities (find-number-of-majorities row couples-list))
+      (case (length number-majorities)
+        (0)
+        (1 (remove-couple (caar number-majorities)))
+        ;; tie-break 1 largest-majority
+        (t (setq tied-majorities (find-couples-with-largest-majority number-majorities))
+           (case (length tied-majorities)
+             (1
+              (if (= (length (find-winning-couples (setq couple-sums (compare-n-sums (cdr number-majorities) place-val)))) 1)
+                  (remove-couples (append tied-majorities couple-sums))
+                (really-tied couple-sums (1+ place-val) couples-list)))
+             ;; tie-break 2 sums
+             (t (setq couple-sums (compare-n-sums tied-majorities place-val)
+                      winning-couples (find-winning-couples couple-sums))
+                ;; make a function to remove the couples that aren't tied
+                ;; since they are sorted from smallest to largest pass them both in
+                (case (length winning-couples)
+                  (1
+                   ;; We need to check if there is a tie in the sums here too
+                   (setq remaining-couples (find-remaining-couple winning-couples couple-sums))
+                   (safe-remove-couple winning-couples)
+                   (case (length remaining-couples)
+                     (1
+                      (safe-remove-couple remaining-couples))
+                     (t
+                      (setq winning-couples (find-winning-couples remaining-couples))
+                      (case (length winning-couples)
+                        (1 (safe-remove-couple winning-couples))
+                        (t (really-tied remaining-couples (1+ place-val) couples-list))))))
+                  (t (really-tied couple-sums (1+ place-val) couples-list)))))))))
 #+END_SRC
 
 We have a problem with the tie breaking method. It doesn't handle multiple tie breaks and even if there is an easy way to break the tie. I can't figure out how to make it work until all ties are broken I am stuck.

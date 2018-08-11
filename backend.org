@@ -219,8 +219,8 @@
                       (setq winning-couples (find-winning-couples remaining-couples))
                       (case (length winning-couples)
                         (1 (safe-remove-couple winning-couples))
-                        (t (really-tied remaining-couples (1+ place-val) couples-list))))
-                  (t (really-tied couple-sums (1+ place-val) couples-list)))))))))))
+                        (t (really-tied remaining-couples (1+ place-val) couples-list))))))
+                  (t (really-tied couple-sums (1+ place-val) couples-list)))))))))
 
     (defun find-remaining-couple (winning-couples couple-sums)
       (remove (assoc (car winning-couples) couple-sums) couple-sums))
