@@ -1661,6 +1661,13 @@ Note: this splits the train and test data. Yes it's a mess. I am working on maki
 We have a problem with the tie breaking method. It doesn't handle multiple tie breaks and even if there is an easy way to break the tie. I can't figure out how to make it work until all ties are broken I am stuck.
 
 For example we can have something like this (86 . 6)(87 . 6)(88 . 6) all with a majority. Then becomes (86 . 26)(87 . 27)(88 . 28). This obviously means that 86 would take first, 87 second, 88 third. However it isn't that simple to code.
+
+#+BEGIN_SRC elisp :results silent
+  (defun score-couples-with-majority (tied-majorities)
+    ;; Find if any couple has a majority
+    ;; If there is one couple that has a larger majority than the rest remove that couple
+    ;; 
+#+END_SRC
 * Mixed Rules:
 
 #+name: mixed-rules-example-1 
