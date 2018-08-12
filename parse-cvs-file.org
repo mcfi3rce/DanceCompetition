@@ -1653,7 +1653,7 @@
        (case (length tied-majorities)
          (0 (setq is-rule-6 t
                   majority-count 0))
-         (1 (safe-remove-couple tied-majorities)
+         (1 (remove-nested-couple tied-majorities)
             (setq number-majorities (remove-scored-couple number-majorities tied-majorities))
             (decf majority-count)
             (if (not (zerop majority-count))
@@ -1676,7 +1676,7 @@
        (case (length winning-couples)
          (0 (setq is-rule-7 t
                   majority-count 0))
-         (1 (safe-remove-couple winning-couples)
+         (1 (remove-nested-couple winning-couples)
             (setq couple-sums (find-remaining-couple winning-couples couple-sums))
             (decf majority-count)
             (if (not (zerop majority-count))
@@ -1737,14 +1737,14 @@
                    (1
                     ;; We need to check if there is a tie in the sums here too
                     (setq remaining-couples (find-remaining-couple winning-couples couple-sums))
-                    (safe-remove-couple winning-couples)
+                    (remove-nested-couple winning-couples)
                     (case (length remaining-couples)
                       (1
-                       (safe-remove-couple remaining-couples))
+                       (remove-nested-couple remaining-couples))
                       (t
                        (setq winning-couples (find-winning-couples remaining-couples))
                        (case (length winning-couples)
-                         (1 (safe-remove-couple winning-couples))
+                         (1 (remove-nested-couple winning-couples))
                          (t (really-tied remaining-couples (1+ place-val) couples-list))))))
                    (t (really-tied couple-sums (1+ place-val) couples-list)))))))))
  #+END_SRC
