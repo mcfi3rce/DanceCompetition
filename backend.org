@@ -107,9 +107,9 @@
           (lambda (a b)
             (< (cdr a) (cdr b)))))
 
-  (defun find-winning-couples (couples-list)
-    (loop with lowest = (cdar couples-list)
-          for (couple . sum) in couples-list
+  (defun find-winning-couples (couple-sums)
+    (loop with lowest = (cdar couple-sums)
+          for (couple . sum) in couple-sums
           when (= lowest sum)
           collect couple))
 
@@ -145,7 +145,7 @@
           ;;for couple in tied-couples
           do (if (tied-all-the-way comparing-columns)
                  (remove-tied still-tied)
-               (loop for place from place to 7
+               (loop for place from place to number-of-places
                      if (member (caar tied-couples) couples)
                      do (single-complex-majority (elt comparing-columns place) place (mapcar 'car tied-couples))
                      else
