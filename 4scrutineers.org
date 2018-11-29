@@ -76,9 +76,9 @@
   - [ ] --
 
 #+name: dance-styles
-  - [ ] IS--Quickstep
-  - [ ] IS--Slow Foxtrot
-  - [ ] IS--Tango
+  - [X] IS--Quickstep
+  - [X] IS--Slow Foxtrot
+  - [X] IS--Tango
   - [ ] IS--Viennese Waltz
   - [ ] IS--Waltz
   - [ ] IL--Cha Cha
@@ -107,3 +107,31 @@
 * Begin Ranking
   [[elisp:(insert-dance-tables-to-fill-out)][Insert Dance Table(s) To Fill Out]]
 
+* IS  Quickstep 
+#+name: is--quickstep
+|   |   1 |   2 |   3 |
+|---+-----+-----+-----|
+| A | 111 | 112 | 113 |
+| B | 111 | 112 | 113 |
+| C | 111 | 112 | 113 |
+
+[[elisp:(set-dance-table 'is--quickstep)][Score Dance]]
+#+BEGIN_SRC elisp
+  ;(set-dance-table 'is--quickstep)
+  ;(insert-right-after-elisp-link "something" "\n")
+  ;(eval-with-temp-buffer 'is--quickstep-results 'is--quickstep-results)
+  (with-temp-buffer (insert (format "#+BEGIN_SRC elisp\n%s\n#+END_SRC\n" 'is-quickstep-results))
+                    (org-ctrl-c-ctrl-c))
+#+END_SRC
+
+#+RESULTS:
+
+* IS  Slow Foxtrot 
+#+name: is--slow-foxtrot
+|   | 1 | 2 | 3 |
+|---+---+---+---|
+| A |   |   |   |
+| B |   |   |   |
+| C |   |   |   |
+
+[[elisp:(set-dance-table 'is--slow-foxtrot)][Score Dance]]
