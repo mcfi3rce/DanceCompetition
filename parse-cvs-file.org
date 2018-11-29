@@ -110,7 +110,7 @@
             data (subseq tables 0 488)
             targets (subseq tables 488)
             ultimate-table (apply 'append (loop for table in targets
-                                                collect (mapcar 'cdr (transpose (symbol-value table))))))
+                                                collect (mapcar 'cdr (transpose-list (symbol-value table))))))
   #+END_SRC
 
 ** Rule 5:
