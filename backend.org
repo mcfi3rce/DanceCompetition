@@ -84,7 +84,7 @@
             )))
 
   (defun remove-couples (majority-couples)
-    (mapcar 'remove-couple (couples-list majority-couples)))
+    (mapcar 'remove-couple (make-couples-list-from-dotted-pairs majority-couples)))
 
   (defun get-score-from-couple-number (couple-number)
     (loop for row in couple-scores
@@ -166,8 +166,8 @@
             couples (remove couple couples))))
 
   (defun remove-tied (tied-couples)
-    (setq standings (append standings (list (couples-list tied-couples))))
-    (mapcar 'remove-single-tied (couples-list tied-couples)))
+    (setq standings (append standings (list (make-couples-list-from-dotted-pairs tied-couples))))
+    (mapcar 'remove-single-tied (make-couples-list-from-dotted-pairs tied-couples)))
 
   (defun tied-value (number-tied place)
     (/ (loop for x from place to (1- (+ place number-tied))
@@ -183,7 +183,7 @@
   (defun filter-columns (filter-couples columns)
     ;; Takes a list of couples '((couple . sum)(couple . sum)) and then adds in only those couples
     (let ((edited (transpose-list columns)))
-      (transpose-list (mapcar (lambda (x) (assoc x edited)) (couples-list filter-couples)))))
+      (transpose-list (mapcar (lambda (x) (assoc x edited)) (make-couples-list-from-dotted-pairs filter-couples)))))
 
   (defun rule-5 (row place-val couples-list)
     ;; Find the majorities
