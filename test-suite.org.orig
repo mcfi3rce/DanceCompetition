@@ -111,10 +111,10 @@
             targets (subseq tables 488)
             ultimate-table (apply 'append (loop for table in targets
 <<<<<<< HEAD
-                                                collect (mapcar 'cdr (transpose (symbol-value table))))))
-=======
                                                 collect (mapcar 'cdr (transpose-list (symbol-value table))))))
->>>>>>> tied-error
+=======
+                                                collect (mapcar 'cdr (transpose (symbol-value table))))))
+>>>>>>> master
   #+END_SRC
 
 ** Rule 5:
