@@ -599,17 +599,20 @@
       'set-dance-table
       "Score Dance")))
 
-  (defun set-dance-table (dance-symbol)
+  (defun set-dance-table (dance-symbol)  
     (set-symbol-from-string dance-symbol (eval (list 'org-sbe (symbol-name dance-symbol))))
-    (set-symbol-after-reorganizing dance-symbol)
-    (let ((results-symbol (make-results-symbol dance-symbol)))
-      (set results-symbol (score-single-dance (symbol-value dance-symbol)))
-      (insert-right-after-elisp-link (eval-with-temp-buffer results-symbol results-symbol))
-      (if (= 1 (length dance-symbols))
-          (insert-publish-links)
-        (when (eq dance-symbol (first (last dance-symbols)))
-          (score-multi-dance-and-insert)
-          (insert-publish-links)))))
+    (if (validate-couples dance-symbol)
+        (progn
+          (set-symbol-after-reorganizing dance-symbol)
+          (let ((results-symbol (make-results-symbol dance-symbol)))
+            (set results-symbol (score-single-dance (symbol-value dance-symbol)))
+            (insert-right-after-elisp-link (eval-with-temp-buffer results-symbol results-symbol))
+            (if (= 1 (length dance-symbols))
+                (insert-publish-links)
+              (when (eq dance-symbol (first (last dance-symbols)))
+                (score-multi-dance-and-insert)
+                (insert-publish-links)))))
+      (insert-right-after-elisp-link "*INVALID COUPLE IN TABLE*")))
 
   (defun reorganize-dance-table (dance-table)
     (let (dt-triples dt-triples-sorted dt-by-couples dt-reorganized)
@@ -660,6 +663,7 @@
     (setq use-random nil
           num-judges (string-to-number (car (get-checkbox-list-values "number-judges")))
           num-couples (string-to-number (car (get-checkbox-list-values "number-couples")))
+          couples-list (mapcar 'string-to-number (get-checkbox-list-values "couples"))
           dance-table-blank (build-dance-table-blank)
           dance-symbol-string-alist nil
           dance-symbols (mapcar 'string-to-symbol (get-checkbox-list-values "dance-styles"))
@@ -728,3 +732,20 @@
 
 #+RESULTS:
 : t
+** Validate Couples Exist
+#+BEGIN_SRC elisp
+  (defun validate-couples (symbol)
+    ;; Remove Judge Letters
+    (setq values (mapcar 'cdr (symbol-value symbol)))
+    (loop for row in values
+          if (-all-p (lambda (couple) (member couple couples-list)) row)
+          do (print "all good")
+          else
+          return 'nil
+          finally return 't))
+
+
+#+END_SRC
+
+#+RESULTS:
+: validate-couples
