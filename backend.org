@@ -601,15 +601,18 @@
     (set-symbol-from-string dance-symbol (eval (list 'org-sbe (symbol-name dance-symbol))))
     (if (validate-couples dance-symbol)
         (progn
-          (set-symbol-after-reorganizing dance-symbol)
-          (let ((results-symbol (make-results-symbol dance-symbol)))
-            (set results-symbol (score-single-dance (symbol-value dance-symbol)))
-            (insert-right-after-elisp-link (eval-with-temp-buffer results-symbol results-symbol))
-            (if (= 1 (length dance-symbols))
-                (insert-publish-links)
-              (when (eq dance-symbol (first (last dance-symbols)))
-                (score-multi-dance-and-insert)
-                (insert-publish-links)))))
+          (if (validate-duplicates dance-symbol)
+              (progn
+                (set-symbol-after-reorganizing dance-symbol)
+                (let ((results-symbol (make-results-symbol dance-symbol)))
+                  (set results-symbol (score-single-dance (symbol-value dance-symbol)))
+                  (insert-right-after-elisp-link (eval-with-temp-buffer results-symbol results-symbol))
+                  (if (= 1 (length dance-symbols))
+                      (insert-publish-links)
+                    (when (eq dance-symbol (first (last dance-symbols)))
+                      (score-multi-dance-and-insert)
+                      (insert-publish-links)))))
+            (insert-right-after-elisp-link "*DUPLICATE IN TABLE*")))
       (insert-right-after-elisp-link "*INVALID COUPLE IN TABLE*")))
 
   (defun reorganize-dance-table (dance-table)
@@ -741,7 +744,15 @@
           else
           return 'nil
           finally return 't))
+  (defun validate-duplicates (symbol)
+    (setq values (mapcar 'cdr (symbol-value symbol)))
+    (loop for row in values
+          if (= (length (remove-duplicates row)) (length row))
+          do (print "all good")
+          else
+          return 'nil
+          finally return 't))
 #+END_SRC
 
 #+RESULTS:
-: validate-couples
+: validate-duplicates
