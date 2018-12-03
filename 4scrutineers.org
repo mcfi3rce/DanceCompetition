@@ -106,6 +106,37 @@
 
   [[elisp:(create-couples-list)][Create Couples List to Fill Out]]
 
+#+name: couples
+  - [X] 111 
+  - [X] 112
+  - [X] 113
+  - [X] 114
+  - [X] 115
+
 * Begin Ranking
   [[elisp:(insert-dance-tables-to-fill-out)][Insert Dance Table(s) To Fill Out]]
 
+* IS  Quickstep 
+#+name: is--quickstep
+|   |   1 |   2 |   3 |   4 |   5 |
+|---+-----+-----+-----+-----+-----|
+| A | 113 | 118 | 114 | 112 | 111 |
+| B | 112 | 115 | 114 | 113 | 111 |
+| C | 112 | 113 | 115 | 114 | 111 |
+| D | 113 | 111 | 115 | 114 | 112 |
+| E | 113 | 114 | 111 | 115 | 112 |
+
+[[elisp:(set-dance-table 'is--quickstep)][Score Dance]]
+
+
+* IS  Viennese Waltz 
+#+name: is--viennese-waltz
+|   |   1 |   2 |   3 |   4 |   5 |
+|---+-----+-----+-----+-----+-----|
+| A | 113 | 115 | 114 | 112 | 111 |
+| B | 112 | 115 | 114 | 113 | 111 |
+| C | 112 | 113 | 115 | 114 | 111 |
+| D | 113 | 111 | 115 | 114 | 112 |
+| E | 113 | 114 | 111 | 115 | 112 |
+
+[[elisp:(set-dance-table 'is--viennese-waltz)][Score Dance]]

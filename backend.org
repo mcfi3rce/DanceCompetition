@@ -158,7 +158,6 @@
     ;;remove the couple names
     (setq l (cdr l)) 
     ;; Remove if less than majority
-    (setq l (remove-if-not (lambda (cell) (or (> (first cell) 8) (> (first cell) 8))) l))
     (-all-p (lambda (cell) (= (first cell) (second cell))) l))
 
   (defun remove-single-tied (couple)
@@ -286,18 +285,17 @@
                 ;; since they are sorted from smallest to largest pass them both in
                 (case (length winning-couples)
                   (1
-                   ;; TODO We need to check if there is a tie in the sums here too
-                   (remove-couples couple-sums))
-                   ;;(setq remaining-couples (find-remaining-couple winning-couples couple-sums))
-                   ;;(remove-nested-couple winning-couples)
-                   ;;(case (length remaining-couples)
-                   ;;(1
-                   ;; (remove-nested-couple remaining-couples))
-                   ;;(t
-                   ;;  (setq winning-couples (find-winning-couples remaining-couples))
-                    ;; (case (length winning-couples)
-                   ;;     (1 (remove-nested-couple winning-couples))
-                   ;;   (t (really-tied remaining-couples (1+ place-val) couples-list))))))
+                   ;; We need to check if there is a tie in the sums here too
+                   (setq remaining-couples (find-remaining-couple winning-couples couple-sums))
+                   (remove-nested-couple winning-couples)
+                   (case (length remaining-couples)
+                     (1
+                      (remove-nested-couple remaining-couples))
+                     (t
+                      (setq winning-couples (find-winning-couples remaining-couples))
+                      (case (length winning-couples)
+                        (1 (remove-nested-couple winning-couples))
+                        (t (really-tied remaining-couples (1+ place-val) couples-list))))))
                   (t (really-tied couple-sums (1+ place-val) couples-list)))))))))
 
   (defun find-remaining-couple (winning-couples couple-sums)
@@ -743,8 +741,6 @@
           else
           return 'nil
           finally return 't))
-
-
 #+END_SRC
 
 #+RESULTS:
