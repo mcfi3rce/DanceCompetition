@@ -5374,17 +5374,17 @@
 
 * Test-Case Definitions
 #+BEGIN_SRC elisp :results silent :noweb yes
-<<dance-code>>
-  (ert-deftest rule-5 ()
-    "Tests that code supports rule 5"
-    (should (equal (rule-5-test) 'nil)))
-  (ert-deftest rule-6 ()
-    "Tests that code supports rule 6"
-    (should (equal (rule-6-test) 'nil)))
-  (ert-deftest rule-7 ()
-    "Tests that code supports rule 7"
-    (should (equal (rule-7-test) 'nil)))
-  (ert-deftest rule-8 ()
-    "Tests that code supports rule 8"
-    (should (equal (rule-8-test) 'nil)))
+  <<dance-code>>
+    (ert-deftest rule-5 ()
+      "Tests that code supports rule 5"
+      (should (equal (rule-5-test) 'nil)))
+    (ert-deftest rule-6 ()
+      "Tests that code supports rule 6"
+      (should (equal (rule-6-test) 'nil)))
+    (ert-deftest rule-7 ()
+      "Tests that code supports rule 7"
+      (should (equal (rule-7-test) 'nil)))
+    (ert-deftest rule-8 ()
+      "Tests that code supports rule 8"
+      (should (equal (rule-8-test) 'nil)))
 #+END_SRC

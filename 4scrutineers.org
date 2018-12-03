@@ -57,8 +57,8 @@
 
 #+attr_org: :radio
 #+name: number-judges
-  - [X] 3
-  - [ ] 5
+  - [ ] 3
+  - [X] 5
   - [ ] 7
   - [ ] 9
   - [ ] 11
@@ -67,9 +67,9 @@
 #+attr_org: :radio
 #+name: number-couples
   - [ ] 2
-  - [X] 3
+  - [ ] 3
   - [ ] 4
-  - [ ] 5
+  - [X] 5
   - [ ] 6
   - [ ] 7
   - [ ] 8
@@ -77,9 +77,9 @@
 
 #+name: dance-styles
   - [X] IS--Quickstep
-  - [X] IS--Slow Foxtrot
-  - [X] IS--Tango
-  - [ ] IS--Viennese Waltz
+  - [ ] IS--Slow Foxtrot
+  - [ ] IS--Tango
+  - [X] IS--Viennese Waltz
   - [ ] IS--Waltz
   - [ ] IL--Cha Cha
   - [ ] IL--Jive
@@ -109,29 +109,54 @@
 
 * IS  Quickstep 
 #+name: is--quickstep
-|   |   1 |   2 |   3 |
-|---+-----+-----+-----|
-| A | 111 | 112 | 113 |
-| B | 111 | 112 | 113 |
-| C | 111 | 112 | 113 |
+|   |   1 |   2 |   3 |   4 |   5 |
+|---+-----+-----+-----+-----+-----|
+| A | 113 | 115 | 114 | 112 | 111 |
+| B | 112 | 115 | 114 | 113 | 111 |
+| C | 112 | 113 | 115 | 114 | 111 |
+| D | 113 | 111 | 115 | 114 | 112 |
+| E | 113 | 114 | 111 | 115 | 112 |
 
 [[elisp:(set-dance-table 'is--quickstep)][Score Dance]]
-#+BEGIN_SRC elisp
-  ;(set-dance-table 'is--quickstep)
-  ;(insert-right-after-elisp-link "something" "\n")
-  ;(eval-with-temp-buffer 'is--quickstep-results 'is--quickstep-results)
-  (with-temp-buffer (insert (format "#+BEGIN_SRC elisp\n%s\n#+END_SRC\n" 'is-quickstep-results))
-                    (org-ctrl-c-ctrl-c))
-#+END_SRC
 
-#+RESULTS:
+* IS  Quickstep Results 
+#+name: is--quickstep-results
+| 1 | 113 |
+| 2 | 115 |
+| 3 | 114 |
+| 4 | 112 |
+| 5 | 111 |
 
-* IS  Slow Foxtrot 
-#+name: is--slow-foxtrot
-|   | 1 | 2 | 3 |
-|---+---+---+---|
-| A |   |   |   |
-| B |   |   |   |
-| C |   |   |   |
+* IS  Viennese Waltz 
+#+name: is--viennese-waltz
+|   |   1 |   2 |   3 |   4 |   5 |
+|---+-----+-----+-----+-----+-----|
+| A | 113 | 115 | 114 | 112 | 111 |
+| B | 112 | 115 | 114 | 113 | 111 |
+| C | 112 | 113 | 115 | 114 | 111 |
+| D | 113 | 111 | 115 | 114 | 112 |
+| E | 113 | 114 | 111 | 115 | 112 |
 
-[[elisp:(set-dance-table 'is--slow-foxtrot)][Score Dance]]
+[[elisp:(set-dance-table 'is--viennese-waltz)][Score Dance]]
+
+* IS  Viennese Waltz Results 
+#+name: is--viennese-waltz-results
+| 1 | 113 |
+| 2 | 115 |
+| 3 | 114 |
+| 4 | 112 |
+| 5 | 111 |
+
+* Multi Dance Results 
+#+name: multi-dance-results
+| 1 | 113 |
+| 2 | 115 |
+| 3 | 114 |
+| 4 | 112 |
+| 5 | 111 |
+
+* Publish For Viewers                                              :noexport:
+
+  [[elisp:(call-interactively 'org-reveal-export-to-html-and-browse)][Reveal to Browser]]
+
+  [[elisp:(publish-results)][Publish Results]]

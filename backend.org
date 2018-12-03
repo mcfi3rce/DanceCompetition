@@ -19,7 +19,8 @@
   (require 'cl)
   (require 'dash)
   (require 'org-element)
-                                          ;(require 'ox-reveal)
+  (load-file "./org-reveal-master/ox-reveal.el")
+  (require 'ox-reveal)
 
   (defun calculate-majority (row)
     (1+ (/ (length (remove-if 'stringp row)) 2)))
@@ -154,7 +155,10 @@
                    (remove-couples not-tied))))
 
   (defun tied-all-the-way (l)
-    (setq l (cdr l)) ;remove the couple names
+    ;;remove the couple names
+    (setq l (cdr l)) 
+    ;; Remove if less than majority
+    (setq l (remove-if-not (lambda (cell) (or (> (first cell) 8) (> (first cell) 8))) l))
     (-all-p (lambda (cell) (= (first cell) (second cell))) l))
 
   (defun remove-single-tied (couple)
@@ -282,17 +286,18 @@
                 ;; since they are sorted from smallest to largest pass them both in
                 (case (length winning-couples)
                   (1
-                   ;; We need to check if there is a tie in the sums here too
-                   (setq remaining-couples (find-remaining-couple winning-couples couple-sums))
-                   (remove-nested-couple winning-couples)
-                   (case (length remaining-couples)
-                     (1
-                      (remove-nested-couple remaining-couples))
-                     (t
-                      (setq winning-couples (find-winning-couples remaining-couples))
-                      (case (length winning-couples)
-                        (1 (remove-nested-couple winning-couples))
-                        (t (really-tied remaining-couples (1+ place-val) couples-list))))))
+                   ;; TODO We need to check if there is a tie in the sums here too
+                   (remove-couples couple-sums))
+                   ;;(setq remaining-couples (find-remaining-couple winning-couples couple-sums))
+                   ;;(remove-nested-couple winning-couples)
+                   ;;(case (length remaining-couples)
+                   ;;(1
+                   ;; (remove-nested-couple remaining-couples))
+                   ;;(t
+                   ;;  (setq winning-couples (find-winning-couples remaining-couples))
+                    ;; (case (length winning-couples)
+                   ;;     (1 (remove-nested-couple winning-couples))
+                   ;;   (t (really-tied remaining-couples (1+ place-val) couples-list))))))
                   (t (really-tied couple-sums (1+ place-val) couples-list)))))))))
 
   (defun find-remaining-couple (winning-couples couple-sums)
@@ -424,8 +429,8 @@
           if (= (length standings) number-of-places)
           return standings
           do (setq tied-couples (couples-with-sum final-couple-sums tied-sum))
-          (build-rule-11 (make-couples-list-from-dotted-pair tied-couples))
-          (score-multi-dance starting-place number-of-places (make-couples-list-from-dotted-pair tied-couples))
+          (build-rule-11 (make-couples-list-from-dotted-pairs tied-couples))
+          (score-multi-dance starting-place number-of-places (make-couples-list-from-dotted-pairs tied-couples))
           (update-sums standings final-couple-sums)
           (setq x (length standings))))
 
@@ -704,3 +709,22 @@
 
 #+RESULTS:
 : test-for-tie
+
+* Development
+** Adjusting tied-all-the-way to ignore values under the majority
+#+BEGIN_SRC elisp
+  (setq test '((111 112)(0 0) (6 7) (12 12) (15 15)))
+
+  (defun tied-all-the-way (l)
+    ;;remove the couple names
+    (setq l (cdr l)) 
+    ;; Remove if less than majority
+    (setq l (remove-if-not (lambda (cell) (or (> (first cell) 8) (> (first cell) 8))) l))
+
+    (-all-p (lambda (cell) (= (first cell) (second cell))) l))
+
+  (tied-all-the-way test)
+#+END_SRC
+
+#+RESULTS:
+: t
