@@ -58,7 +58,7 @@
 #+attr_org: :radio
 #+name: number-judges
   - [ ] 3
-  - [X] 5
+  - [ ] 5
   - [ ] 7
   - [ ] 9
   - [ ] 11
@@ -69,17 +69,17 @@
   - [ ] 2
   - [ ] 3
   - [ ] 4
-  - [X] 5
+  - [ ] 5
   - [ ] 6
   - [ ] 7
   - [ ] 8
   - [ ] --
 
 #+name: dance-styles
-  - [X] IS--Quickstep
+  - [ ] IS--Quickstep
   - [ ] IS--Slow Foxtrot
   - [ ] IS--Tango
-  - [X] IS--Viennese Waltz
+  - [ ] IS--Viennese Waltz
   - [ ] IS--Waltz
   - [ ] IL--Cha Cha
   - [ ] IL--Jive
@@ -106,66 +106,5 @@
 
   [[elisp:(create-couples-list)][Create Couples List to Fill Out]]
 
-#+name: couples
-  - [X] 111 
-  - [X] 112
-  - [X] 113
-  - [X] 114
-  - [X] 115
-
 * Begin Ranking
   [[elisp:(insert-dance-tables-to-fill-out)][Insert Dance Table(s) To Fill Out]]
-
-* IS  Quickstep 
-#+name: is--quickstep
-|   |   1 |   2 |   3 |   4 |   5 |
-|---+-----+-----+-----+-----+-----|
-| A | 115 | 113 | 114 | 112 | 111 |
-| B | 112 | 115 | 114 | 113 | 111 |
-| C | 112 | 113 | 115 | 114 | 111 |
-| D | 113 | 111 | 115 | 114 | 112 |
-| E | 113 | 114 | 111 | 115 | 112 |
-
-[[elisp:(set-dance-table 'is--quickstep)][Score Dance]]
-
-* IS  Quickstep Results 
-#+name: is--quickstep-results
-| 1 | 113 |
-| 2 | 115 |
-| 3 | 114 |
-| 4 | 112 |
-| 5 | 111 |
-
-* IS  Viennese Waltz 
-#+name: is--viennese-waltz
-|   |   1 |   2 |   3 |   4 |   5 |
-|---+-----+-----+-----+-----+-----|
-| A | 113 | 115 | 114 | 112 | 111 |
-| B | 112 | 115 | 114 | 113 | 111 |
-| C | 112 | 113 | 115 | 114 | 111 |
-| D | 113 | 111 | 115 | 114 | 112 |
-| E | 113 | 114 | 111 | 115 | 112 |
-
-[[elisp:(set-dance-table 'is--viennese-waltz)][Score Dance]]
-
-* IS  Viennese Waltz Results 
-#+name: is--viennese-waltz-results
-| 1 | 113 |
-| 2 | 115 |
-| 3 | 114 |
-| 4 | 112 |
-| 5 | 111 |
-
-* Multi Dance Results 
-#+name: multi-dance-results
-| 1 | 113 |
-| 2 | 115 |
-| 3 | 114 |
-| 4 | 112 |
-| 5 | 111 |
-
-* Publish For Viewers                                              :noexport:
-
-  [[elisp:(call-interactively 'org-reveal-export-to-html-and-browse)][Reveal to Browser]]
-
-  [[elisp:(publish-results)][Publish Results]]
