@@ -128,6 +128,14 @@
 
 [[elisp:(set-dance-table 'is--quickstep)][Score Dance]]
 
+* IS  Quickstep Results 
+#+name: is--quickstep-results
+| 1 | 113 |
+| 2 | 115 |
+| 3 | 114 |
+| 4 | 112 |
+| 5 | 111 |
+
 * IS  Viennese Waltz 
 #+name: is--viennese-waltz
 |   |   1 |   2 |   3 |   4 |   5 |
@@ -139,3 +147,25 @@
 | E | 113 | 114 | 111 | 115 | 112 |
 
 [[elisp:(set-dance-table 'is--viennese-waltz)][Score Dance]]
+
+* IS  Viennese Waltz Results 
+#+name: is--viennese-waltz-results
+| 1 | 113 |
+| 2 | 115 |
+| 3 | 114 |
+| 4 | 112 |
+| 5 | 111 |
+
+* Multi Dance Results 
+#+name: multi-dance-results
+| 1 | 113 |
+| 2 | 115 |
+| 3 | 114 |
+| 4 | 112 |
+| 5 | 111 |
+
+* Publish For Viewers                                              :noexport:
+
+  [[elisp:(call-interactively 'org-reveal-export-to-html-and-browse)][Reveal to Browser]]
+
+  [[elisp:(publish-results)][Publish Results]]

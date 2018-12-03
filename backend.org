@@ -710,6 +710,24 @@
     (if (null winning-couple)
         t
       nil))
+
+  (defun validate-couples (symbol)
+    ;; Remove Judge Letters
+    (setq values (mapcar 'cdr (symbol-value symbol)))
+    (loop for row in values
+          if (-all-p (lambda (couple) (member couple couples-list)) row)
+          do (print "all good")
+          else
+          return 'nil
+          finally return 't))
+  (defun validate-duplicates (symbol)
+    (setq values (mapcar 'cdr (symbol-value symbol)))
+    (loop for row in values
+          if (= (length (remove-duplicates row)) (length row))
+          do (print "all good")
+          else
+          return 'nil
+          finally return 't))
 #+END_SRC
 
 #+RESULTS:
@@ -733,7 +751,8 @@
 
 #+RESULTS:
 : t
-** Validate Couples Exist
+** DONE Validate Couples Exist And Aren't Duplicated
+   CLOSED: [2018-12-03 Mon 14:15]
 #+BEGIN_SRC elisp
   (defun validate-couples (symbol)
     ;; Remove Judge Letters
