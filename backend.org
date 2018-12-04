@@ -502,7 +502,8 @@
         (goto-char pos)))
 
     (defun create-couples-list ()
-      (insert-org-list (make-list num-couples "") "couples" t))
+      (let ((num-couples (string-to-number (car (get-checkbox-list-values "number-couples")))))
+            (insert-org-list (make-list num-couples "") "couples" t)))
 
     (defun confirm-couples-list ()
       (setq couples (mapcar 'string-to-number
