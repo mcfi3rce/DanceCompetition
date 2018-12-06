@@ -105,12 +105,12 @@
 * Testing
 ** Run this to setup environment
   #+BEGIN_SRC emacs-lisp :results silent :noweb yes
- <<dance-code>>
-    (setq tables (parse-tables-and-set-table-symbols)
-            data (subseq tables 0 488)
-            targets (subseq tables 488)
-            ultimate-table (apply 'append (loop for table in targets
-                                                collect (mapcar 'cdr (transpose-list (symbol-value table))))))
+    <<dance-code>>
+       (setq tables (parse-tables-and-set-table-symbols)
+               data (subseq tables 0 488)
+               targets (subseq tables 488)
+               ultimate-table (apply 'append (loop for table in targets
+                                                   collect (mapcar 'cdr (transpose-list (symbol-value table))))))
   #+END_SRC
 
 *** Rule 5:
@@ -1350,7 +1350,8 @@
   | 84 | 3 | 3 | 2 | 3 | 4 |
   | 85 | 1 | 2 | 1 | 4 | 2 |
   | 86 | 7 | 5 | 3 | 5 | 6 |
-
+  | 87 | 4 | 1 | 7 | 1 | 7 |
+  
   #+name: rule-8-example-20 
   |  81 | 4 | 3 | 2 | 5 | 3 |
   |  82 | 2 | 2 | 1 | 4 | 4 |

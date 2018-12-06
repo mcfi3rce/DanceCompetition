@@ -277,6 +277,8 @@
               (if (= (length (find-winning-couples (setq couple-sums (compare-n-sums (cdr number-majorities) place-val)))) 1)
                   (remove-couples (append tied-majorities couple-sums))
                 (progn
+                  ;; We have to remove the couple that had the majority first
+                  ;; And then remove the other couples
                   (remove-couple (caar tied-majorities))
                   (really-tied couple-sums (1+ place-val) couples-list)))
               )
