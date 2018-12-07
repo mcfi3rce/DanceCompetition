@@ -139,6 +139,9 @@
           finally (return length)))
 
   (defun really-tied (tied-couples place couples-list)
+    "This is called whenever a pair of couples still aren't placed
+     and have the same sum values so we compare all their sum values
+     to try and place them"
     (loop with still-tied = (remove-if-not (lambda (c) (= (cdar tied-couples)(cdr c))) tied-couples)
           with not-tied = (remove-if (lambda (c) (= (cdar tied-couples)(cdr c))) tied-couples)
           with comparing-columns = (filter-columns still-tied dance-totals-columns)
@@ -157,6 +160,7 @@
   (defun tied-all-the-way (l)
     ;;remove the couple names
     (setq l (cdr l)) 
+    (setq l (remove-if (lambda (cell) (< (cadr cell) majority)) l))
     (-all-p (lambda (cell) (= (first cell) (second cell))) l))
 
   (defun remove-single-tied (couple)
@@ -750,6 +754,7 @@
 : test-for-tie
 
 * Development
+** NOTE: If I can break up the summing and the majority portions of rule 7 I may be able to simplify
 ** Adjusting tied-all-the-way to ignore values under the majority
 #+BEGIN_SRC elisp
   (setq test '((111 112)(0 0) (6 7) (12 12) (15 15)))
@@ -808,3 +813,8 @@
 
 #+RESULTS:
 : all-couples-with-majority-are-placed
+** Create a list of all the sum values for the couples
+#+BEGIN_SRC elisp
+
+#+END_SRC
+
