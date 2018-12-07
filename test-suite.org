@@ -1599,7 +1599,7 @@
     DEADLINE: <2018-08-10 Fri>
   #+BEGIN_SRC emacs-lisp :results value :noweb-ref dance-code
     (defun rule-8-test ()
-      (loop for dance from 131 to 180
+      (loop for dance from 131 to 190
             if (not (equal (setq prediction (test-dance-scoring dance))
                            (setq target (test-dance-results dance))))
             collect (list dance prediction target)))

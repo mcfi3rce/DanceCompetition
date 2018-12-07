@@ -275,7 +275,9 @@
            (case (length tied-majorities)
              (1
               (if (= (length (find-winning-couples (setq couple-sums (compare-n-sums (cdr number-majorities) place-val)))) 1)
-                  (remove-couples (append tied-majorities couple-sums))
+                  (if (all-majorities-are-unique number-majorities)
+                      (remove-couples number-majorities)
+                    (remove-couples (append tied-majorities couple-sums)))
                 (progn
                   ;; We have to remove the couple that had the majority first
                   ;; And then remove the other couples
@@ -786,3 +788,11 @@
 
 #+RESULTS:
 : validate-duplicates
+** If all the majorities are descending in order remove them
+#+BEGIN_SRC elisp
+  (defun all-majorities-are-unique (couples-with-majority)
+    (apply '> (mapcar 'cdr couples-with-majority)))
+#+END_SRC
+
+#+RESULTS:
+: all-majorities-are-unique
