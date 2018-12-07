@@ -160,6 +160,7 @@
   (defun tied-all-the-way (l)
     ;;remove the couple names
     (setq l (cdr l)) 
+    ;; Remove any totals less than the majority
     (setq l (remove-if (lambda (cell) (< (cadr cell) majority)) l))
     (-all-p (lambda (cell) (= (first cell) (second cell))) l))
 
