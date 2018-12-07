@@ -296,7 +296,10 @@
                    (remove-nested-couple winning-couples)
                    (case (length remaining-couples)
                      (1
-                      (remove-nested-couple remaining-couples))
+                      (remove-nested-couple remaining-couples)
+                      ;; Check if all the number-majorities have been placed
+                      (if (setq unplaced (all-couples-with-majority-are-placed number-majorities standings))
+                          (remove-couple unplaced)))
                      (t
                       (setq winning-couples (find-winning-couples remaining-couples))
                       (case (length winning-couples)
@@ -788,7 +791,8 @@
 
 #+RESULTS:
 : validate-duplicates
-** If all the majorities are descending in order remove them
+** DONE If all the majorities are descending in order remove them
+   CLOSED: [2018-12-06 Thu 21:56]
 #+BEGIN_SRC elisp
   (defun all-majorities-are-unique (couples-with-majority)
     (apply '> (mapcar 'cdr couples-with-majority)))
@@ -796,3 +800,11 @@
 
 #+RESULTS:
 : all-majorities-are-unique
+** Check if all majority couples have been placed
+#+BEGIN_SRC elisp
+  (defun all-couples-with-majority-are-placed (couples-with-majority places)
+      (car (set-difference (mapcar 'car couples-with-majority) places)))
+#+END_SRC
+
+#+RESULTS:
+: all-couples-with-majority-are-placed
