@@ -2,7 +2,7 @@
 * Development:
 ** Single Dance:
 *** Useful functions:
-**** Transpose Function
+**** Transpose-list Function
 ***** Rotates the tables horizontally and vertically. 
   #+BEGIN_SRC emacs-lisp :results raw
     (let ((flipped-lists (transpose '((1 2 3) (4 5 6)))))
@@ -70,22 +70,21 @@
 *** Extract the place values for each of the dances:
   #+name: totals
   #+BEGIN_SRC emacs-lisp :var dances=dances :results value
-    (append couples-line 
+    (append (list (setq couples '(111 112 113 114 115 116 117)) 'hline) 
             (loop for place from 1 to 7
                   collect (extract-place place dances)))
   #+END_SRC
 
   #+RESULTS: totals
-  | 21 | 22 | 23 | 24 | 25 | 26 |   |
-  |----+----+----+----+----+----+---|
-  |  0 |  0 |  1 |  1 |  2 |  1 | 0 |
-  |  0 |  0 |  1 |  0 |  3 |  0 | 1 |
-  |  0 |  1 |  1 |  2 |  0 |  1 | 0 |
-  |  0 |  2 |  0 |  1 |  0 |  1 | 1 |
-  |  0 |  0 |  2 |  1 |  0 |  1 | 1 |
-  |  0 |  2 |  0 |  0 |  0 |  1 | 2 |
-  |  5 |  0 |  0 |  0 |  0 |  0 | 0 |
-  |  0 |  0 |  0 |  0 |  0 |  0 | 0 |
+  | 111 | 112 | 113 | 114 | 115 | 116 | 117 |
+  |-----+-----+-----+-----+-----+-----+-----|
+  |   0 |   0 |   1 |   1 |   2 |   1 |   0 |
+  |   0 |   0 |   1 |   0 |   3 |   0 |   1 |
+  |   0 |   1 |   1 |   2 |   0 |   1 |   0 |
+  |   0 |   2 |   0 |   1 |   0 |   1 |   1 |
+  |   0 |   0 |   2 |   1 |   0 |   1 |   1 |
+  |   0 |   2 |   0 |   0 |   0 |   1 |   2 |
+  |   5 |   0 |   0 |   0 |   0 |   0 |   0 |
 
 *** Calculate the number of place values for each place:
   #+name: totals-row
@@ -94,17 +93,17 @@
                                      for row in (butlast totals)
                                      do (setq sum-row (++ row sum-row))
                                      collect sum-row)
-          dance-totals-rows (transpose (append (list couples) dance-totals-columns)))
+          dance-totals-rows (transpose-list (append (list couples) dance-totals-columns)))
   #+END_SRC
 
   #+RESULTS: totals-row
-  | 111 | 0 | 0 | 0 | 0 | 0 | 0 | 5 |
-  | 112 | 0 | 0 | 1 | 3 | 3 | 5 | 5 |
-  | 113 | 1 | 2 | 3 | 3 | 5 | 5 | 5 |
-  | 114 | 1 | 1 | 3 | 4 | 5 | 5 | 5 |
-  | 115 | 2 | 5 | 5 | 5 | 5 | 5 | 5 |
-  | 116 | 1 | 1 | 2 | 3 | 4 | 5 | 5 |
-  | 117 | 0 | 1 | 1 | 2 | 3 | 5 | 5 |
+  | 111 | 0 | 0 | 0 | 0 | 0 | 0 |
+  | 112 | 0 | 0 | 1 | 3 | 3 | 5 |
+  | 113 | 1 | 2 | 3 | 3 | 5 | 5 |
+  | 114 | 1 | 1 | 3 | 4 | 5 | 5 |
+  | 115 | 2 | 5 | 5 | 5 | 5 | 5 |
+  | 116 | 1 | 1 | 2 | 3 | 4 | 5 |
+  | 117 | 0 | 1 | 1 | 2 | 3 | 5 |
 
   #+RESULTS: totals-column
   | 111 | 0 | 0 | 0 | 0 | 0 | 0 | 5 |
@@ -118,7 +117,7 @@
 *** Find-number-of-majorities Iterative Version:
 
 #+BEGIN_SRC emacs-lisp
-   (find-number-of-majorities (fourth dance-totals-columns))
+  (create-list-of-couples-with-a-majority (fourth dance-totals-columns couples))
  #+END_SRC
 
  #+RESULTS:
@@ -239,7 +238,7 @@ This function doesn't really work independent
 : standings-length
 
 #+BEGIN_SRC emacs-lisp
- (standings-length '(21 (22 23) (24 25) 26)) 
+(standings-length '(21 (22 23) (24 25) 26)) 
 #+END_SRC
 
 #+RESULTS:
@@ -311,7 +310,7 @@ This function doesn't really work independent
 *** DONE Make a function to create the columns of totals
     CLOSED: [2018-03-13 Tue 22:40]
 #+BEGIN_SRC emacs-lisp
- (create-dance-column totals couples) 
+ (create-dance-columns totals couples) 
 #+END_SRC
 
 #+RESULTS:
@@ -721,14 +720,14 @@ couples
                      count (= n score)))
              dances))
 
-   (defun find-number-of-majorities (row couples-list)
-     (sort (loop 
-            for value in row
-            for position from 0
-            when (>= value majority) 
-            collect (cons (elt couples-list position) value))
-           (lambda (a b)
-             (> (cdr a)(cdr b)))))
+   (defun create-list-of-couples-with-a-majority (row couples-list)
+    (sort (loop
+           for value in row
+           for position from 0
+           when (>= value majority)
+           collect (cons (elt couples-list position) value))
+          (lambda (a b)
+            (> (cdr a)(cdr b)))))
 
    (defun position-to-couples (tied-couples)
      (mapcar (lambda (x) (elt couples (car x))) tied-couples))
@@ -873,7 +872,6 @@ couples
 
    (defun build-single-dance (dance)
      (setq couples (mapcar 'first dance)
-           couples-line (list couples 'hline)
            couple-scores (mapcar (lambda (row)
                                    (loop for score in (remove-if 'stringp row)
                                          collect score))

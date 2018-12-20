@@ -738,6 +738,9 @@
           return 'nil
           finally return 't))
 
+ (defun all-couples-with-majority-are-placed (couples-with-majority places)
+      (car (set-difference (mapcar 'car couples-with-majority) places)))
+
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
