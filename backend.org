@@ -741,6 +741,8 @@
  (defun all-couples-with-majority-are-placed (couples-with-majority places)
       (car (set-difference (mapcar 'car couples-with-majority) places)))
 
+ (defun all-majorities-are-unique (couples-with-majority)
+    (apply '> (mapcar 'cdr couples-with-majority)))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
