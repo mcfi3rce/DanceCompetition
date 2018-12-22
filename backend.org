@@ -770,7 +770,6 @@
 
   (defun sort-sums-in-winning-order (couples-with-sum)
     (sort couples-with-sum (lambda (x y) (< (cdr x) (cdr y)))))
-
 #+END_SRC
 
 * Development
@@ -792,49 +791,3 @@
 
 #+RESULTS:
 : t
-** DONE Validate Couples Exist And Aren't Duplicated
-   CLOSED: [2018-12-03 Mon 14:15]
-#+BEGIN_SRC elisp
-  (defun validate-couples (symbol)
-    ;; Remove Judge Letters
-    (setq values (mapcar 'cdr (symbol-value symbol)))
-    (loop for row in values
-          if (-all-p (lambda (couple) (member couple couples-list)) row)
-          do (print "all good")
-          else
-          return 'nil
-          finally return 't))
-  (defun validate-duplicates (symbol)
-    (setq values (mapcar 'cdr (symbol-value symbol)))
-    (loop for row in values
-          if (= (length (remove-duplicates row)) (length row))
-          do (print "all good")
-          else
-          return 'nil
-          finally return 't))
-#+END_SRC
-
-#+RESULTS:
-: validate-duplicates
-** DONE If all the majorities are descending in order remove them
-   CLOSED: [2018-12-06 Thu 21:56]
-#+BEGIN_SRC elisp
-  (defun all-majorities-are-unique (couples-with-majority)
-    (apply '> (mapcar 'cdr couples-with-majority)))
-#+END_SRC
-
-#+RESULTS:
-: all-majorities-are-unique
-** Check if all majority couples have been placed
-#+BEGIN_SRC elisp
-  (defun all-couples-with-majority-are-placed (couples-with-majority places)
-      (car (set-difference (mapcar 'car couples-with-majority) places)))
-#+END_SRC
-
-#+RESULTS:
-: all-couples-with-majority-are-placed
-** Create a list of all the sum values for the couples
-#+BEGIN_SRC elisp
-
-#+END_SRC
-

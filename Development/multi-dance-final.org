@@ -688,6 +688,50 @@ couples
 | 116 | 5 | 4 | 6 | 1 | 3 | 5 | 5 | 6 | 4 | 3 | 4 | 5 | 6 | 4 | 3 | 5 | 5 | 6 | 4 | 4 |
 
     CLOSED: [2018-03-14 Wed 22:33]
+** Validation Code
+*** DONE Validate Couples Exist And Aren't Duplicated
+    CLOSED: [2018-12-22 Sat 12:18]
+ #+BEGIN_SRC elisp
+   (defun validate-couples (symbol)
+     ;; Remove Judge Letters
+     (setq values (mapcar 'cdr (symbol-value symbol)))
+     (loop for row in values
+           if (-all-p (lambda (couple) (member couple couples-list)) row)
+           do (print "all good")
+           else
+           return 'nil
+           finally return 't))
+   (defun validate-duplicates (symbol)
+     (setq values (mapcar 'cdr (symbol-value symbol)))
+     (loop for row in values
+           if (= (length (remove-duplicates row)) (length row))
+           do (print "all good")
+           else
+           return 'nil
+           finally return 't))
+ #+END_SRC
+
+ #+RESULTS:
+ : validate-duplicates
+*** DONE If all the majorities are descending in order remove them
+    CLOSED: [2018-12-06 Thu 21:56]
+ #+BEGIN_SRC elisp
+   (defun all-majorities-are-unique (couples-with-majority)
+     (apply '> (mapcar 'cdr couples-with-majority)))
+ #+END_SRC
+
+ #+RESULTS:
+ : all-majorities-are-unique
+*** DONE Check if all majority couples have been placed
+    CLOSED: [2018-12-22 Sat 12:19]
+ #+BEGIN_SRC elisp
+   (defun all-couples-with-majority-are-placed (couples-with-majority places)
+       (car (set-difference (mapcar 'car couples-with-majority) places)))
+ #+END_SRC
+
+ #+RESULTS:
+ : all-couples-with-majority-are-placed
+
 * Testing:
   *Evaluate this before testing*
 ** Functions
