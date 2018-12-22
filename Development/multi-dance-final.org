@@ -1330,13 +1330,13 @@ couples
 #+RESULTS:
 | cha-cha | rumba | swing | mambo |
 
+: This creates the header to load in all the dances it isn't necessary but cool
 #+BEGIN_SRC emacs-lisp :results raw
-  (concatenate "#+BEGIN_SRC elisp :var" (mapcar (lambda (dance) (concatenate dance "=" dance)) dances))
+  (concatenate 'string "#+BEGIN_SRC elisp :var "
+               (mapconcat (lambda (dance) (concatenate 'string dance "=" dance)) dances " "))
 #+END_SRC
 
 #+RESULTS:
-:var
-(:var cha-cha=cha-cha)
 
 #+RESULTS:
 : build-rule-11
