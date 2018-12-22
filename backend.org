@@ -793,10 +793,17 @@
           else
           return 'nil
           finally return 't))
+
+  (defun all-couples-with-majority-are-placed (couples-with-majority places)
+    (car (set-difference (mapcar 'car couples-with-majority) places)))
+
+  (defun all-majorities-are-unique (couples-with-majority)
+    (apply '> (mapcar 'cdr couples-with-majority)))
 #+END_SRC
 
 #+RESULTS:
-: validate-duplicates
+: all-majorities-are-unique
+
 ** DONE If all the majorities are descending in order remove them
    CLOSED: [2018-12-06 Thu 21:56]
 #+BEGIN_SRC elisp
