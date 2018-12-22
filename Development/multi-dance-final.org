@@ -1217,28 +1217,13 @@ If you change the dances variable to one of the example tables you can change th
  | 7 | 111 |
 
 **** Build Rule 10 Scores:
- #+BEGIN_SRC emacs-lisp :var cha-cha=cha-cha-results swing=swing-results rumba=rumba-results mambo=mambo-results
-   (setq multi-dance-scores (append cha-cha rumba swing mambo)
-         couples (sort (mapcar 'cadr cha-cha) (lambda (a b) (< a b)))
-         places ()
-         number-of-places 7
-         ;; this is name the same so we can use get-scores function
-         couple-scores (final-scores couples multi-dance-scores)
-         final-couple-sums (final-sum-values couple-scores)
-         sum-values (all-sum-values final-couple-sums)
-         totals (calculate-totals couple-scores number-of-places)
-         dance-totals-columns (create-dance-columns totals couples)
-         dance-totals-rows (transpose-list dance-totals-columns))
+ #+BEGIN_SRC emacs-lisp
+   (parse-tables-and-set-table-symbols)
+   (setq dance-symbols (list 'cha-cha 'rumba 'swing 'mambo))
 #+END_SRC
 
  #+RESULTS:
- | 111 | 0 | 0 | 0 | 0 | 0 | 0 | 4 |
- | 112 | 0 | 0 | 0 | 2 | 3 | 4 | 4 |
- | 113 | 0 | 3 | 4 | 4 | 4 | 4 | 4 |
- | 114 | 0 | 1 | 4 | 4 | 4 | 4 | 4 |
- | 115 | 4 | 4 | 4 | 4 | 4 | 4 | 4 |
- | 116 | 0 | 0 | 0 | 2 | 3 | 4 | 4 |
- | 117 | 0 | 0 | 0 | 0 | 2 | 4 | 4 |
+ | cha-cha | rumba | swing | mambo |
 *** Testing:
     Here we will attempt to work through the problem with the existing code
 **** Procedural
@@ -1323,13 +1308,6 @@ couples
       CLOSED: [2018-03-14 Wed 22:46]
 
 
-#+BEGIN_SRC emacs-lisp
- (setq dances '("cha-cha" "rumba" "swing" "mambo"))
-#+END_SRC
-
-#+RESULTS:
-| cha-cha | rumba | swing | mambo |
-
 : This creates the header to load in all the dances it isn't necessary but cool
 #+BEGIN_SRC emacs-lisp :results raw
   (concatenate 'string "#+BEGIN_SRC elisp :var "
@@ -1337,14 +1315,11 @@ couples
 #+END_SRC
 
 #+RESULTS:
-
-#+RESULTS:
-: build-rule-11
-
 : Try passing these values into the single-complex majority
 #+BEGIN_SRC emacs-lisp
+  (build-rule-11 couples)
   (loop for place from starting-place to number-of-places
-        do (single-complex-majority (elt dance-totals-columns place) place (car dance-totals-columns)))
+       do (single-complex-majority (elt dance-totals-columns place) place (car dance-totals-columns)))
 #+END_SRC
 
 #+RESULTS:
@@ -1371,12 +1346,14 @@ couples
 #+BEGIN_SRC emacs-lisp
   (setq couples (map 'list 'car final-couple-sums)
         dance-totals-columns (create-dance-columns totals couples)
-        dance-totals-rows (transpose dance-totals-columns))
+        dance-totals-rows (transpose-list dance-totals-columns))
 #+END_SRC
 
 #+RESULTS:
-| 117 | 1 | 1 | 4 |  9 | 13 | 20 | 20 |
-| 111 | 1 | 1 | 4 | 10 | 16 | 20 | 20 |
+| 112 | 0 | 0 | 0 |  0 |  0 |  3 | 20 |
+| 116 | 1 | 1 | 4 |  9 | 13 | 20 | 20 |
+| 117 | 1 | 1 | 4 | 10 | 16 | 20 | 20 |
+| 111 | 0 | 3 | 5 |  6 | 12 | 17 | 20 |
 
 ***** Remove the remaining dances
     #+BEGIN_SRC emacs-lisp
@@ -1384,19 +1361,13 @@ couples
     #+END_SRC
 
     #+RESULTS:
+    : 19
 ***** Print the outcome
      #+BEGIN_SRC emacs-lisp
        (print-standings places)
 #+END_SRC 
 
 #+RESULTS:
-| 1 | 115 |
-| 2 | 113 |
-| 3 | 114 |
-| 4 | 116 |
-| 5 | 112 |
-| 6 | 117 |
-| 7 | 111 |
 **** Single-Function
 #+BEGIN_SRC emacs-lisp 
   (setq start (float-time)
