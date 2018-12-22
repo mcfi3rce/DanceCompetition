@@ -1054,7 +1054,7 @@ couples
  |     26 | 5 | 3 | 1 | 6 | 4 | 2 | 7 |
  |     27 | 6 | 4 | 2 | 7 | 5 | 3 | 1 |
 
-**** Build Data:
+*** Build Data:
 
  #+RESULTS: totals-rows
  : build-single-dance
@@ -1091,7 +1091,7 @@ If you change the dances variable to one of the example tables you can change th
  |  1 |  5 |  4 |  5 |  5 |  5 |  5 |
  |  5 |  5 |  5 |  5 |  5 |  5 |  5 |
 
-
+*** Score a Single Dance
 #+BEGIN_SRC emacs-lisp :results value :var dance=ex-128
   (score-single-dance dance)
 #+END_SRC
@@ -1228,7 +1228,7 @@ If you change the dances variable to one of the example tables you can change th
          sum-values (all-sum-values final-couple-sums)
          totals (calculate-totals couple-scores number-of-places)
          dance-totals-columns (create-dance-columns totals couples)
-         dance-totals-rows (transpose dance-totals-columns))
+         dance-totals-rows (transpose-list dance-totals-columns))
 #+END_SRC
 
  #+RESULTS:
