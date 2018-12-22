@@ -15,713 +15,728 @@
 * Code 
 #+NAME: BEGIN
 #+BEGIN_SRC emacs-lisp :results silent
-    ;; Single Dance Functions all the documentation is in development
-    (require 'cl)
-    (require 'dash)
-    (require 'org-element)
-    (load-file "./org-reveal-master/ox-reveal.el")
-    (require 'ox-reveal)
+  ;; Single Dance Functions all the documentation is in development
+  (require 'cl)
+  (require 'dash)
+  (require 'org-element)
+  (load-file "./org-reveal-master/ox-reveal.el")
+  (require 'ox-reveal)
 
-    (defun calculate-majority (row)
-      (1+ (/ (length (remove-if 'stringp row)) 2)))
+  (defun calculate-majority (row)
+    (1+ (/ (length (remove-if 'stringp row)) 2)))
 
-    (defun transpose-list (list-of-same-size-lists)
-      (apply 'mapcar* 'list list-of-same-size-lists))
+  (defun transpose-list (list-of-same-size-lists)
+    (apply 'mapcar* 'list list-of-same-size-lists))
 
-    (defun ++ (l1 l2)
-      (mapcar* '+ l1 l2))
+  (defun ++ (l1 l2)
+    (mapcar* '+ l1 l2))
 
-    (defun calculate-totals (dance number-of-places)
-      "dance looks like this (couple-num 1 2 1 1 3)"
-      (loop for place from 1 to number-of-places
-            collect (extract-place place dance)))
+  (defun calculate-totals (dance number-of-places)
+    "dance looks like this (couple-num 1 2 1 1 3)"
+    (loop for place from 1 to number-of-places
+          collect (extract-place place dance)))
 
-    (defun create-dance-columns (totals-val couples-list)
-      "Create the score list of each couple by place value (total value at each place)"
-      (append (list couples-list)
-              (loop with sum-row = (make-list (length (first totals-val)) 0)
-                    for row in totals-val
-                    do (setq sum-row (++ row sum-row))
-                    collect sum-row)))
+  (defun create-dance-columns (totals-val couples-list)
+    "Create the score list of each couple by place value (total value at each place)"
+    (append (list couples-list)
+            (loop with sum-row = (make-list (length (first totals-val)) 0)
+                  for row in totals-val
+                  do (setq sum-row (++ row sum-row))
+                  collect sum-row)))
 
-    (defun extract-place (n dances)
-      (mapcar (lambda (dance)
-                (loop for score in (remove-if 'stringp dance)
-                      count (= n score)))
-              dances))
+  (defun extract-place (n dances)
+    (mapcar (lambda (dance)
+              (loop for score in (remove-if 'stringp dance)
+                    count (= n score)))
+            dances))
 
-    (defun create-list-of-couples-with-a-majority (row couples-list)
-      (sort (loop
-             for value in row
-             for position from 0
-             when (>= value majority)
-             collect (cons (elt couples-list position) value))
-            (lambda (a b)
-              (> (cdr a)(cdr b)))))
+  (defun create-list-of-couples-with-a-majority (row couples-list)
+    (sort (loop
+           for value in row
+           for position from 0
+           when (>= value majority)
+           collect (cons (elt couples-list position) value))
+          (lambda (a b)
+            (> (cdr a)(cdr b)))))
 
-    (defun find-couples-with-largest-majority (tied-couples)
-      (let ((max (apply 'max (mapcar 'cdr tied-couples))))
-        (remove-if-not (lambda (couple) (= max (cdr couple))) tied-couples)))
+  (defun find-couples-with-largest-majority (tied-couples)
+    (let ((max (apply 'max (mapcar 'cdr tied-couples))))
+      (remove-if-not (lambda (couple) (= max (cdr couple))) tied-couples)))
 
-    (defun remove-nested-couple (couple)
-      "Removes couple from cons pair or nested in a list"
-      (if (listp couple)
-          (if (consp (car couple))
-              (remove-couple (caar couple))
-            (remove-couple (car couple)))
-        (remove-couple couple)))
+  (defun remove-nested-couple (couple)
+    "Removes couple from cons pair or nested in a list"
+    (if (listp couple)
+        (if (consp (car couple))
+            (remove-couple (caar couple))
+          (remove-couple (car couple)))
+      (remove-couple couple)))
 
-    (defun remove-couple (couple)
-      (if (> (length dance-totals-rows) 1)
-          (setq dance-totals-rows (remove (assoc couple dance-totals-rows) dance-totals-rows)
-                dance-totals-columns (transpose-list dance-totals-rows)
-                couples (remove couple couples)
-                standings (append standings (list couple)))
-        ;; removing the last element causes issues
-        (setq dance-totals-rows nil
-              dance-totals-columns nil
-              couples nil
-              standings (append standings (list couple))
-              )))
+  (defun remove-couple (couple)
+    (if (> (length dance-totals-rows) 1)
+        (setq dance-totals-rows (remove (assoc couple dance-totals-rows) dance-totals-rows)
+              dance-totals-columns (transpose-list dance-totals-rows)
+              couples (remove couple couples)
+              standings (append standings (list couple)))
+      ;; removing the last element causes issues
+      (setq dance-totals-rows nil
+            dance-totals-columns nil
+            couples nil
+            standings (append standings (list couple))
+            )))
 
-    (defun remove-couples (majority-couples)
-      (mapcar 'remove-couple (make-couples-list-from-dotted-pairs majority-couples)))
+  (defun remove-couples (majority-couples)
+    (mapcar 'remove-couple (make-couples-list-from-dotted-pairs majority-couples)))
 
-    (defun get-score-from-couple-number (couple-number)
-      (loop for row in couple-scores
-            when (= (car row) couple-number)
-            return (rest row)))
+  (defun get-score-from-couple-number (couple-number)
+    (loop for row in couple-scores
+          when (= (car row) couple-number)
+          return (rest row)))
 
-    (defun sum-of-values-at-place (couple place)
-      (loop for value in (get-score-from-couple-number couple)
-            when (<= value place)
-            sum value))
+  (defun sum-of-values-at-place (couple place)
+    (loop for value in (get-score-from-couple-number couple)
+          when (<= value place)
+          sum value))
 
-    (defun make-couples-list-from-dotted-pairs (couple-dotted-pair)
-      (mapcar 'car couple-dotted-pair))
+  (defun make-couples-list-from-dotted-pairs (couple-dotted-pair)
+    (mapcar 'car couple-dotted-pair))
 
-    (defun compare-n-sums (couples-list place)
-      ;;((113 . 3) (114 . 3) (115 . 3)
-      (sort (loop for (couple . majority) in couples-list
-                  collect (cons couple (sum-of-values-at-place couple place)))
-            (lambda (a b)
-              (< (cdr a) (cdr b)))))
+  (defun compare-n-sums (couples-list place)
+    ;;((113 . 3) (114 . 3) (115 . 3)
+    (sort (loop for (couple . majority) in couples-list
+                collect (cons couple (sum-of-values-at-place couple place)))
+          (lambda (a b)
+            (< (cdr a) (cdr b)))))
 
-    (defun find-winning-couples (couple-sums)
-      (loop with lowest = (cdar couple-sums)
-            for (couple . sum) in couple-sums
-            when (= lowest sum)
-            collect couple))
+  (defun find-winning-couples (couple-sums)
+    (loop with lowest = (cdar couple-sums)
+          for (couple . sum) in couple-sums
+          when (= lowest sum)
+          collect couple))
 
-    (defun print-standings (standings)
-      (loop for (a b) on (build-standings standings)
-            when (<= a number-of-places)
-            collect (list a b)))
+  (defun print-standings (standings)
+    (loop for (a b) on (build-standings standings)
+          when (<= a number-of-places)
+          collect (list a b)))
 
-    (defun build-standings (standings)
-      (loop for couple in standings
-            for place from 1 to (standings-length standings)
-            if (and (listp couple) (> (length couple) 1))
-            append (loop for tied in couple
-                         collect (tied-value (length couple) place) into list1
-                         collect tied into list1
-                         finally (incf place (1- (length couple)))
-                         finally return list1)
-            else
-            append (list place couple)))
+  (defun build-standings (standings)
+    (loop for couple in standings
+          for place from 1 to (standings-length standings)
+          if (and (listp couple) (> (length couple) 1))
+          append (loop for tied in couple
+                       collect (tied-value (length couple) place) into list1
+                       collect tied into list1
+                       finally (incf place (1- (length couple)))
+                       finally return list1)
+          else
+          append (list place couple)))
 
-    (defun standings-length (standings)
-      (loop with length = 0
-            for standing in standings
-            do (if (listp standing)
-                   (incf length (length standing))
-                 (incf length 1))
-            finally (return length)))
+  (defun standings-length (standings)
+    (loop with length = 0
+          for standing in standings
+          do (if (listp standing)
+                 (incf length (length standing))
+               (incf length 1))
+          finally (return length)))
 
-    (defun really-tied (tied-couples place couples-list)
-      (loop with still-tied = (remove-if-not (lambda (c) (= (cdar tied-couples)(cdr c))) tied-couples)
-            with not-tied = (remove-if (lambda (c) (= (cdar tied-couples)(cdr c))) tied-couples)
-            with comparing-columns = (filter-columns still-tied dance-totals-columns)
-            ;;for couple in tied-couples
-            do (if (tied-all-the-way comparing-columns)
-                   (remove-tied still-tied)
-                 (loop for place from place to number-of-places
-                       if (member (caar tied-couples) couples)
-                       do (single-complex-majority (elt comparing-columns place) place (mapcar 'car tied-couples))
-                       else
-                       return place))
-            return (if (null not-tied)
-                       place
-                     (remove-couples not-tied))))
+  (defun really-tied (tied-couples place couples-list)
+    "This is called whenever a pair of couples still aren't placed
+     and have the same sum values so we compare all their sum values
+     to try and place them"
+    (loop with still-tied = (remove-if-not (lambda (c) (= (cdar tied-couples)(cdr c))) tied-couples)
+          with not-tied = (remove-if (lambda (c) (= (cdar tied-couples)(cdr c))) tied-couples)
+          with comparing-columns = (filter-columns still-tied dance-totals-columns)
+          ;;for couple in tied-couples
+          do (if (tied-all-the-way comparing-columns)
+                 (remove-tied still-tied)
+               (loop for place from place to number-of-places
+                     if (member (caar tied-couples) couples)
+                     do (single-complex-majority (elt comparing-columns place) place (mapcar 'car tied-couples))
+                     else
+                     return place))
+          return (if (null not-tied)
+                     place
+                   (remove-couples not-tied))))
 
-    (defun tied-all-the-way (l)
-      ;;remove the couple names
-      (setq l (cdr l)) 
-      ;; Remove if less than majority
-      (-all-p (lambda (cell) (= (first cell) (second cell))) l))
+  (defun tied-all-the-way (l)
+    ;;remove the couple names
+    (setq l (cdr l)) 
+    ;; Remove any totals less than the majority
+    (setq l (remove-if (lambda (cell) (< (cadr cell) majority)) l))
+    (-all-p (lambda (cell) (= (first cell) (second cell))) l))
 
-    (defun remove-single-tied (couple)
-      (setq dance-totals-rows (remove (assoc couple dance-totals-rows) dance-totals-rows))
-      (if (null dance-totals-rows)
-          (setq dance-totals-columns nil
-                couples nil)
-        (setq dance-totals-columns (transpose-list dance-totals-rows)
-              couples (remove couple couples))))
+  (defun remove-single-tied (couple)
+    (setq dance-totals-rows (remove (assoc couple dance-totals-rows) dance-totals-rows))
+    (if (null dance-totals-rows)
+        (setq dance-totals-columns nil
+              couples nil)
+      (setq dance-totals-columns (transpose-list dance-totals-rows)
+            couples (remove couple couples))))
 
-    (defun remove-tied (tied-couples)
-      (setq standings (append standings (list (make-couples-list-from-dotted-pairs tied-couples))))
-      (mapcar 'remove-single-tied (make-couples-list-from-dotted-pairs tied-couples)))
+  (defun remove-tied (tied-couples)
+    (setq standings (append standings (list (make-couples-list-from-dotted-pairs tied-couples))))
+    (mapcar 'remove-single-tied (make-couples-list-from-dotted-pairs tied-couples)))
 
-    (defun tied-value (number-tied place)
-      (/ (loop for x from place to (1- (+ place number-tied))
-               sum  x)
-         (float number-tied)))
+  (defun tied-value (number-tied place)
+    (/ (loop for x from place to (1- (+ place number-tied))
+             sum  x)
+       (float number-tied)))
 
-    (defun shorten (columns place)
-      (let ((shortened columns))
-        (loop for x from 1 to place
-              do (setq shortened (cdr shortened)))
-        shortened))
+  (defun shorten (columns place)
+    (let ((shortened columns))
+      (loop for x from 1 to place
+            do (setq shortened (cdr shortened)))
+      shortened))
 
-    (defun filter-columns (filter-couples columns)
-      ;; Takes a list of couples '((couple . sum)(couple . sum)) and then adds in only those couples
-      (let ((edited (transpose-list columns)))
-        (transpose-list (mapcar (lambda (x) (assoc x edited)) (make-couples-list-from-dotted-pairs filter-couples)))))
+  (defun filter-columns (filter-couples columns)
+    ;; Takes a list of couples '((couple . sum)(couple . sum)) and then adds in only those couples
+    (let ((edited (transpose-list columns)))
+      (transpose-list (mapcar (lambda (x) (assoc x edited)) (make-couples-list-from-dotted-pairs filter-couples)))))
 
-    (defun rule-5 (row place-val couples-list)
-      ;; Find the majorities
-      (setq number-majorities (create-list-of-couples-with-a-majority row couples-list))
-      (case (length number-majorities)
-        (0 t)
-        (1 (remove-couple (caar number-majorities)) t)
-        (t nil)))
+  (defun rule-5 (row place-val couples-list)
+    ;; Find the majorities
+    (setq number-majorities (create-list-of-couples-with-a-majority row couples-list))
+    (case (length number-majorities)
+      (0 t)
+      (1 (remove-couple (caar number-majorities)) t)
+      (t nil)))
 
-    (defun rule-6 (row place-val couples-list)
-      (setq number-majorities (create-list-of-couples-with-a-majority row couples-list)
-            majority-count (length number-majorities)
-            tied-majorities (find-couples-with-largest-majority number-majorities)
-            is-rule-6 nil) 
-      (while (not (zerop majority-count))
-        (case (length tied-majorities)
-          (0 (setq is-rule-6 t
-                   majority-count 0))
-          (1 (remove-nested-couple tied-majorities)
-             (setq number-majorities (remove-scored-couple number-majorities tied-majorities))
-             (decf majority-count)
-             (if (not (zerop majority-count))
-                 (setq tied-majorities (find-couples-with-largest-majority number-majorities))
-               (setq is-rule-6 t)))
-          (t (setq is-rule-6 nil
-                   majority-count 0))))is-rule-6)
+  (defun rule-6 (row place-val couples-list)
+    (setq number-majorities (create-list-of-couples-with-a-majority row couples-list)
+          majority-count (length number-majorities)
+          tied-majorities (find-couples-with-largest-majority number-majorities)
+          is-rule-6 nil) 
+    (while (not (zerop majority-count))
+      (case (length tied-majorities)
+        (0 (setq is-rule-6 t
+                 majority-count 0))
+        (1 (remove-nested-couple tied-majorities)
+           (setq number-majorities (remove-scored-couple number-majorities tied-majorities))
+           (decf majority-count)
+           (if (not (zerop majority-count))
+               (setq tied-majorities (find-couples-with-largest-majority number-majorities))
+             (setq is-rule-6 t)))
+        (t (setq is-rule-6 nil
+                 majority-count 0))))is-rule-6)
 
-    (defun rule-7 (row place-val couples-list)
-      """ Things needed in order to handle any number of tied couples
+  (defun rule-7 (row place-val couples-list)
+    """ Things needed in order to handle any number of tied couples
           1. The number of couples who have a majority (this will tell us whether all have been used)
           2. The number of possible places (because if we get to the last place they are tied for good)
           3. A way of switching between rule 6 and rule 7 accordingly
           4. A way of incrementing the place without losing track of the couples """
-      (setq couple-sums (compare-n-sums number-majorities place-val)
-            majority-count (length couple-sums)
-            winning-couples (find-winning-couples couple-sums)
-            is-rule-7 nil)
-      (while (not (zerop majority-count))
-        (case (length winning-couples)
-          (0 (setq is-rule-7 t
-                   majority-count 0))
-          (1 (remove-nested-couple winning-couples)
-             (setq couple-sums (find-remaining-couple winning-couples couple-sums))
-             (decf majority-count)
-             (if (not (zerop majority-count))
-                 (setq winning-couples (find-winning-couples couple-sums))
-               (setq is-rule-7 t)))
-          (t (setq is-rule-7 nil
-                   majority-count 0))))is-rule-7)
+    (setq couple-sums (compare-n-sums number-majorities place-val)
+          majority-count (length couple-sums)
+          winning-couples (find-winning-couples couple-sums)
+          is-rule-7 nil)
+    (while (not (zerop majority-count))
+      (case (length winning-couples)
+        (0 (setq is-rule-7 t
+                 majority-count 0))
+        (1 (remove-nested-couple winning-couples)
+           (setq couple-sums (find-remaining-couple winning-couples couple-sums))
+           (decf majority-count)
+           (if (not (zerop majority-count))
+               (setq winning-couples (find-winning-couples couple-sums))
+             (setq is-rule-7 t)))
+        (t (setq is-rule-7 nil
+                 majority-count 0))))is-rule-7)
 
-    (defun remove-scored-couple (number-majorities tied-majorities)
-      (remove (car tied-majorities) number-majorities))
+  (defun remove-scored-couple (number-majorities tied-majorities)
+    (remove (car tied-majorities) number-majorities))
 
-    (defun score-single-dance-reworked (dance)
-      (build-single-dance dance)
-      (loop for place from 1 to number-of-places
-            do (new-single-dance-scorer
-                (elt dance-totals-columns place) place (car dance-totals-columns)))
-      (print-standings standings))
+  (defun score-single-dance-reworked (dance)
+    (build-single-dance dance)
+    (loop for place from 1 to number-of-places
+          do (new-single-dance-scorer
+              (elt dance-totals-columns place) place (car dance-totals-columns)))
+    (print-standings standings))
 
-    (defun new-single-dance-scorer (row place-val couples-list)
-      (let ((number-majorities nil)
-            (tied-majorities nil)
-            (couple-sums nil)
-            (winning-couples nil))
-        (if (rule-5 row place-val couples-list)
+  (defun new-single-dance-scorer (row place-val couples-list)
+    (let ((number-majorities nil)
+          (tied-majorities nil)
+          (couple-sums nil)
+          (winning-couples nil))
+      (if (rule-5 row place-val couples-list)
+          t
+        (if (rule-6 row place-val couples-list)
             t
-          (if (rule-6 row place-val couples-list)
+          (if (rule-7 row place-val couples-list)
               t
-            (if (rule-7 row place-val couples-list)
-                t
-              (if (= place-val number-of-places)
-                  (remove-tied couples-list)
-                (new-single-dance-scorer (elt dance-totals-columns (incf place-val)) place-val winning-couples)))))))
+            (if (= place-val number-of-places)
+                (remove-tied couples-list)
+              (new-single-dance-scorer (elt dance-totals-columns (incf place-val)) place-val winning-couples)))))))
 
-    (defun single-complex-majority (row place-val couples-list)
-      (let ((number-majorities nil)
-            (tied-majorities nil)
-            (couple-sums nil)
-            (winning-couples nil))
-        (setq number-majorities (create-list-of-couples-with-a-majority row couples-list))
-        (case (length number-majorities)
-          (0)
-          (1 (remove-couple (caar number-majorities)))
-          ;; tie-break 1 largest-majority
-          (t (setq tied-majorities (find-couples-with-largest-majority number-majorities))
-             (case (length tied-majorities)
-               (1
-                (if (= (length (find-winning-couples (setq couple-sums (compare-n-sums (cdr number-majorities) place-val)))) 1)
-                    (remove-couples (append tied-majorities couple-sums))
-                  (really-tied couple-sums (1+ place-val) couples-list)))
-               ;; tie-break 2 sums
-               (t (setq couple-sums (compare-n-sums tied-majorities place-val)
-                        winning-couples (find-winning-couples couple-sums))
-                  ;; make a function to remove the couples that aren't tied
-                  ;; since they are sorted from smallest to largest pass them both in
-                  (case (length winning-couples)
-                    (1
-                     ;; We need to check if there is a tie in the sums here too
-                     (setq remaining-couples (find-remaining-couple winning-couples couple-sums))
-                     (remove-nested-couple winning-couples)
-                     (case (length remaining-couples)
-                       (1
-                        (remove-nested-couple remaining-couples))
-                       (t
-                        (setq winning-couples (find-winning-couples remaining-couples))
-                        (case (length winning-couples)
-                          (1 (remove-nested-couple winning-couples))
-                          (t (really-tied remaining-couples (1+ place-val) couples-list))))))
-                    (t (really-tied couple-sums (1+ place-val) couples-list)))))))))
-
-    (defun find-remaining-couple (winning-couples couple-sums)
-      (remove (assoc (car winning-couples) couple-sums) couple-sums))
-
-    (defun build-single-dance (dance)
-      (setq couples (mapcar 'first dance)
-            couple-scores (mapcar (lambda (row)
-                                    (loop for score in (remove-if 'stringp row)
-                                          collect score))
-                                  dance)
-            majority (calculate-majority (cdr (first dance)))
-            number-of-places (length couples)
-            standings ()
-            totals (calculate-totals dance number-of-places)
-            dance-totals-columns (create-dance-columns totals couples)
-            dance-totals-rows (transpose-list dance-totals-columns)))
-
-    (defun score-single-dance (dance)
-      (build-single-dance dance)
-      (loop for place from 1 to number-of-places
-            do (single-complex-majority
-                (elt dance-totals-columns place) place (car dance-totals-columns)))
-      (print-standings standings))
-
-    ;; Multi-Dance Functions documentation is in Development
-    (defun score-multi-dance (place-in-question num-places couples)
-      (loop for place from place-in-question to num-places
-            do (single-complex-majority (elt dance-totals-columns place) place couples)))
-
-    (defun car-to-cdr (list)
-      (mapcar (lambda (pair) (swap (car pair)(cadr pair))) list))
-
-    (defmacro swap (a b)
-      `(psetf ,a ,b
-              ,b ,a))
-
-    (defun final-scores (couples-list dances-couple-scores)
-      (loop for couple in couples-list
-            collect (append (list couple)
-                            (loop for (value couple-num) in dances-couple-scores
-                                  when (= couple couple-num)
-                                  collect value))))
-
-    (defun all-sum-values (couple-sums)
-      (apply 'append (mapcar 'cdr couple-sums)))
-
-    (defun remove-sum (couple)
-      (setq final-couple-sums (remove (assoc couple final-couple-sums) final-couple-sums)))
-
-    (defun remove-couple-and-sum (couple)
-      (remove-couple couple)
-      (remove-sum couple))
-
-    (defun final-sum-values (rows)
-      (sort (mapcar (lambda (couple) (list (car couple) (apply '+ (cdr couple)))) rows)
-            (lambda (a b) (< (cadr a) (cadr b)))))
-
-    (defun couples-with-sum (couple-sums sum)
-      (remove-if-not (lambda (couple) (= (cadr couple) sum)) couple-sums))
-
-    (defun update-sums (places-list sums)
-      (loop for couple in places-list
-            do (loop for (sum-couple score) in sums
-                     if (= couple sum-couple)
-                     do (setq final-couple-sums
-                              (remove (assoc sum-couple final-couple-sums) final-couple-sums))))
-      (setq couples (map 'list 'car final-couple-sums)
-            dance-totals-columns (create-dance-columns totals couples)
-            dance-totals-rows (transpose-list dance-totals-columns)))
-
-    (defun remove-untied-couples (couple-sums place)
-      (if (null (cdr couple-sums))
-          (remove-couple-and-sum (caar couple-sums))
-        (setq sum (loop for (couple sum) in couple-sums
-                        for (next-couple next-sum) in (append (cdr couple-sums) (list (list 0 0)))
-                        for _ from place to number-of-places
-                        if (not (= sum next-sum))
-                        do
-                        (remove-couple-and-sum couple)
-                        else
-                        return sum
-                        ))
-        (if (= (length (cdr couple-sums)) 1)
-            (remove-couple-and-sum (caadr couple-sums))
-          sum)))
-
-    (defun rule-11-rows (couples dances)
-      (loop for couple in couples
-            collect (append (list couple)
-                            (loop with final-couple = nil
-                                  for single-dance in dances
-                                  if (= (car single-dance) couple)
-                                  do (setq final-couple (append final-couple (cdr single-dance)))
-                                  finally return final-couple))))
-
-    (defun build-rule-11 (couples-list)
-      (setq final-dance (apply 'append (mapcar 'symbol-value dance-symbols))
-            rule-11-dance-rows (rule-11-rows couples-list final-dance)
-            rule-11-dance-columns (transpose-list rule-11-dance-rows)
-            majority (1+ (/ (length (cdr (first rule-11-dance-rows))) 2))
-            starting-place (1+ (length standings))
-            totals (calculate-totals rule-11-dance-rows number-of-places)
-            dance-totals-columns (create-dance-columns totals couples-list)
-            dance-totals-rows (transpose-list dance-totals-columns)))
-
-    (defun build-multi-dance (results-symbols)
-      (setq multi-dance-scores (apply 'append (mapcar 'symbol-value results-symbols))
-            couples (sort (mapcar 'cadr (symbol-value (first results-symbols)))
-                          (lambda (a b) (< a b)))
-            standings ()
-            number-of-places (length couples)
-            ;; this is named the same so we can use get-score-from-couple-numbers function
-            couple-scores (final-scores couples multi-dance-scores)
-            final-couple-sums (final-sum-values couple-scores)
-            sum-values (all-sum-values final-couple-sums)
-            totals (calculate-totals couple-scores number-of-places)
-            dance-totals-columns (create-dance-columns totals couples)
-            dance-totals-rows (transpose-list dance-totals-columns)))
-
-    (defun multi-dance (results-symbols)
-      (build-multi-dance results-symbols)
-      (loop with tied-couples = nil
-            with tied-sum = nil
-            for x from 0 to number-of-places
-            do (setq tied-sum (remove-untied-couples final-couple-sums x))
-            if (null tied-sum)
-            return standings
-            if (= (length standings) number-of-places)
-            return standings
-            do (setq tied-couples (couples-with-sum final-couple-sums tied-sum))
-            (build-rule-11 (make-couples-list-from-dotted-pairs tied-couples))
-            (score-multi-dance starting-place number-of-places (make-couples-list-from-dotted-pairs tied-couples))
-            (update-sums standings final-couple-sums)
-            (setq x (length standings))))
-
-    (defun score-multi-dance-and-insert ()
-      (string-to-symbol "Multi-Dance Results")
-      (insert-right-after-elisp-link
-       (eval-with-temp-buffer
-        '(print-standings (multi-dance dance-symbols-results))
-        'multi-dance-results)))
-
-    (defun check-hook-fn ()
-      (when (-contains? (org-element-property
-                         :attr_org
-                         (org-element-property :parent (org-element-context)))
-                        ":radio")
-        (save-excursion
-          (loop for el in (org-element-property :structure (org-element-context))
-                do (goto-char (car el))
-                (when (re-search-forward "\\[X\\]" (line-end-position) t)
-                  (replace-match "[ ]"))))
-        (beginning-of-line)
-        (re-search-forward "\\[\\s-\\]" (line-end-position) t)
-        (replace-match "[X]")))
-
-    (add-hook 'org-checkbox-statistics-hook 'check-hook-fn)
-
-    (defun org-get-plain-list (name)
-      "Get the org-element representation of a plain-list with NAME."
-      (catch 'found
-        (org-element-map
-            (org-element-parse-buffer)
-            'plain-list
-          (lambda (plain-list)
-            (when
-                (string= name (org-element-property :name plain-list))
-              (throw 'found plain-list))))))
-
-    (defun get-checkbox-list-values (list-name)
-      "Return the values of all the checked items in a checkbox list."
-      (save-excursion
-        (loop for el in (org-element-property
-                         :structure
-                         (org-get-plain-list list-name))
-              if (string= (nth 4 el) "[X]")
-              collect (let ((item (buffer-substring (first el) (first (last el)))))
-                        (string-match "\\[X\\]\\s-\\(.*\\)$" item)
-                        (match-string 1 item)))))
-
-    (defun validate-radio-list (choices)
-      "Validates that just one choice was made then returns
-       that choice, otherwise returns an error message."
-      (if (= 1 (length choices))
-          (first choices) "Invalid or unanswered."))
-
-    (defun validate-input ()
-      (validate-radio-list (get-checkbox-list-values "number-judges"))
-      (validate-radio-list (get-checkbox-list-values "number-couples"))
-      (validate-radio-list (get-checkbox-list-values "number-dances")))
-
-    (defun format-list-item (list-item)
-      (format "  - [%c] %s" (if check-all ?X ? ) list-item))
-
-    (defun insert-org-list (lisp-list name &optional check-all)
-      (let ((pos 0)
-            (txt (mapconcat 'format-list-item lisp-list "\n")))
-        (forward-line)
-        (setq pos (point))
-        (insert (concat "\n#+name: " name "\n"))
-        (insert txt)
-        (insert "\n")
-        (goto-char pos)))
-
-    (defun create-couples-list ()
-      (insert-org-list (make-list num-couples "") "couples" t))
-
-    (defun confirm-couples-list ()
-      (setq couples (mapcar 'string-to-number
-                            (get-checkbox-list-values "couples"))
-            num-couples (length couples)))
-
-    (defun header (num-judges)
-      (let* ((start ?A)
-             (end (+ start num-judges -1)))
-        (list (append '(Couple) (mapcar 'char-to-string (number-sequence start end))))))
-
-    (defun body (num-couples)
-      (loop for couple in couples
-            collect (list couple)))
-
-    (defun build-tables (num-judges num-couples)
-      (append(header num-judges)(list 'hline)(body num-couples)))
-
-    (defun string-to-symbol (string)
-      (let (string-to-map-to symbol-to-map-from)
-        (setq string-to-map-to (replace-regexp-in-string "-" " " string)
-              symbol-to-map-from
-              (intern (downcase (replace-regexp-in-string " " "-" string))))
-        (push (cons symbol-to-map-from string-to-map-to) dance-symbol-string-alist)
-        symbol-to-map-from))
-
-    (defun make-results-symbol (dance-symbol)
-      (string-to-symbol (concat (cdr (assq dance-symbol dance-symbol-string-alist)) " Results")))
-
-    (defun make-results-symbols (dance-symbols)
-      (mapcar 'make-results-symbol dance-symbols))
-
-    (defun set-symbol-from-string (symbol something-as-string)
-      (set symbol (car (read-from-string something-as-string))))
-
-    (defun insert-right-after-elisp-link (something &optional newline)
-      (forward-line)
-      (insert (format "%s%s" something (if newline "\n" ""))))
-
-    (defun eval-with-temp-buffer (symbol name &optional link-function link-name)
-      (with-temp-buffer
-        (insert (format "#+BEGIN_SRC elisp\n%s\n#+END_SRC\n" symbol))
-        (org-ctrl-c-ctrl-c) ; same as typing ", ,"
-        (goto-char (point-min))
-        (kill-line 5)
-        (insert (format "\n* %s \n#+name: %s\n" (cdr (assq name dance-symbol-string-alist)) name))
-        (goto-char (point-max))
-        (when link-function
-          (insert (format "\n[[elisp:(%s '%s)" link-function name))
-          (insert (if link-name (format "][%s]]\n" link-name) "]]\n")))
-        (buffer-substring-no-properties (point-min) (point-max))))
-
-    (defun build-judges-list (num-judges)
-      (loop for j from 1 to num-judges
-            collect (char-to-string (+ j ?@))))
-
-    (defun build-dance-table-blank ()
-      (append (list (cons "" (number-sequence 1 num-couples)))
-              (list 'hline)
-              (if use-random
-                  (mapcar* 'cons (build-judges-list num-judges)
-                           (build-random-dance-table))
-                (mapcar 'list (build-judges-list num-judges)))))
-
-    (defun build-random-dance-table ()
-      (let (couples permutations num-permutations placements)
-        (setq couples (if (boundp 'cached-random-couples)
-                          cached-random-couples
-                        (setq cached-random-couples
-                              (loop repeat num-couples
-                                    collect (+ 100 (random 900)))))
-              permutations (if (boundp 'cached-random-permutations)
-                               cached-random-permutations
-                             (setq cached-random-permutations
-                                   (-permutations couples)))
-              num-permutations (length permutations)
-              placements (loop repeat num-judges
-                               collect (nth (random num-permutations) permutations)))))
-
-    (defun insert-dance-tables-to-fill-out ()
-      (initialize-variables)
-      (loop for dance-symbol in dance-symbols
-            do (insert-dance-table-to-fill-out dance-symbol)))
-
-    (defun insert-dance-table-to-fill-out (dance-symbol)
-      (insert-right-after-elisp-link
-       (eval-with-temp-buffer
-        (if use-random
-            '(build-dance-table-blank)
-          'dance-table-blank)
-        dance-symbol
-        'set-dance-table
-        "Score Dance")))
-
-    (defun set-dance-table (dance-symbol)  
-      (set-symbol-from-string dance-symbol (eval (list 'org-sbe (symbol-name dance-symbol))))
-      (if (validate-couples dance-symbol)
-          (progn
-            (if (validate-duplicates dance-symbol)
+  (defun single-complex-majority (row place-val couples-list)
+    (let ((number-majorities nil)
+          (tied-majorities nil)
+          (couple-sums nil)
+          (winning-couples nil))
+      (setq number-majorities (create-list-of-couples-with-a-majority row couples-list))
+      (case (length number-majorities)
+        (0)
+        (1 (remove-couple (caar number-majorities)))
+        ;; tie-break 1 largest-majority
+        (t (setq tied-majorities (find-couples-with-largest-majority number-majorities))
+           (case (length tied-majorities)
+             (1
+              (if (= (length (find-winning-couples (setq couple-sums (compare-n-sums (cdr number-majorities) place-val)))) 1)
+                  (if (all-majorities-are-unique number-majorities)
+                      (remove-couples number-majorities)
+                    (remove-couples (append tied-majorities couple-sums)))
                 (progn
-                  (set-symbol-after-reorganizing dance-symbol)
-                  (let ((results-symbol (make-results-symbol dance-symbol)))
-                    (set results-symbol (score-single-dance (symbol-value dance-symbol)))
-                    (insert-right-after-elisp-link (eval-with-temp-buffer results-symbol results-symbol))
-                    (if (= 1 (length dance-symbols))
-                        (insert-publish-links)
-                      (when (eq dance-symbol (first (last dance-symbols)))
-                        (score-multi-dance-and-insert)
-                        (insert-publish-links)))))
-              (insert-right-after-elisp-link "*DUPLICATE IN TABLE*")))
-        (insert-right-after-elisp-link "*INVALID COUPLE IN TABLE*")))
+                  ;; We have to remove the couple that had the majority first
+                  ;; And then remove the other couples
+                  (remove-couple (caar tied-majorities))
+                  (really-tied couple-sums (1+ place-val) couples-list)))
+              )
+             ;; tie-break 2 sums
+             (t (setq couple-sums (compare-n-sums tied-majorities place-val)
+                      winning-couples (find-winning-couples couple-sums))
+                ;; make a function to remove the couples that aren't tied
+                ;; since they are sorted from smallest to largest pass them both in
+                (case (length winning-couples)
+                  (1
+                   ;; We need to check if there is a tie in the sums here too
+                   (setq remaining-couples (find-remaining-couple winning-couples couple-sums))
+                   (remove-nested-couple winning-couples)
+                   (case (length remaining-couples)
+                     (1
+                      (remove-nested-couple remaining-couples)
+                      ;; Check if all the number-majorities have been placed
+                      (if (setq unplaced (all-couples-with-majority-are-placed number-majorities standings))
+                          (remove-couple unplaced)))
+                     (t
+                      (setq winning-couples (find-winning-couples remaining-couples))
+                      (case (length winning-couples)
+                        (1 (remove-nested-couple winning-couples))
+                        (t (really-tied remaining-couples (1+ place-val) couples-list))))))
+                  (t (really-tied couple-sums (1+ place-val) couples-list)))))))))
 
-    (defun reorganize-dance-table (dance-table)
-      (let (dt-triples dt-triples-sorted dt-by-couples dt-reorganized)
-        (setq dt-triples
-              (loop for row in dance-table
-                    append (loop for place from 1 to num-couples
-                                 collect (list (first row) place (nth place row))))
-              dt-triples-sorted
-              (sort dt-triples
-                    (lambda (x y) (< (third x) (third y))))
-              dt-by-couples
-              (loop for n from 0 below num-couples
-                    collect (subseq dt-triples-sorted
-                                    (* n num-judges) (* (1+ n) num-judges)))
-              dt-reorganized
-              (loop for couple-row in dt-by-couples
-                    collect (cons (third (first couple-row))
-                                  (mapcar 'second couple-row))))))
+  (defun find-remaining-couple (winning-couples couple-sums)
+    (remove (assoc (car winning-couples) couple-sums) couple-sums))
 
-    (defun set-symbol-after-reorganizing (dance-symbol)
-      (set dance-symbol (reorganize-dance-table (symbol-value dance-symbol))))
+  (defun build-single-dance (dance)
+    (setq couples (mapcar 'first dance)
+          couple-scores (mapcar (lambda (row)
+                                  (loop for score in (remove-if 'stringp row)
+                                        collect score))
+                                dance)
+          majority (calculate-majority (cdr (first dance)))
+          number-of-places (length couples)
+          standings ()
+          totals (calculate-totals dance number-of-places)
+          dance-totals-columns (create-dance-columns totals couples)
+          dance-totals-rows (transpose-list dance-totals-columns)))
 
-    (defun insert-dance-table-to-compute-with (dance-symbol)
-      (setq dance-table-reorganized (reorganize-dance-table dance-table-filled-out))
-      (insert-right-after-elisp-link
-       (eval-with-temp-buffer
-        dance-symbol
-        dance-symbol)))
+  (defun score-single-dance (dance)
+    (build-single-dance dance)
+    (loop for place from 1 to number-of-places
+          do (single-complex-majority
+              (elt dance-totals-columns place) place (car dance-totals-columns)))
+    (print-standings standings))
 
-    (defun publish-results ()
-      (initialize-variables-for-publishing)
-      (org-publish-initialize-cache "results")
-      (org-reveal-publish-to-reveal
-       publish-results-plist publish-file publish-directory)
-      (shell-command-to-string
-       (format "cd %s && git add %s && git commit -m '%s' && git push origin master"
-               publish-directory (concat (file-name-base publish-file) ".html")
-               "Updated results.")))
+  ;; Multi-Dance Functions documentation is in Development
+  (defun score-multi-dance (place-in-question num-places couples)
+    (loop for place from place-in-question to num-places
+          do (single-complex-majority (elt dance-totals-columns place) place couples)))
 
-    (defun initialize-variables-for-publishing ()
-      (setq publish-file (buffer-file-name)
-            publish-directory (expand-file-name "~/rickneff.github.io/")
-            publish-results-plist (list :html-preamble nil)))
+  (defun car-to-cdr (list)
+    (mapcar (lambda (pair) (swap (car pair)(cadr pair))) list))
 
-    (defun initialize-variables ()
-      (makunbound 'cached-random-couples)
-      (makunbound 'cached-random-permutations)
-      (setq use-random nil
-            num-judges (string-to-number (car (get-checkbox-list-values "number-judges")))
-            num-couples (string-to-number (car (get-checkbox-list-values "number-couples")))
-            couples-list (mapcar 'string-to-number (get-checkbox-list-values "couples"))
-            dance-table-blank (build-dance-table-blank)
-            dance-symbol-string-alist nil
-            dance-symbols (mapcar 'string-to-symbol (get-checkbox-list-values "dance-styles"))
-            dance-symbols-results (make-results-symbols dance-symbols)
-            num-dances (length dance-symbols)))
+  (defmacro swap (a b)
+    `(psetf ,a ,b
+            ,b ,a))
 
-    (defun begin-with-fresh-copy ()
-      ;; This setq-chain can go away when the issue regarding the placement of
-      ;; custom-set-variables in "~/.spacemacs.d/init.el" is resolved.
-      (setq org-confirm-babel-evaluate nil
-            org-confirm-elisp-link-function nil)
-      (let ((new-file-name (concat (format-time-string "%Y-%m-%d-%H:%M:%S") ".org"))
-            (current-position (point)))
-        (copy-file "4scrutineers.org" new-file-name)
-        (find-file new-file-name)
-        (pop-to-buffer-same-window new-file-name)
-        (goto-char current-position)
+  (defun final-scores (couples-list dances-couple-scores)
+    (loop for couple in couples-list
+          collect (append (list couple)
+                          (loop for (value couple-num) in dances-couple-scores
+                                when (= couple couple-num)
+                                collect value))))
+
+  (defun all-sum-values (couple-sums)
+    (apply 'append (mapcar 'cdr couple-sums)))
+
+  (defun remove-sum (couple)
+    (setq final-couple-sums (remove (assoc couple final-couple-sums) final-couple-sums)))
+
+  (defun remove-couple-and-sum (couple)
+    (remove-couple couple)
+    (remove-sum couple))
+
+  (defun final-sum-values (rows)
+    (sort (mapcar (lambda (couple) (list (car couple) (apply '+ (cdr couple)))) rows)
+          (lambda (a b) (< (cadr a) (cadr b)))))
+
+  (defun couples-with-sum (couple-sums sum)
+    (remove-if-not (lambda (couple) (= (cadr couple) sum)) couple-sums))
+
+  (defun update-sums (places-list sums)
+    (loop for couple in places-list
+          do (loop for (sum-couple score) in sums
+                   if (= couple sum-couple)
+                   do (setq final-couple-sums
+                            (remove (assoc sum-couple final-couple-sums) final-couple-sums))))
+    (setq couples (map 'list 'car final-couple-sums)
+          dance-totals-columns (create-dance-columns totals couples)
+          dance-totals-rows (transpose-list dance-totals-columns)))
+
+  (defun remove-untied-couples (couple-sums place)
+    (if (null (cdr couple-sums))
+        (remove-couple-and-sum (caar couple-sums))
+      (setq sum (loop for (couple sum) in couple-sums
+                      for (next-couple next-sum) in (append (cdr couple-sums) (list (list 0 0)))
+                      for _ from place to number-of-places
+                      if (not (= sum next-sum))
+                      do
+                      (remove-couple-and-sum couple)
+                      else
+                      return sum
+                      ))
+      (if (= (length (cdr couple-sums)) 1)
+          (remove-couple-and-sum (caadr couple-sums))
+        sum)))
+
+  (defun rule-11-rows (couples dances)
+    (loop for couple in couples
+          collect (append (list couple)
+                          (loop with final-couple = nil
+                                for single-dance in dances
+                                if (= (car single-dance) couple)
+                                do (setq final-couple (append final-couple (cdr single-dance)))
+                                finally return final-couple))))
+
+  (defun build-rule-11 (couples-list)
+    (setq final-dance (apply 'append (mapcar 'symbol-value dance-symbols))
+          rule-11-dance-rows (rule-11-rows couples-list final-dance)
+          rule-11-dance-columns (transpose-list rule-11-dance-rows)
+          majority (1+ (/ (length (cdr (first rule-11-dance-rows))) 2))
+          starting-place (1+ (length standings))
+          totals (calculate-totals rule-11-dance-rows number-of-places)
+          dance-totals-columns (create-dance-columns totals couples-list)
+          dance-totals-rows (transpose-list dance-totals-columns)))
+
+  (defun build-multi-dance (results-symbols)
+    (setq multi-dance-scores (apply 'append (mapcar 'symbol-value results-symbols))
+          couples (sort (mapcar 'cadr (symbol-value (first results-symbols)))
+                        (lambda (a b) (< a b)))
+          standings ()
+          number-of-places (length couples)
+          ;; this is named the same so we can use get-score-from-couple-numbers function
+          couple-scores (final-scores couples multi-dance-scores)
+          final-couple-sums (final-sum-values couple-scores)
+          sum-values (all-sum-values final-couple-sums)
+          totals (calculate-totals couple-scores number-of-places)
+          dance-totals-columns (create-dance-columns totals couples)
+          dance-totals-rows (transpose-list dance-totals-columns)))
+
+  (defun multi-dance (results-symbols)
+    (build-multi-dance results-symbols)
+    (loop with tied-couples = nil
+          with tied-sum = nil
+          for x from 0 to number-of-places
+          do (setq tied-sum (remove-untied-couples final-couple-sums x))
+          if (null tied-sum)
+          return standings
+          if (= (length standings) number-of-places)
+          return standings
+          do (setq tied-couples (couples-with-sum final-couple-sums tied-sum))
+          (build-rule-11 (make-couples-list-from-dotted-pairs tied-couples))
+          (score-multi-dance starting-place number-of-places (make-couples-list-from-dotted-pairs tied-couples))
+          (update-sums standings final-couple-sums)
+          (setq x (length standings))))
+
+  (defun score-multi-dance-and-insert ()
+    (string-to-symbol "Multi-Dance Results")
+    (insert-right-after-elisp-link
+     (eval-with-temp-buffer
+      '(print-standings (multi-dance dance-symbols-results))
+      'multi-dance-results)))
+
+  (defun check-hook-fn ()
+    (when (-contains? (org-element-property
+                       :attr_org
+                       (org-element-property :parent (org-element-context)))
+                      ":radio")
+      (save-excursion
+        (loop for el in (org-element-property :structure (org-element-context))
+              do (goto-char (car el))
+              (when (re-search-forward "\\[X\\]" (line-end-position) t)
+                (replace-match "[ ]"))))
+      (beginning-of-line)
+      (re-search-forward "\\[\\s-\\]" (line-end-position) t)
+      (replace-match "[X]")))
+
+  (add-hook 'org-checkbox-statistics-hook 'check-hook-fn)
+
+  (defun org-get-plain-list (name)
+    "Get the org-element representation of a plain-list with NAME."
+    (catch 'found
+      (org-element-map
+          (org-element-parse-buffer)
+          'plain-list
+        (lambda (plain-list)
+          (when
+              (string= name (org-element-property :name plain-list))
+            (throw 'found plain-list))))))
+
+  (defun get-checkbox-list-values (list-name)
+    "Return the values of all the checked items in a checkbox list."
+    (save-excursion
+      (loop for el in (org-element-property
+                       :structure
+                       (org-get-plain-list list-name))
+            if (string= (nth 4 el) "[X]")
+            collect (let ((item (buffer-substring (first el) (first (last el)))))
+                      (string-match "\\[X\\]\\s-\\(.*\\)$" item)
+                      (match-string 1 item)))))
+
+  (defun validate-radio-list (choices)
+    "Validates that just one choice was made then returns
+       that choice, otherwise returns an error message."
+    (if (= 1 (length choices))
+        (first choices) "Invalid or unanswered."))
+
+  (defun validate-input ()
+    (validate-radio-list (get-checkbox-list-values "number-judges"))
+    (validate-radio-list (get-checkbox-list-values "number-couples"))
+    (validate-radio-list (get-checkbox-list-values "number-dances")))
+
+  (defun format-list-item (list-item)
+    (format "  - [%c] %s" (if check-all ?X ? ) list-item))
+
+  (defun insert-org-list (lisp-list name &optional check-all)
+    (let ((pos 0)
+          (txt (mapconcat 'format-list-item lisp-list "\n")))
+      (forward-line)
+      (setq pos (point))
+      (insert (concat "\n#+name: " name "\n"))
+      (insert txt)
+      (insert "\n")
+      (goto-char pos)))
+
+  (defun create-couples-list ()
+    (let ((num-couples (string-to-number (car (get-checkbox-list-values "number-couples")))))
+      (insert-org-list (make-list num-couples "") "couples" t)))
+
+  (defun confirm-couples-list ()
+    (setq couples (mapcar 'string-to-number
+                          (get-checkbox-list-values "couples"))
+          num-couples (length couples)))
+
+  (defun header (num-judges)
+    (let* ((start ?A)
+           (end (+ start num-judges -1)))
+      (list (append '(Couple) (mapcar 'char-to-string (number-sequence start end))))))
+
+  (defun body (num-couples)
+    (loop for couple in couples
+          collect (list couple)))
+
+  (defun build-tables (num-judges num-couples)
+    (append(header num-judges)(list 'hline)(body num-couples)))
+
+  (defun string-to-symbol (string)
+    (let (string-to-map-to symbol-to-map-from)
+      (setq string-to-map-to (replace-regexp-in-string "-" " " string)
+            symbol-to-map-from
+            (intern (downcase (replace-regexp-in-string " " "-" string))))
+      (push (cons symbol-to-map-from string-to-map-to) dance-symbol-string-alist)
+      symbol-to-map-from))
+
+  (defun make-results-symbol (dance-symbol)
+    (string-to-symbol (concat (cdr (assq dance-symbol dance-symbol-string-alist)) " Results")))
+
+  (defun make-results-symbols (dance-symbols)
+    (mapcar 'make-results-symbol dance-symbols))
+
+  (defun set-symbol-from-string (symbol something-as-string)
+    (set symbol (car (read-from-string something-as-string))))
+
+  (defun insert-right-after-elisp-link (something &optional newline)
+    (forward-line)
+    (insert (format "%s%s" something (if newline "\n" ""))))
+
+  (defun eval-with-temp-buffer (symbol name &optional link-function link-name)
+    (with-temp-buffer
+      (insert (format "#+BEGIN_SRC elisp\n%s\n#+END_SRC\n" symbol))
+      (org-ctrl-c-ctrl-c) ; same as typing ", ,"
+      (goto-char (point-min))
+      (kill-line 5)
+      (insert (format "\n* %s \n#+name: %s\n" (cdr (assq name dance-symbol-string-alist)) name))
+      (goto-char (point-max))
+      (when link-function
+        (insert (format "\n[[elisp:(%s '%s)" link-function name))
+        (insert (if link-name (format "][%s]]\n" link-name) "]]\n")))
+      (buffer-substring-no-properties (point-min) (point-max))))
+
+  (defun build-judges-list (num-judges)
+    (loop for j from 1 to num-judges
+          collect (char-to-string (+ j ?@))))
+
+  (defun build-dance-table-blank ()
+    (append (list (cons "" (number-sequence 1 num-couples)))
+            (list 'hline)
+            (if use-random
+                (mapcar* 'cons (build-judges-list num-judges)
+                         (build-random-dance-table))
+              (mapcar 'list (build-judges-list num-judges)))))
+
+  (defun build-random-dance-table ()
+    (let (couples permutations num-permutations placements)
+      (setq couples (if (boundp 'cached-random-couples)
+                        cached-random-couples
+                      (setq cached-random-couples
+                            (loop repeat num-couples
+                                  collect (+ 100 (random 900)))))
+            permutations (if (boundp 'cached-random-permutations)
+                             cached-random-permutations
+                           (setq cached-random-permutations
+                                 (-permutations couples)))
+            num-permutations (length permutations)
+            placements (loop repeat num-judges
+                             collect (nth (random num-permutations) permutations)))))
+
+  (defun insert-dance-tables-to-fill-out ()
+    (initialize-variables)
+    (loop for dance-symbol in dance-symbols
+          do (insert-dance-table-to-fill-out dance-symbol)))
+
+  (defun insert-dance-table-to-fill-out (dance-symbol)
+    (insert-right-after-elisp-link
+     (eval-with-temp-buffer
+      (if use-random
+          '(build-dance-table-blank)
+        'dance-table-blank)
+      dance-symbol
+      'set-dance-table
+      "Score Dance")))
+
+  (defun set-dance-table (dance-symbol)  
+    (set-symbol-from-string dance-symbol (eval (list 'org-sbe (symbol-name dance-symbol))))
+    (if (validate-couples dance-symbol)
+        (progn
+          (if (validate-duplicates dance-symbol)
+              (progn
+                (set-symbol-after-reorganizing dance-symbol)
+                (let ((results-symbol (make-results-symbol dance-symbol)))
+                  (set results-symbol (score-single-dance (symbol-value dance-symbol)))
+                  (insert-right-after-elisp-link (eval-with-temp-buffer results-symbol results-symbol))
+                  (if (= 1 (length dance-symbols))
+                      (insert-publish-links)
+                    (when (eq dance-symbol (first (last dance-symbols)))
+                      (score-multi-dance-and-insert)
+                      (insert-publish-links)))))
+            (insert-right-after-elisp-link "*DUPLICATE IN TABLE*")))
+      (insert-right-after-elisp-link "*INVALID COUPLE IN TABLE*")))
+
+  (defun reorganize-dance-table (dance-table)
+    (let (dt-triples dt-triples-sorted dt-by-couples dt-reorganized)
+      (setq dt-triples
+            (loop for row in dance-table
+                  append (loop for place from 1 to num-couples
+                               collect (list (first row) place (nth place row))))
+            dt-triples-sorted
+            (sort dt-triples
+                  (lambda (x y) (< (third x) (third y))))
+            dt-by-couples
+            (loop for n from 0 below num-couples
+                  collect (subseq dt-triples-sorted
+                                  (* n num-judges) (* (1+ n) num-judges)))
+            dt-reorganized
+            (loop for couple-row in dt-by-couples
+                  collect (cons (third (first couple-row))
+                                (mapcar 'second couple-row))))))
+
+  (defun set-symbol-after-reorganizing (dance-symbol)
+    (set dance-symbol (reorganize-dance-table (symbol-value dance-symbol))))
+
+  (defun insert-dance-table-to-compute-with (dance-symbol)
+    (setq dance-table-reorganized (reorganize-dance-table dance-table-filled-out))
+    (insert-right-after-elisp-link
+     (eval-with-temp-buffer
+      dance-symbol
+      dance-symbol)))
+
+  (defun publish-results ()
+    (initialize-variables-for-publishing)
+    (org-publish-initialize-cache "results")
+    (org-reveal-publish-to-reveal
+     publish-results-plist publish-file publish-directory)
+    (shell-command-to-string
+     (format "cd %s && git add %s && git commit -m '%s' && git push origin master"
+             publish-directory (concat (file-name-base publish-file) ".html")
+             "Updated results.")))
+
+  (defun initialize-variables-for-publishing ()
+    (setq publish-file (buffer-file-name)
+          publish-directory (expand-file-name "~/rickneff.github.io/")
+          publish-results-plist (list :html-preamble nil)))
+
+  (defun initialize-variables ()
+    (makunbound 'cached-random-couples)
+    (makunbound 'cached-random-permutations)
+    (setq use-random nil
+          num-judges (string-to-number (car (get-checkbox-list-values "number-judges")))
+          num-couples (string-to-number (car (get-checkbox-list-values "number-couples")))
+          couples-list (mapcar 'string-to-number (get-checkbox-list-values "couples"))
+          dance-table-blank (build-dance-table-blank)
+          dance-symbol-string-alist nil
+          dance-symbols (mapcar 'string-to-symbol (get-checkbox-list-values "dance-styles"))
+          dance-symbols-results (make-results-symbols dance-symbols)
+          num-dances (length dance-symbols)))
+
+  (defun begin-with-fresh-copy ()
+    ;; This setq-chain can go away when the issue regarding the placement of
+    ;; custom-set-variables in "~/.spacemacs.d/init.el" is resolved.
+    (setq org-confirm-babel-evaluate nil
+          org-confirm-elisp-link-function nil)
+    (let ((new-file-name (concat (format-time-string "%Y-%m-%d-%H:%M:%S") ".org"))
+          (current-position (point)))
+      (copy-file "4scrutineers.org" new-file-name)
+      (find-file new-file-name)
+      (pop-to-buffer-same-window new-file-name)
+      (goto-char current-position)
+      (beginning-of-line)
+      (kill-line 2)
+      (goto-char (point-min))
+      (when (search-forward "README")
+        (org-cycle)
+        (search-forward "Begin Scrutineering")
+        (org-cycle)
         (beginning-of-line)
-        (kill-line 2)
-        (goto-char (point-min))
-        (when (search-forward "README")
-          (org-cycle)
-          (search-forward "Begin Scrutineering")
-          (org-cycle)
-          (beginning-of-line)
-          (recenter-top-bottom)
-          (save-buffer))))
+        (recenter-top-bottom)
+        (save-buffer))))
 
-    (defun insert-publish-links ()
-      (insert "\n* Publish For Viewers                                              :noexport:\n")
-      (insert "\n  [[elisp:(call-interactively 'org-reveal-export-to-html-and-browse)][Reveal to Browser]]\n\n")
-      (insert "  [[elisp:(publish-results)][Publish Results]]\n")
-      (forward-line -3)
-      (forward-char 4)
-      (save-buffer))
+  (defun insert-publish-links ()
+    (insert "\n* Publish For Viewers                                              :noexport:\n")
+    (insert "\n  [[elisp:(call-interactively 'org-reveal-export-to-html-and-browse)][Reveal to Browser]]\n\n")
+    (insert "  [[elisp:(publish-results)][Publish Results]]\n")
+    (forward-line -3)
+    (forward-char 4)
+    (save-buffer))
 
   ;;; VALIDATION CODE
-   (defun validate-couples (symbol)
-     "Makes sure that there is no invalid input in the tables"
-     ;; Remove Judge Letters
-      (setq values (mapcar 'cdr (symbol-value symbol)))
-      (loop for row in values
-            if (-all-p (lambda (couple) (member couple couples-list)) row)
-            do (print "all good")
-            else
-            return 'nil
-            finally return 't))
+  (defun validate-couples (symbol)
+    "Makes sure that there is no invalid input in the tables"
+    ;; Remove Judge Letters
+    (setq values (mapcar 'cdr (symbol-value symbol)))
+    (loop for row in values
+          if (-all-p (lambda (couple) (member couple couples-list)) row)
+          do (print "all good")
+          else
+          return 'nil
+          finally return 't))
 
   (defun validate-duplicates (symbol)
     "Makes sure that there are no duplicates in the code"
-      (setq values (mapcar 'cdr (symbol-value symbol)))
-      (loop for row in values
-            if (= (length (remove-duplicates row)) (length row))
-            do (print "all good")
-            else
-            return 'nil
-            finally return 't))
+    (setq values (mapcar 'cdr (symbol-value symbol)))
+    (loop for row in values
+          if (= (length (remove-duplicates row)) (length row))
+          do (print "all good")
+          else
+          return 'nil
+          finally return 't))
 
 #+END_SRC
 
@@ -740,6 +755,7 @@
 : test-for-tie
 
 * Development
+** NOTE: If I can break up the summing and the majority portions of rule 7 I may be able to simplify
 ** Adjusting tied-all-the-way to ignore values under the majority
 #+BEGIN_SRC elisp
   (setq test '((111 112)(0 0) (6 7) (12 12) (15 15)))
@@ -777,7 +793,36 @@
           else
           return 'nil
           finally return 't))
+
+  (defun all-couples-with-majority-are-placed (couples-with-majority places)
+    (car (set-difference (mapcar 'car couples-with-majority) places)))
+
+  (defun all-majorities-are-unique (couples-with-majority)
+    (apply '> (mapcar 'cdr couples-with-majority)))
 #+END_SRC
 
 #+RESULTS:
-: validate-duplicates
+: all-majorities-are-unique
+
+** DONE If all the majorities are descending in order remove them
+   CLOSED: [2018-12-06 Thu 21:56]
+#+BEGIN_SRC elisp
+  (defun all-majorities-are-unique (couples-with-majority)
+    (apply '> (mapcar 'cdr couples-with-majority)))
+#+END_SRC
+
+#+RESULTS:
+: all-majorities-are-unique
+** Check if all majority couples have been placed
+#+BEGIN_SRC elisp
+  (defun all-couples-with-majority-are-placed (couples-with-majority places)
+      (car (set-difference (mapcar 'car couples-with-majority) places)))
+#+END_SRC
+
+#+RESULTS:
+: all-couples-with-majority-are-placed
+** Create a list of all the sum values for the couples
+#+BEGIN_SRC elisp
+
+#+END_SRC
+
