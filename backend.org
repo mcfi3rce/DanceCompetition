@@ -140,8 +140,8 @@
 
   (defun really-tied (tied-couples place couples-list)
     "This is called whenever a pair of couples still aren't placed
-     and have the same sum values so we compare all their sum values
-     to try and place them"
+      and have the same sum values so we compare all their sum values
+      to try and place them"
     (loop with still-tied = (remove-if-not (lambda (c) (= (cdar tied-couples)(cdr c))) tied-couples)
           with not-tied = (remove-if (lambda (c) (= (cdar tied-couples)(cdr c))) tied-couples)
           with comparing-columns = (filter-columns still-tied dance-totals-columns)
@@ -220,10 +220,10 @@
 
   (defun rule-7 (row place-val couples-list)
     """ Things needed in order to handle any number of tied couples
-          1. The number of couples who have a majority (this will tell us whether all have been used)
-          2. The number of possible places (because if we get to the last place they are tied for good)
-          3. A way of switching between rule 6 and rule 7 accordingly
-          4. A way of incrementing the place without losing track of the couples """
+           1. The number of couples who have a majority (this will tell us whether all have been used)
+           2. The number of possible places (because if we get to the last place they are tied for good)
+           3. A way of switching between rule 6 and rule 7 accordingly
+           4. A way of incrementing the place without losing track of the couples """
     (setq couple-sums (compare-n-sums number-majorities place-val)
           majority-count (length couple-sums)
           winning-couples (find-winning-couples couple-sums)
@@ -308,7 +308,11 @@
                      (t
                       (setq winning-couples (find-winning-couples remaining-couples))
                       (case (length winning-couples)
-                        (1 (remove-nested-couple winning-couples))
+                        (1 (remove-nested-couple winning-couples)
+                           ;; Check if we can choose winners by sums
+                           (setq remaining-couples (find-remaining-couple winning-couples remaining-couples))
+                           (if (all-sums-are-unique remaining-couples)
+                               (remove-couples (sort-sums-in-winning-order remaining-couples))))
                         (t (really-tied remaining-couples (1+ place-val) couples-list))))))
                   (t (really-tied couple-sums (1+ place-val) couples-list)))))))))
 
@@ -493,7 +497,7 @@
 
   (defun validate-radio-list (choices)
     "Validates that just one choice was made then returns
-       that choice, otherwise returns an error message."
+        that choice, otherwise returns an error message."
     (if (= 1 (length choices))
         (first choices) "Invalid or unanswered."))
 
@@ -716,7 +720,7 @@
     (forward-char 4)
     (save-buffer))
 
-  ;;; VALIDATION CODE
+   ;;; VALIDATION CODE
   (defun validate-couples (symbol)
     "Makes sure that there is no invalid input in the tables"
     ;; Remove Judge Letters
@@ -738,11 +742,18 @@
           return 'nil
           finally return 't))
 
- (defun all-couples-with-majority-are-placed (couples-with-majority places)
-      (car (set-difference (mapcar 'car couples-with-majority) places)))
+  (defun all-couples-with-majority-are-placed (couples-with-majority places)
+    (car (set-difference (mapcar 'car couples-with-majority) places)))
 
- (defun all-majorities-are-unique (couples-with-majority)
+  (defun all-majorities-are-unique (couples-with-majority)
     (apply '> (mapcar 'cdr couples-with-majority)))
+
+  (defun all-sums-are-unique (couples-with-majority)
+    (apply '< (mapcar 'cdr couples-with-majority)))
+
+  (defun sort-sums-in-winning-order (couples-with-sum)
+    (sort couples-with-sum (lambda (x y) (< (cdr x) (cdr y)))))
+
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
