@@ -679,9 +679,8 @@ couples
 | 116 | 5 | 5 | 6 | 4 | 4 |
 | 117 | 6 | 3 | 5 | 6 | 7 |
 
-
 #+BEGIN_SRC emacs-lisp
-  (make-final-dance-row '(112 116) final-dance)
+  (rule-11-rows '(112 116) final-dance)
 #+END_SRC
 
 #+RESULTS:
