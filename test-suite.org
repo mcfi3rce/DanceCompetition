@@ -37,19 +37,24 @@
 ** Helper functions for the parsing and building elements
  #+BEGIN_SRC emacs-lisp :var table=mixed-rules-example-1 :noweb-ref dance-code
    (defun eval-without-buffer (table) 
-         (insert (format "#+BEGIN_SRC elisp :var table=%s \n(setq mixed (append table mixed))\n#+END_SRC\n" table))
-         (org-ctrl-c-ctrl-c) ; same as typing ", ,"
-         (goto-char (point-min))
-         (kill-line 5))
+     (insert (format "#+BEGIN_SRC elisp :var table=%s \n(setq mixed (append table mixed))\n#+END_SRC\n" table))
+     (org-ctrl-c-ctrl-c) ; same as typing ", ,"
+     (goto-char (point-min))
+     (kill-line 5))
 
-     (defun build-mixed-symbols ()
-       (setq mixed-symbols
+   (defun build-mixed-symbols ()
+     (setq mixed-symbols
            (loop for x from 1 to 150
-               collect (string-to-symbol (concat "mixed-rules-example-" (number-to-string x))))))
+                 collect (string-to-symbol (concat "mixed-rules-example-" (number-to-string x))))))
+   ;; This is included as a repeat from backend.org until I can figure out how to reference the file
+   (defun transpose-list (list-of-same-size-lists)
+     "This function will change the way a table is viewed"
+     (apply 'mapcar* 'list list-of-same-size-lists))
+
  #+END_SRC
 
  #+RESULTS:
- : build-mixed-symbols
+ : transpose-list
 ** Parses org file and build a table variable list
  #+BEGIN_SRC elisp :results silent :noweb-ref dance-code
    (defun org-element-tree ()
@@ -2848,7 +2853,7 @@
   
 *** DONE Test Rule 9
     CLOSED: [2018-12-22 Sat 00:56]
-#+BEGIN_SRC elisp
+#+BEGIN_SRC elisp :noweb-ref dance-code
   (defun rule-9-test-pt1 ()
     (loop for dance from 341 to 350
           for result in (number-sequence 341 359 2)

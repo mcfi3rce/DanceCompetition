@@ -14,7 +14,7 @@
 
 * Code 
 #+NAME: BEGIN
-#+BEGIN_SRC emacs-lisp :results silent :noweb-ref dancecode
+#+BEGIN_SRC emacs-lisp :results silent 
   ;; Single Dance Functions all the documentation is in development
   (require 'cl)
   (require 'dash)
@@ -771,23 +771,3 @@
   (defun sort-sums-in-winning-order (couples-with-sum)
     (sort couples-with-sum (lambda (x y) (< (cdr x) (cdr y)))))
 #+END_SRC
-
-* Development
-** NOTE: If I can break up the summing and the majority portions of rule 7 I may be able to simplify
-** Adjusting tied-all-the-way to ignore values under the majority
-#+BEGIN_SRC elisp
-  (setq test '((111 112)(0 0) (6 7) (12 12) (15 15)))
-
-  (defun tied-all-the-way (l)
-    ;;remove the couple names
-    (setq l (cdr l)) 
-    ;; Remove if less than majority
-    (setq l (remove-if-not (lambda (cell) (or (> (first cell) 8) (> (first cell) 8))) l))
-
-    (-all-p (lambda (cell) (= (first cell) (second cell))) l))
-
-  (tied-all-the-way test)
-#+END_SRC
-
-#+RESULTS:
-: t
