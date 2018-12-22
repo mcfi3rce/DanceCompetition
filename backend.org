@@ -279,7 +279,10 @@
         (t (setq tied-majorities (find-couples-with-largest-majority number-majorities))
            (case (length tied-majorities)
              (1
-              (if (= (length (find-winning-couples (setq couple-sums (compare-n-sums (cdr number-majorities) place-val)))) 1)
+              (if (= (length
+                      (find-winning-couples
+                       (setq couple-sums (compare-n-sums (cdr number-majorities) place-val))))
+                     1)
                   (if (all-majorities-are-unique number-majorities)
                       (remove-couples number-majorities)
                     (remove-couples (append tied-majorities couple-sums)))
@@ -303,7 +306,8 @@
                      (1
                       (remove-nested-couple remaining-couples)
                       ;; Check if all the number-majorities have been placed
-                      (if (setq unplaced (all-couples-with-majority-are-placed number-majorities standings))
+                      (if (setq unplaced
+                                (all-couples-with-majority-are-placed number-majorities standings))
                           (remove-couple unplaced)))
                      (t
                       (setq winning-couples (find-winning-couples remaining-couples))
@@ -449,6 +453,19 @@
           (score-multi-dance starting-place number-of-places (make-couples-list-from-dotted-pairs tied-couples))
           (update-sums standings final-couple-sums)
           (setq x (length standings))))
+
+  (defun score-simple-multi-dance (dance)
+    (print-standings
+     (mapcar 'car
+            (sort
+             (mapcar (lambda (couple-score) (list (first couple-score) (apply '+ (rest couple-score)))) dance)
+             (lambda (x y) (< (cadr x) (cadr y)))))))
+
+  (defun show-simple-multi-dance-sums (dance)
+    (sort (mapcar
+           (lambda (couple-score) (list (first couple-score) (apply '+ (rest couple-score))))
+           dance)
+    (lambda (x y) (< (cadr x) (cadr y)))))
 
   (defun score-multi-dance-and-insert ()
     (string-to-symbol "Multi-Dance Results")
