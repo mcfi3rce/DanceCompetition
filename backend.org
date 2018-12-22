@@ -761,13 +761,4 @@
 
   (defun all-couples-with-majority-are-placed (couples-with-majority places)
     (car (set-difference (mapcar 'car couples-with-majority) places)))
-
-  (defun all-majorities-are-unique (couples-with-majority)
-    (apply '> (mapcar 'cdr couples-with-majority)))
-
-  (defun all-sums-are-unique (couples-with-majority)
-    (apply '< (mapcar 'cdr couples-with-majority)))
-
-  (defun sort-sums-in-winning-order (couples-with-sum)
-    (sort couples-with-sum (lambda (x y) (< (cdr x) (cdr y)))))
 #+END_SRC
