@@ -1,4 +1,4 @@
-[[elisp:(progn%20(org-sbe%20backend.org:BEGIN)%20(org-sbe%20test-suite.org:TEST-CASES))%20][SETUP TEST ENVIRONMENT]]
+[[elisp:(progn%20(org-sbe%20backend.org:BEGIN)%20(org-sbe%20test-suite.org:TEST-CASES)(org-sbe%20test-suite.org:DATA))%20][SETUP TEST ENVIRONMENT]]
 * Click this Link to Begin
 * Functions 
 ** This function is no longer used but could parse a CSV file for us if needed
@@ -113,6 +113,7 @@
 * Testing
 : YOU USED TO HAVE TO RUN THIS EVERY TIME 
 : UNTIL I SET UP THE LINK
+#+NAME: DATA
  #+BEGIN_SRC emacs-lisp :results silent :noweb yes
    <<dance-code>>
       (setq tables (parse-tables-and-set-table-symbols)
