@@ -14,7 +14,7 @@
 
 * Code 
 #+NAME: BEGIN
-#+BEGIN_SRC emacs-lisp :results silent
+#+BEGIN_SRC emacs-lisp :results silent :noweb-ref dancecode
   ;; Single Dance Functions all the documentation is in development
   (require 'cl)
   (require 'dash)
@@ -772,20 +772,6 @@
     (sort couples-with-sum (lambda (x y) (< (cdr x) (cdr y)))))
 
 #+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-  (defun test-for-tie (couple-sums)
-    (setq couple-sums (compare-n-sums tied-majorities place-val)
-          winning-couple (car (find-winning-couples couple-sums))
-          remaining-couples (remove (assoc winning-couple couple-sums) couple-sums))
-    (if (null winning-couple)
-        t
-      nil))
-
-#+END_SRC
-
-#+RESULTS:
-: test-for-tie
 
 * Development
 ** NOTE: If I can break up the summing and the majority portions of rule 7 I may be able to simplify
