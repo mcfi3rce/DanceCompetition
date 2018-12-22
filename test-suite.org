@@ -1,6 +1,5 @@
-* Click this Link to Begin
 [[elisp:(progn%20(org-sbe%20backend.org:BEGIN)%20(org-sbe%20test-suite.org:TEST-CASES))%20][SETUP TEST ENVIRONMENT]]
-
+* Click this Link to Begin
 * Functions 
 ** This function is no longer used but could parse a CSV file for us if needed
  #+BEGIN_SRC emacs-lisp :results silent :tangle yes
@@ -49,11 +48,6 @@
      (setq mixed-symbols
            (loop for x from 1 to 150
                  collect (string-to-symbol (concat "mixed-rules-example-" (number-to-string x))))))
-   ;; This is included as a repeat from backend.org until I can figure out how to reference the file
-   (defun transpose-list (list-of-same-size-lists)
-     "This function will change the way a table is viewed"
-     (apply 'mapcar* 'list list-of-same-size-lists))
-
  #+END_SRC
 
  #+RESULTS:
