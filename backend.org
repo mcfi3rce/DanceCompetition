@@ -14,7 +14,7 @@
 
 * Code 
 #+NAME: BEGIN
-#+BEGIN_SRC emacs-lisp :results silent
+#+BEGIN_SRC emacs-lisp :results silent 
   ;; Single Dance Functions all the documentation is in development
   (require 'cl)
   (require 'dash)
@@ -140,8 +140,8 @@
 
   (defun really-tied (tied-couples place couples-list)
     "This is called whenever a pair of couples still aren't placed
-     and have the same sum values so we compare all their sum values
-     to try and place them"
+      and have the same sum values so we compare all their sum values
+      to try and place them"
     (loop with still-tied = (remove-if-not (lambda (c) (= (cdar tied-couples)(cdr c))) tied-couples)
           with not-tied = (remove-if (lambda (c) (= (cdar tied-couples)(cdr c))) tied-couples)
           with comparing-columns = (filter-columns still-tied dance-totals-columns)
@@ -220,10 +220,10 @@
 
   (defun rule-7 (row place-val couples-list)
     """ Things needed in order to handle any number of tied couples
-          1. The number of couples who have a majority (this will tell us whether all have been used)
-          2. The number of possible places (because if we get to the last place they are tied for good)
-          3. A way of switching between rule 6 and rule 7 accordingly
-          4. A way of incrementing the place without losing track of the couples """
+           1. The number of couples who have a majority (this will tell us whether all have been used)
+           2. The number of possible places (because if we get to the last place they are tied for good)
+           3. A way of switching between rule 6 and rule 7 accordingly
+           4. A way of incrementing the place without losing track of the couples """
     (setq couple-sums (compare-n-sums number-majorities place-val)
           majority-count (length couple-sums)
           winning-couples (find-winning-couples couple-sums)
@@ -279,7 +279,10 @@
         (t (setq tied-majorities (find-couples-with-largest-majority number-majorities))
            (case (length tied-majorities)
              (1
-              (if (= (length (find-winning-couples (setq couple-sums (compare-n-sums (cdr number-majorities) place-val)))) 1)
+              (if (= (length
+                      (find-winning-couples
+                       (setq couple-sums (compare-n-sums (cdr number-majorities) place-val))))
+                     1)
                   (if (all-majorities-are-unique number-majorities)
                       (remove-couples number-majorities)
                     (remove-couples (append tied-majorities couple-sums)))
@@ -303,12 +306,17 @@
                      (1
                       (remove-nested-couple remaining-couples)
                       ;; Check if all the number-majorities have been placed
-                      (if (setq unplaced (all-couples-with-majority-are-placed number-majorities standings))
+                      (if (setq unplaced
+                                (all-couples-with-majority-are-placed number-majorities standings))
                           (remove-couple unplaced)))
                      (t
                       (setq winning-couples (find-winning-couples remaining-couples))
                       (case (length winning-couples)
-                        (1 (remove-nested-couple winning-couples))
+                        (1 (remove-nested-couple winning-couples)
+                           ;; Check if we can choose winners by sums
+                           (setq remaining-couples (find-remaining-couple winning-couples remaining-couples))
+                           (if (all-sums-are-unique remaining-couples)
+                               (remove-couples (sort-sums-in-winning-order remaining-couples))))
                         (t (really-tied remaining-couples (1+ place-val) couples-list))))))
                   (t (really-tied couple-sums (1+ place-val) couples-list)))))))))
 
@@ -446,6 +454,19 @@
           (update-sums standings final-couple-sums)
           (setq x (length standings))))
 
+  (defun score-simple-multi-dance (dance)
+    (print-standings
+     (mapcar 'car
+            (sort
+             (mapcar (lambda (couple-score) (list (first couple-score) (apply '+ (rest couple-score)))) dance)
+             (lambda (x y) (< (cadr x) (cadr y)))))))
+
+  (defun show-simple-multi-dance-sums (dance)
+    (sort (mapcar
+           (lambda (couple-score) (list (first couple-score) (apply '+ (rest couple-score))))
+           dance)
+    (lambda (x y) (< (cadr x) (cadr y)))))
+
   (defun score-multi-dance-and-insert ()
     (string-to-symbol "Multi-Dance Results")
     (insert-right-after-elisp-link
@@ -493,7 +514,7 @@
 
   (defun validate-radio-list (choices)
     "Validates that just one choice was made then returns
-       that choice, otherwise returns an error message."
+        that choice, otherwise returns an error message."
     (if (= 1 (length choices))
         (first choices) "Invalid or unanswered."))
 
@@ -716,7 +737,7 @@
     (forward-char 4)
     (save-buffer))
 
-  ;;; VALIDATION CODE
+   ;;; VALIDATION CODE
   (defun validate-couples (symbol)
     "Makes sure that there is no invalid input in the tables"
     ;; Remove Judge Letters
@@ -738,91 +759,6 @@
           return 'nil
           finally return 't))
 
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-  (defun test-for-tie (couple-sums)
-    (setq couple-sums (compare-n-sums tied-majorities place-val)
-          winning-couple (car (find-winning-couples couple-sums))
-          remaining-couples (remove (assoc winning-couple couple-sums) couple-sums))
-    (if (null winning-couple)
-        t
-      nil))
-
-#+END_SRC
-
-#+RESULTS:
-: test-for-tie
-
-* Development
-** NOTE: If I can break up the summing and the majority portions of rule 7 I may be able to simplify
-** Adjusting tied-all-the-way to ignore values under the majority
-#+BEGIN_SRC elisp
-  (setq test '((111 112)(0 0) (6 7) (12 12) (15 15)))
-
-  (defun tied-all-the-way (l)
-    ;;remove the couple names
-    (setq l (cdr l)) 
-    ;; Remove if less than majority
-    (setq l (remove-if-not (lambda (cell) (or (> (first cell) 8) (> (first cell) 8))) l))
-
-    (-all-p (lambda (cell) (= (first cell) (second cell))) l))
-
-  (tied-all-the-way test)
-#+END_SRC
-
-#+RESULTS:
-: t
-** DONE Validate Couples Exist And Aren't Duplicated
-   CLOSED: [2018-12-03 Mon 14:15]
-#+BEGIN_SRC elisp
-  (defun validate-couples (symbol)
-    ;; Remove Judge Letters
-    (setq values (mapcar 'cdr (symbol-value symbol)))
-    (loop for row in values
-          if (-all-p (lambda (couple) (member couple couples-list)) row)
-          do (print "all good")
-          else
-          return 'nil
-          finally return 't))
-  (defun validate-duplicates (symbol)
-    (setq values (mapcar 'cdr (symbol-value symbol)))
-    (loop for row in values
-          if (= (length (remove-duplicates row)) (length row))
-          do (print "all good")
-          else
-          return 'nil
-          finally return 't))
-
   (defun all-couples-with-majority-are-placed (couples-with-majority places)
     (car (set-difference (mapcar 'car couples-with-majority) places)))
-
-  (defun all-majorities-are-unique (couples-with-majority)
-    (apply '> (mapcar 'cdr couples-with-majority)))
 #+END_SRC
-
-#+RESULTS:
-: all-majorities-are-unique
-
-** DONE If all the majorities are descending in order remove them
-   CLOSED: [2018-12-06 Thu 21:56]
-#+BEGIN_SRC elisp
-  (defun all-majorities-are-unique (couples-with-majority)
-    (apply '> (mapcar 'cdr couples-with-majority)))
-#+END_SRC
-
-#+RESULTS:
-: all-majorities-are-unique
-** Check if all majority couples have been placed
-#+BEGIN_SRC elisp
-  (defun all-couples-with-majority-are-placed (couples-with-majority places)
-      (car (set-difference (mapcar 'car couples-with-majority) places)))
-#+END_SRC
-
-#+RESULTS:
-: all-couples-with-majority-are-placed
-** Create a list of all the sum values for the couples
-#+BEGIN_SRC elisp
-
-#+END_SRC
-

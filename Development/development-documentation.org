@@ -2,7 +2,7 @@
 * Development:
 ** Single Dance:
 *** Useful functions:
-**** Transpose Function
+**** Transpose-list Function
 ***** Rotates the tables horizontally and vertically. 
   #+BEGIN_SRC emacs-lisp :results raw
     (let ((flipped-lists (transpose '((1 2 3) (4 5 6)))))
@@ -70,22 +70,21 @@
 *** Extract the place values for each of the dances:
   #+name: totals
   #+BEGIN_SRC emacs-lisp :var dances=dances :results value
-    (append couples-line 
+    (append (list (setq couples '(111 112 113 114 115 116 117)) 'hline) 
             (loop for place from 1 to 7
                   collect (extract-place place dances)))
   #+END_SRC
 
   #+RESULTS: totals
-  | 21 | 22 | 23 | 24 | 25 | 26 |   |
-  |----+----+----+----+----+----+---|
-  |  0 |  0 |  1 |  1 |  2 |  1 | 0 |
-  |  0 |  0 |  1 |  0 |  3 |  0 | 1 |
-  |  0 |  1 |  1 |  2 |  0 |  1 | 0 |
-  |  0 |  2 |  0 |  1 |  0 |  1 | 1 |
-  |  0 |  0 |  2 |  1 |  0 |  1 | 1 |
-  |  0 |  2 |  0 |  0 |  0 |  1 | 2 |
-  |  5 |  0 |  0 |  0 |  0 |  0 | 0 |
-  |  0 |  0 |  0 |  0 |  0 |  0 | 0 |
+  | 111 | 112 | 113 | 114 | 115 | 116 | 117 |
+  |-----+-----+-----+-----+-----+-----+-----|
+  |   0 |   0 |   1 |   1 |   2 |   1 |   0 |
+  |   0 |   0 |   1 |   0 |   3 |   0 |   1 |
+  |   0 |   1 |   1 |   2 |   0 |   1 |   0 |
+  |   0 |   2 |   0 |   1 |   0 |   1 |   1 |
+  |   0 |   0 |   2 |   1 |   0 |   1 |   1 |
+  |   0 |   2 |   0 |   0 |   0 |   1 |   2 |
+  |   5 |   0 |   0 |   0 |   0 |   0 |   0 |
 
 *** Calculate the number of place values for each place:
   #+name: totals-row
@@ -94,17 +93,17 @@
                                      for row in (butlast totals)
                                      do (setq sum-row (++ row sum-row))
                                      collect sum-row)
-          dance-totals-rows (transpose (append (list couples) dance-totals-columns)))
+          dance-totals-rows (transpose-list (append (list couples) dance-totals-columns)))
   #+END_SRC
 
   #+RESULTS: totals-row
-  | 111 | 0 | 0 | 0 | 0 | 0 | 0 | 5 |
-  | 112 | 0 | 0 | 1 | 3 | 3 | 5 | 5 |
-  | 113 | 1 | 2 | 3 | 3 | 5 | 5 | 5 |
-  | 114 | 1 | 1 | 3 | 4 | 5 | 5 | 5 |
-  | 115 | 2 | 5 | 5 | 5 | 5 | 5 | 5 |
-  | 116 | 1 | 1 | 2 | 3 | 4 | 5 | 5 |
-  | 117 | 0 | 1 | 1 | 2 | 3 | 5 | 5 |
+  | 111 | 0 | 0 | 0 | 0 | 0 | 0 |
+  | 112 | 0 | 0 | 1 | 3 | 3 | 5 |
+  | 113 | 1 | 2 | 3 | 3 | 5 | 5 |
+  | 114 | 1 | 1 | 3 | 4 | 5 | 5 |
+  | 115 | 2 | 5 | 5 | 5 | 5 | 5 |
+  | 116 | 1 | 1 | 2 | 3 | 4 | 5 |
+  | 117 | 0 | 1 | 1 | 2 | 3 | 5 |
 
   #+RESULTS: totals-column
   | 111 | 0 | 0 | 0 | 0 | 0 | 0 | 5 |
@@ -118,7 +117,7 @@
 *** Find-number-of-majorities Iterative Version:
 
 #+BEGIN_SRC emacs-lisp
-   (find-number-of-majorities (fourth dance-totals-columns))
+  (create-list-of-couples-with-a-majority (fourth dance-totals-columns couples))
  #+END_SRC
 
  #+RESULTS:
@@ -239,7 +238,7 @@ This function doesn't really work independent
 : standings-length
 
 #+BEGIN_SRC emacs-lisp
- (standings-length '(21 (22 23) (24 25) 26)) 
+(standings-length '(21 (22 23) (24 25) 26)) 
 #+END_SRC
 
 #+RESULTS:
@@ -311,7 +310,7 @@ This function doesn't really work independent
 *** DONE Make a function to create the columns of totals
     CLOSED: [2018-03-13 Tue 22:40]
 #+BEGIN_SRC emacs-lisp
- (create-dance-column totals couples) 
+ (create-dance-columns totals couples) 
 #+END_SRC
 
 #+RESULTS:
@@ -680,9 +679,8 @@ couples
 | 116 | 5 | 5 | 6 | 4 | 4 |
 | 117 | 6 | 3 | 5 | 6 | 7 |
 
-
 #+BEGIN_SRC emacs-lisp
-  (make-final-dance-row '(112 116) final-dance)
+  (rule-11-rows '(112 116) final-dance)
 #+END_SRC
 
 #+RESULTS:
@@ -690,6 +688,50 @@ couples
 | 116 | 5 | 4 | 6 | 1 | 3 | 5 | 5 | 6 | 4 | 3 | 4 | 5 | 6 | 4 | 3 | 5 | 5 | 6 | 4 | 4 |
 
     CLOSED: [2018-03-14 Wed 22:33]
+** Validation Code
+*** DONE Validate Couples Exist And Aren't Duplicated
+    CLOSED: [2018-12-22 Sat 12:18]
+ #+BEGIN_SRC elisp
+   (defun validate-couples (symbol)
+     ;; Remove Judge Letters
+     (setq values (mapcar 'cdr (symbol-value symbol)))
+     (loop for row in values
+           if (-all-p (lambda (couple) (member couple couples-list)) row)
+           do (print "all good")
+           else
+           return 'nil
+           finally return 't))
+   (defun validate-duplicates (symbol)
+     (setq values (mapcar 'cdr (symbol-value symbol)))
+     (loop for row in values
+           if (= (length (remove-duplicates row)) (length row))
+           do (print "all good")
+           else
+           return 'nil
+           finally return 't))
+ #+END_SRC
+
+ #+RESULTS:
+ : validate-duplicates
+*** DONE If all the majorities are descending in order remove them
+    CLOSED: [2018-12-06 Thu 21:56]
+ #+BEGIN_SRC elisp
+   (defun all-majorities-are-unique (couples-with-majority)
+     (apply '> (mapcar 'cdr couples-with-majority)))
+ #+END_SRC
+
+ #+RESULTS:
+ : all-majorities-are-unique
+*** DONE Check if all majority couples have been placed
+    CLOSED: [2018-12-22 Sat 12:19]
+ #+BEGIN_SRC elisp
+   (defun all-couples-with-majority-are-placed (couples-with-majority places)
+       (car (set-difference (mapcar 'car couples-with-majority) places)))
+ #+END_SRC
+
+ #+RESULTS:
+ : all-couples-with-majority-are-placed
+
 * Testing:
   *Evaluate this before testing*
 ** Functions
@@ -721,18 +763,18 @@ couples
                      count (= n score)))
              dances))
 
-   (defun find-number-of-majorities (row couples-list)
-     (sort (loop 
-            for value in row
-            for position from 0
-            when (>= value majority) 
-            collect (cons (elt couples-list position) value))
-           (lambda (a b)
-             (> (cdr a)(cdr b)))))
+   (defun create-list-of-couples-with-a-majority (row couples-list)
+    (sort (loop
+           for value in row
+           for position from 0
+           when (>= value majority)
+           collect (cons (elt couples-list position) value))
+          (lambda (a b)
+            (> (cdr a)(cdr b)))))
 
    (defun position-to-couples (tied-couples)
      (mapcar (lambda (x) (elt couples (car x))) tied-couples))
-
+     
    (defun find-couples-with-largest-majority (tied-couples)
      (let ((max  (apply 'max (mapcar 'cdr tied-couples))))
        (remove-if-not (lambda (couple) (= max (cdr couple))) tied-couples)))
@@ -873,7 +915,6 @@ couples
 
    (defun build-single-dance (dance)
      (setq couples (mapcar 'first dance)
-           couples-line (list couples 'hline)
            couple-scores (mapcar (lambda (row)
                                    (loop for score in (remove-if 'stringp row)
                                          collect score))
@@ -1057,53 +1098,58 @@ couples
  |     26 | 5 | 3 | 1 | 6 | 4 | 2 | 7 |
  |     27 | 6 | 4 | 2 | 7 | 5 | 3 | 1 |
 
-**** Build Data:
+*** Build Data:
 
  #+RESULTS: totals-rows
  : build-single-dance
-#+BEGIN_SRC emacs-lisp :results value :var dances=cha-cha
+
+:NOTE:
+If you change the dances variable to one of the example tables you can change the results
+:END:
+
+#+BEGIN_SRC emacs-lisp :results value :var dances=ex-128
   (build-single-dance dances)
 #+END_SRC
 
 #+RESULTS:
-| 111 | 0 | 0 | 0 | 0 | 0 | 0 | 5 |
-| 112 | 0 | 0 | 1 | 3 | 3 | 5 | 5 |
-| 113 | 1 | 2 | 3 | 3 | 5 | 5 | 5 |
-| 114 | 1 | 1 | 3 | 4 | 5 | 5 | 5 |
-| 115 | 2 | 5 | 5 | 5 | 5 | 5 | 5 |
-| 116 | 1 | 1 | 2 | 3 | 4 | 5 | 5 |
-| 117 | 0 | 1 | 1 | 2 | 3 | 5 | 5 |
-
-#+BEGIN_SRC emacs-lisp :results value :var dance=cha-cha
-  (score-single-dance dance)
-#+END_SRC
-
-#+RESULTS:
-| 1 | 115 |
-| 2 | 113 |
-| 3 | 114 |
-| 4 | 116 |
-| 5 | 112 |
-| 6 | 117 |
-| 7 | 111 |
-
- #+NAME: totals-columns
+| 21 | 0 | 0 | 0 | 1 | 1 | 1 | 5 |
+| 22 | 3 | 4 | 4 | 4 | 4 | 5 | 5 |
+| 23 | 0 | 0 | 1 | 1 | 2 | 4 | 5 |
+| 24 | 1 | 3 | 4 | 5 | 5 | 5 | 5 |
+| 25 | 0 | 0 | 1 | 2 | 4 | 5 | 5 |
+| 26 | 1 | 3 | 4 | 5 | 5 | 5 | 5 |
+| 27 | 0 | 0 | 1 | 2 | 4 | 5 | 5 |
+ 
+#+NAME: totals-columns
  #+BEGIN_SRC elisp
    dance-totals-columns
  #+END_SRC
 
  #+RESULTS: totals-columns
- | 111 | 112 | 113 | 114 | 115 | 116 | 117 |
- |   0 |   0 |   2 |   0 |   3 |   0 |   0 |
- |   0 |   0 |   3 |   1 |   5 |   0 |   1 |
- |   0 |   1 |   5 |   2 |   5 |   1 |   1 |
- |   0 |   1 |   5 |   5 |   5 |   3 |   1 |
- |   0 |   3 |   5 |   5 |   5 |   4 |   3 |
- |   2 |   5 |   5 |   5 |   5 |   5 |   3 |
- |   5 |   5 |   5 |   5 |   5 |   5 |   5 |
- |   5 |   5 |   5 |   5 |   5 |   5 |   5 |
+ | 21 | 22 | 23 | 24 | 25 | 26 | 27 |
+ |  0 |  3 |  0 |  1 |  0 |  1 |  0 |
+ |  0 |  4 |  0 |  3 |  0 |  3 |  0 |
+ |  0 |  4 |  1 |  4 |  1 |  4 |  1 |
+ |  1 |  4 |  1 |  5 |  2 |  5 |  2 |
+ |  1 |  4 |  2 |  5 |  4 |  5 |  4 |
+ |  1 |  5 |  4 |  5 |  5 |  5 |  5 |
+ |  5 |  5 |  5 |  5 |  5 |  5 |  5 |
 
- *Next evaluate the functions next*
+*** Score a Single Dance
+#+BEGIN_SRC emacs-lisp :results value :var dance=ex-128
+  (score-single-dance dance)
+#+END_SRC
+
+#+RESULTS:
+|   1 | 22 |
+| 2.5 | 24 |
+| 2.5 | 26 |
+| 4.5 | 25 |
+| 4.5 | 27 |
+|   6 | 23 |
+|   7 | 21 |
+
+*Next evaluate the functions next*
 ** Multi-Dance:
 *** Data:
 **** Rule 10 Values:
@@ -1133,7 +1179,7 @@ couples
  | 7 | 111 |
 
 #+BEGIN_SRC emacs-lisp :var test=cha-cha-results
- (equal test (print-standings places)) 
+ (equal test (print-standings standings)) 
 #+END_SRC
 
 #+RESULTS:
@@ -1150,8 +1196,8 @@ couples
  |    116 |   5 |   5 |   6 |   4 |   3 |
  |    117 |   6 |   2 |   5 |   3 |   5 |
 
- #+BEGIN_SRC emacs-lisp
-   (score-single-dance 7)
+ #+BEGIN_SRC emacs-lisp :var dance=rumba
+   (score-single-dance dance)
  #+END_SRC
 
  #+tblname: rumba-results
@@ -1175,8 +1221,8 @@ couples
  |    116 |   4 |   5 |   6 |   4 |   3 |
  |    117 |   7 |   2 |   5 |   5 |   7 |
 
- #+BEGIN_SRC emacs-lisp
-   (score-single-dance 7)
+ #+BEGIN_SRC emacs-lisp :var dance=swing
+   (score-single-dance dance)
  #+END_SRC
 
  #+tblname: swing-results
@@ -1200,8 +1246,8 @@ couples
  |    116 |   5 |   5 |   6 |   4 |   4 |
  |    117 |   6 |   3 |   5 |   6 |   7 |
 
- #+BEGIN_SRC emacs-lisp
-   (score-single-dance 7)
+ #+BEGIN_SRC emacs-lisp :var dance=mambo
+   (score-single-dance dance)
  #+END_SRC
 
  #+tblname: mambo-results
@@ -1215,21 +1261,13 @@ couples
  | 7 | 111 |
 
 **** Build Rule 10 Scores:
- #+BEGIN_SRC emacs-lisp 
- #+END_SRC
+ #+BEGIN_SRC emacs-lisp
+   (parse-tables-and-set-table-symbols)
+   (setq dance-symbols (list 'cha-cha 'rumba 'swing 'mambo))
+#+END_SRC
 
  #+RESULTS:
- : build-multi-dance
-
- #+RESULT:
- | 111 | 0 | 0 | 0 | 0 | 0 | 0 | 4 |
- | 112 | 0 | 0 | 0 | 2 | 3 | 4 | 4 |
- | 113 | 0 | 3 | 4 | 4 | 4 | 4 | 4 |
- | 114 | 0 | 1 | 4 | 4 | 4 | 4 | 4 |
- | 115 | 4 | 4 | 4 | 4 | 4 | 4 | 4 |
- | 116 | 0 | 0 | 0 | 2 | 3 | 4 | 4 |
- | 117 | 0 | 0 | 0 | 0 | 2 | 4 | 4 |
-
+ | cha-cha | rumba | swing | mambo |
 *** Testing:
     Here we will attempt to work through the problem with the existing code
 **** Procedural
@@ -1239,7 +1277,7 @@ couples
 #+END_SRC
 
 #+RESULTS:
-: 4
+: 19
 
 : the place we are looking to solve
 #+RESULTS:
@@ -1314,28 +1352,18 @@ couples
       CLOSED: [2018-03-14 Wed 22:46]
 
 
-#+BEGIN_SRC emacs-lisp
- (setq dances '("cha-cha" "rumba" "swing" "mambo"))
-#+END_SRC
-
-#+RESULTS:
-| cha-cha | rumba | swing | mambo |
-
+: This creates the header to load in all the dances it isn't necessary but cool
 #+BEGIN_SRC emacs-lisp :results raw
-  (concatenate "#+BEGIN_SRC elist :var" (mapcar (lambda (dance) (concatenate dance "=" dance)) dances))
+  (concatenate 'string "#+BEGIN_SRC elisp :var "
+               (mapconcat (lambda (dance) (concatenate 'string dance "=" dance)) dances " "))
 #+END_SRC
 
 #+RESULTS:
-:var
-(:var cha-cha=cha-cha)
-
-#+RESULTS:
-: build-rule-11
-
 : Try passing these values into the single-complex majority
 #+BEGIN_SRC emacs-lisp
+  (build-rule-11 couples)
   (loop for place from starting-place to number-of-places
-        do (single-complex-majority (elt dance-totals-columns place) place (car dance-totals-columns)))
+       do (single-complex-majority (elt dance-totals-columns place) place (car dance-totals-columns)))
 #+END_SRC
 
 #+RESULTS:
@@ -1362,12 +1390,14 @@ couples
 #+BEGIN_SRC emacs-lisp
   (setq couples (map 'list 'car final-couple-sums)
         dance-totals-columns (create-dance-columns totals couples)
-        dance-totals-rows (transpose dance-totals-columns))
+        dance-totals-rows (transpose-list dance-totals-columns))
 #+END_SRC
 
 #+RESULTS:
-| 117 | 1 | 1 | 4 |  9 | 13 | 20 | 20 |
-| 111 | 1 | 1 | 4 | 10 | 16 | 20 | 20 |
+| 112 | 0 | 0 | 0 |  0 |  0 |  3 | 20 |
+| 116 | 1 | 1 | 4 |  9 | 13 | 20 | 20 |
+| 117 | 1 | 1 | 4 | 10 | 16 | 20 | 20 |
+| 111 | 0 | 3 | 5 |  6 | 12 | 17 | 20 |
 
 ***** Remove the remaining dances
     #+BEGIN_SRC emacs-lisp
@@ -1375,23 +1405,17 @@ couples
     #+END_SRC
 
     #+RESULTS:
+    : 19
 ***** Print the outcome
      #+BEGIN_SRC emacs-lisp
        (print-standings places)
 #+END_SRC 
 
 #+RESULTS:
-| 1 | 115 |
-| 2 | 113 |
-| 3 | 114 |
-| 4 | 116 |
-| 5 | 112 |
-| 6 | 117 |
-| 7 | 111 |
 **** Single-Function
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp 
   (setq start (float-time)
-        cv (multi-dance 7)
+        cv (multi-dance dance-symbols)
         total-time (- (float-time) start))
   (list (print-standings cv) total-time)
 #+END_SRC
