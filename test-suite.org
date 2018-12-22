@@ -1661,7 +1661,7 @@
   #+BEGIN_SRC emacs-lisp :results value :noweb-ref dance-code
     (defun mixed-rules-test ()
       (loop for dance from 191 to 340
-            if (not (equal (setq prediction (test-dance dance))
+            if (not (equal (setq prediction (test-dance-scoring dance))
                            (setq target (test-dance-results dance))))
             collect (list dance prediction target)))
    #+END_SRC
@@ -3036,6 +3036,7 @@
   | 106 |   8 |   6 | 8 |
   | 107 | 5.5 |   5 | 5 |
   | 108 |   7 |   8 | 7 |
+
   #+name: rule-10-example-3 
   | 101 | 5 | 3 |
   | 102 | 7 | 6 |
