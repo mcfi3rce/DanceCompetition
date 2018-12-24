@@ -438,6 +438,36 @@
           dance-totals-columns (create-dance-columns totals couples)
           dance-totals-rows (transpose-list dance-totals-columns)))
 
+  (defun build-multi-dance-test (couple-scores)
+    (setq couple-scores couple-scores
+          couples (mapcar 'car couple-scores)
+          standings ()
+          number-of-places (length couples)
+          ;; this is named the same so we can use get-score-from-couple-numbers function
+          final-couple-sums (final-sum-values couple-scores)
+          sum-values (all-sum-values final-couple-sums)
+          totals (calculate-totals couple-scores number-of-places)
+          dance-totals-columns (create-dance-columns totals couples)
+          dance-totals-rows (transpose-list dance-totals-columns)))
+
+
+  (defun multi-dance-test (couple-scores)
+    (build-multi-dance-test couple-scores) 
+    (loop with tied-couples = nil
+          with tied-sum = nil
+          for x from 0 to number-of-places
+          do (setq tied-sum (remove-untied-couples final-couple-sums x))
+          if (null tied-sum)
+          return standings
+          if (= (length standings) number-of-places)
+          return standings
+          do (setq tied-couples (couples-with-sum final-couple-sums tied-sum))
+          (build-rule-11 (make-couples-list-from-dotted-pairs tied-couples))
+          (score-multi-dance starting-place number-of-places (make-couples-list-from-dotted-pairs tied-couples))
+          (update-sums standings final-couple-sums)
+          (setq x (length standings))))
+
+
   (defun multi-dance (results-symbols)
     (build-multi-dance results-symbols)
     (loop with tied-couples = nil
