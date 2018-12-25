@@ -13,8 +13,8 @@
   4scrutineers.org file.
 
 * Code 
-#+NAME: BEGIN
-#+BEGIN_SRC emacs-lisp :results silent 
+  #+NAME: BEGIN
+  #+BEGIN_SRC emacs-lisp :results silent 
   ;; Single Dance Functions all the documentation is in development
   (require 'cl)
   (require 'dash)
@@ -384,10 +384,7 @@
           do (loop for (sum-couple score) in sums
                    if (= couple sum-couple)
                    do (setq final-couple-sums
-                            (remove (assoc sum-couple final-couple-sums) final-couple-sums))))
-    (setq couples (map 'list 'car final-couple-sums)
-          dance-totals-columns (create-dance-columns totals couples)
-          dance-totals-rows (transpose-list dance-totals-columns)))
+                            (remove (assoc sum-couple final-couple-sums) final-couple-sums)))))
 
   (defun remove-untied-couples (couple-sums place)
     (if (null (cdr couple-sums))
@@ -437,36 +434,6 @@
           totals (calculate-totals couple-scores number-of-places)
           dance-totals-columns (create-dance-columns totals couples)
           dance-totals-rows (transpose-list dance-totals-columns)))
-
-  (defun build-multi-dance-test (couple-scores)
-    (setq couple-scores couple-scores
-          couples (mapcar 'car couple-scores)
-          standings ()
-          number-of-places (length couples)
-          ;; this is named the same so we can use get-score-from-couple-numbers function
-          final-couple-sums (final-sum-values couple-scores)
-          sum-values (all-sum-values final-couple-sums)
-          totals (calculate-totals couple-scores number-of-places)
-          dance-totals-columns (create-dance-columns totals couples)
-          dance-totals-rows (transpose-list dance-totals-columns)))
-
-
-  (defun multi-dance-test (couple-scores)
-    (build-multi-dance-test couple-scores) 
-    (loop with tied-couples = nil
-          with tied-sum = nil
-          for x from 0 to number-of-places
-          do (setq tied-sum (remove-untied-couples final-couple-sums x))
-          if (null tied-sum)
-          return standings
-          if (= (length standings) number-of-places)
-          return standings
-          do (setq tied-couples (couples-with-sum final-couple-sums tied-sum))
-          (build-rule-11 (make-couples-list-from-dotted-pairs tied-couples))
-          (score-multi-dance starting-place number-of-places (make-couples-list-from-dotted-pairs tied-couples))
-          (update-sums standings final-couple-sums)
-          (setq x (length standings))))
-
 
   (defun multi-dance (results-symbols)
     (build-multi-dance results-symbols)
@@ -799,5 +766,392 @@
 
   (defun sort-sums-in-winning-order (couples-with-sum)
     (sort couples-with-sum (lambda (x y) (< (cdr x) (cdr y)))))
+  #+END_SRC
 
+
+  #+BEGIN_SRC elisp
+
+    (defun build-multi-dance-test (couple-scores)
+      (setq couple-scores couple-scores
+            couples (mapcar 'car couple-scores)
+            standings ()
+            number-of-places (length couples)
+            ;; this is named the same so we can use get-score-from-couple-numbers function
+            final-couple-sums (final-sum-values couple-scores)
+            sum-values (all-sum-values final-couple-sums)
+            totals (calculate-totals couple-scores number-of-places)
+            dance-totals-columns (create-dance-columns totals couples)
+            dance-totals-rows (transpose-list dance-totals-columns)))
+
+    (defun score-multi-dance-test (couple-scores)
+      (multi-dance-test couple-scores)
+      (print-standings standings))
+
+    (defun multi-dance-test (couple-scores)
+      (build-multi-dance-test couple-scores) 
+      (loop with tied-couples = nil
+            with tied-sum = nil
+            for x from 0 to number-of-places
+            do (setq tied-sum (remove-untied-couples final-couple-sums x))
+            if (null tied-sum)
+            return standings
+            if (= (length standings) number-of-places)
+            return standings
+            ;; Rule 10 needs to be applied
+            do (setq tied-couples (couples-with-sum final-couple-sums tied-sum))
+            (build-rule-10 tied-couples dance-totals-columns)
+            if (= (count maximum wins-at-place) 1)
+            do (remove-tied-couples tied-couples)
+            (update-sums standings final-couple-sums)
+            (setq x (length standings))))
+
+    (defun build-rule-10 (couples-list columns)
+      (setq dance-totals-columns (filter-columns couples-list columns)
+            starting-place (1+ (length standings))
+            wins-at-place (elt dance-totals-columns starting-place)
+            maximum (reduce 'max wins-at-place)))
+
+    (defun remove-tied-couples (tied-couples)
+      (remove-couple (elt (make-couples-list-from-dotted-pairs tied-couples)
+                          (position maximum wins-at-place)))
+      (if (setq remaining-couples (set-difference (make-couples-list-from-dotted-pairs tied-couples) standings))
+          (if (= (length remaining-couples) 1)
+              (remove-couple (car remaining-couples)))))
+
+
+
+  #+END_SRC
+
+  #+RESULTS:
+  : remove-tied-couples
+* Development
+** Step by Step for Example 1
+*** Values that are built when a dance is run
+    #+BEGIN_SRC elisp
+    (build-multi-dance-test rule-10-example-1) 
+    #+END_SRC 
+
+    #+RESULTS:
+    | 101 | 0 | 1 | 1 | 3 | 3 | 3 | 3 | 3 |
+    | 102 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 |
+    | 103 | 0 | 1 | 1 | 2 | 2 | 2 | 2 | 2 |
+    | 104 | 0 | 0 | 2 | 2 | 2 | 2 | 2 | 2 |
+    | 105 | 0 | 0 | 0 | 0 | 0 | 1 | 2 | 2 |
+    | 106 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 3 |
+    | 107 | 0 | 0 | 0 | 0 | 2 | 2 | 2 | 2 |
+    | 108 | 0 | 0 | 0 | 0 | 0 | 0 | 2 | 3 |
+
+    #+BEGIN_SRC elisp
+  couple-scores
+    #+END_SRC
+
+    #+RESULTS:
+    | 1 | 102 |
+    | 2 | 103 |
+    | 3 | 104 |
+    | 4 | 101 |
+    | 5 | 107 |
+    | 6 | 105 |
+    | 7 | 106 |
+    | 8 | 108 |
+
+    #+BEGIN_SRC elisp
+  final-couple-sums
+    #+END_SRC
+
+    #+RESULTS:
+    | 102 |    3 |
+    | 103 |  8.5 |
+    | 104 |  8.5 |
+    | 101 |   10 |
+    | 107 | 15.5 |
+    | 105 | 18.5 |
+    | 106 |   22 |
+    | 108 |   22 |
+*** Remove Untied Couples
+    #+BEGIN_SRC elisp
+ dance-totals-columns 
+    #+END_SRC
+
+    #+RESULTS:
+    | 101 | 102 | 103 | 104 | 105 | 106 | 107 | 108 |
+    |   0 |   3 |   0 |   0 |   0 |   0 |   0 |   0 |
+    |   1 |   3 |   1 |   0 |   0 |   0 |   0 |   0 |
+    |   1 |   3 |   1 |   2 |   0 |   0 |   0 |   0 |
+    |   3 |   3 |   2 |   2 |   0 |   0 |   0 |   0 |
+    |   3 |   3 |   2 |   2 |   0 |   0 |   2 |   0 |
+    |   3 |   3 |   2 |   2 |   1 |   1 |   2 |   0 |
+    |   3 |   3 |   2 |   2 |   2 |   1 |   2 |   2 |
+    |   3 |   3 |   2 |   2 |   2 |   3 |   2 |   3 |
+
+    : We know that we can place 102, 101, 107, and 105
+
+    #+BEGIN_SRC elisp
+      (setq tied-sum (remove-untied-couples final-couple-sums 1)
+            tied-couples (couples-with-sum final-couple-sums tied-sum))
+    #+END_SRC
+
+    #+RESULTS:
+    | 103 | 8.5 |
+    | 104 | 8.5 |
+
+    : This is the spot we are stuck so we have to break this tied
+
+*** Rule 10
+    #+BEGIN_SRC elisp
+  (build-rule-10 tied-couples dance-totals-columns) 
 #+END_SRC
+
+#+RESULTS:
+: 1
+#+BEGIN_SRC elisp
+ dance-totals-columns 
+#+END_SRC
+
+#+RESULTS:
+| 103 | 104 |
+|   0 |   0 |
+|   1 |   0 |
+|   1 |   2 |
+|   2 |   2 |
+|   2 |   2 |
+|   2 |   2 |
+|   2 |   2 |
+|   2 |   2 |
+
+: we can see that couple 103 has more "winning" scores for second place
+#+BEGIN_SRC elisp
+ starting-place 
+#+END_SRC
+
+#+RESULTS:
+: 2
+#+BEGIN_SRC elisp
+ wins-at-place 
+#+END_SRC
+
+#+RESULTS:
+| 1 | 0 |
+
+#+BEGIN_SRC elisp
+ maximum 
+#+END_SRC
+
+#+RESULTS:
+: 1
+: This is the code to run this check
+#+BEGIN_SRC elisp
+ (= (count maximum wins-at-place) 1) 
+#+END_SRC
+
+#+RESULTS:
+: t
+
+: So we should remove these couples
+#+BEGIN_SRC elisp
+  (remove-tied-couples tied-couples)
+#+END_SRC
+
+#+RESULTS:
+| 102 | 103 | 104 |
+*** Remaining couples
+#+BEGIN_SRC elisp
+ dance-totals-columns 
+#+END_SRC
+
+#+RESULTS:
+| 101 | 105 | 106 | 107 | 108 |
+|   0 |   0 |   0 |   0 |   0 |
+|   1 |   0 |   0 |   0 |   0 |
+|   1 |   0 |   0 |   0 |   0 |
+|   3 |   0 |   0 |   0 |   0 |
+|   3 |   0 |   0 |   2 |   0 |
+|   3 |   1 |   1 |   2 |   0 |
+|   3 |   2 |   1 |   2 |   2 |
+|   3 |   2 |   3 |   2 |   3 |
+
+#+BEGIN_SRC elisp
+ couples 
+#+END_SRC
+
+#+RESULTS:
+| 101 | 105 | 106 | 107 | 108 |
+*** Update the sums
+: we need to update the sums 
+#+BEGIN_SRC elisp
+  final-couple-sums
+#+END_SRC
+
+#+RESULTS:
+| 103 |  8.5 |
+| 104 |  8.5 |
+| 101 |   10 |
+| 107 | 15.5 |
+| 105 | 18.5 |
+| 106 |   22 |
+| 108 |   22 |
+
+#+BEGIN_SRC elisp
+  (update-sums standings final-couple-sums)
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC elisp
+final-couple-sums
+#+END_SRC
+
+#+RESULTS:
+| 101 |   10 |
+| 107 | 15.5 |
+| 105 | 18.5 |
+| 106 |   22 |
+| 108 |   22 |
+
+*** Remove the next batch of untied couples
+
+: This is the place we are looking for
+
+#+BEGIN_SRC elisp
+ couples 
+#+END_SRC
+
+#+RESULTS:
+| 101 | 105 | 106 | 107 | 108 |
+
+#+BEGIN_SRC elisp
+  (setq place (1+ (length standings)))
+#+END_SRC
+
+#+RESULTS:
+: 4
+
+: We are tied again
+#+BEGIN_SRC elisp
+  (setq tied-sum (remove-untied-couples final-couple-sums place))
+#+END_SRC
+
+#+RESULTS:
+: 22
+
+#+BEGIN_SRC elisp
+  dance-totals-columns
+#+END_SRC
+
+#+RESULTS:
+| 106 | 108 |
+|   0 |   0 |
+|   0 |   0 |
+|   0 |   0 |
+|   0 |   0 |
+|   0 |   0 |
+|   1 |   0 |
+|   1 |   2 |
+|   3 |   3 |
+
+#+BEGIN_SRC elisp
+  final-couple-sums
+#+END_SRC
+
+#+RESULTS:
+| 106 | 22 |
+| 108 | 22 |
+
+: These are the last two that need to be placed
+
+#+BEGIN_SRC elisp
+  (setq tied-couples (couples-with-sum final-couple-sums tied-sum))
+#+END_SRC
+
+#+RESULTS:
+| 106 | 22 |
+| 108 | 22 |
+
+*** Build Rule 10 again
+    #+BEGIN_SRC elisp
+  (build-rule-10 tied-couples dance-totals-columns) 
+#+END_SRC
+
+#+RESULTS:
+: 2
+#+BEGIN_SRC elisp
+ dance-totals-columns 
+#+END_SRC
+
+#+RESULTS:
+| 106 | 108 |
+|   0 |   0 |
+|   0 |   0 |
+|   0 |   0 |
+|   0 |   0 |
+|   0 |   0 |
+|   1 |   0 |
+|   1 |   2 |
+|   3 |   3 |
+
+: we can see that couple 103 has more "winning" scores for second place
+#+BEGIN_SRC elisp
+ starting-place 
+#+END_SRC
+
+#+RESULTS:
+: 7
+#+BEGIN_SRC elisp
+ wins-at-place 
+#+END_SRC
+
+#+RESULTS:
+| 1 | 2 |
+
+#+BEGIN_SRC elisp
+ maximum 
+#+END_SRC
+
+#+RESULTS:
+: 2
+#+BEGIN_SRC elisp
+ (= (count maximum wins-at-place) 1) 
+#+END_SRC
+
+#+RESULTS:
+: t
+
+: So we should remove these couples
+#+BEGIN_SRC elisp
+  (remove-tied-couples tied-couples)
+#+END_SRC
+
+#+RESULTS:
+| 102 | 103 | 104 | 101 | 107 | 105 | 108 | 106 |
+
+*** Print the final scores
+#+BEGIN_SRC elisp
+  (print-standings standings)
+#+END_SRC
+
+#+RESULTS:
+| 1 | 102 |
+| 2 | 103 |
+| 3 | 104 |
+| 4 | 101 |
+| 5 | 107 |
+| 6 | 105 |
+| 7 | 108 |
+| 8 | 106 |
+
+ : print them in a way that we can compare with the real scores
+#+BEGIN_SRC elisp
+  (simple-print-score (print-standings standings))
+#+END_SRC
+
+#+RESULTS:
+| 4 | 1 | 2 | 3 | 6 | 8 | 5 | 7 |
+
+#+BEGIN_SRC elisp
+  (remove-if 'zerop (mapcar 'car rule-10-answers-1-10))
+#+END_SRC
+
+#+RESULTS:
+| 4 | 1 | 2 | 3 | 6 | 8 | 5 | 7 |
+
+: WE DID IT CORRECTLY!

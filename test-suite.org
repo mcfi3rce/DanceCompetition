@@ -90,19 +90,37 @@
      (reverse table-symbols))
  #+END_SRC
 ** Formatting help for the data and targets
+: NOTE This will be fixed so it takes a function as an argument and it will be alot easier that way
  #+BEGIN_SRC emacs-lisp :noweb-ref dance-code
+   ;; This is the base print function
+   (defun simple-print-score (score)
+     (mapcar 'car (sort score (lambda (a b) (< (cadr a) (cadr b))))))
+
+   ;; These print the results in a similar way to the results
    (defun format-results (dance)
-     (mapcar 'car (sort (score-single-dance dance) (lambda (a b) (< (cadr a) (cadr b))))))
+     (simple-print-score (score-single-dance dance)))
+   (defun format-simple-multi-results (dance)
+     (simple-print-score (score-simple-multi-dance dance)))
    (defun format-multi-results (dance)
-     (mapcar 'car (sort (score-simple-multi-dance dance) (lambda (a b) (< (cadr a) (cadr b))))))
+     (simple-print-score (score-multi-dance-test dance)))
+
+   ;; This prints the answer in a standard way
    (defun format-answer (answer)
      (remove-if 'zerop answer))
+
+   ;; The obfuscates the dance-numbers created by the data for scoring
    (defun test-dance-scoring (dance-num)
      (format-results (symbol-value (elt data (1- dance-num)))))
+   (defun test-simple-multi-scoring (dance-num)
+     (format-simple-multi-results (symbol-value (elt data (1- dance-num)))))
    (defun test-multi-scoring (dance-num)
      (format-multi-results (symbol-value (elt data (1- dance-num)))))
+
+   ;; The obfuscates the dance-numbers created by the data for results
    (defun test-dance-results (answer-num)
      (format-answer (elt ultimate-table (1- answer-num))))
+
+   ;; Se the name of the table for a specific number
    (defun see-table-value (dance-num)
        (elt data (1- dance-num)))
  #+END_SRC
@@ -2856,14 +2874,14 @@
   (defun rule-9-test-pt1 ()
     (loop for dance from 341 to 350
           for result in (number-sequence 341 359 2)
-             if (not (equal (setq prediction (test-multi-scoring dance))
+             if (not (equal (setq prediction (test-simple-multi-scoring dance))
                             (setq target (test-dance-results result))))
              collect (list dance result prediction target)))
 
   (defun rule-9-test-pt2 ()
     (loop for dance from 351 to 360
           for result in (number-sequence 342 360 2)
-          if (not (equal (setq prediction (test-multi-scoring dance))
+          if (not (equal (setq prediction (test-simple-multi-scoring dance))
                          (setq target (test-dance-results result))))
           collect (list dance result prediction target)))
 #+END_SRC
@@ -3024,7 +3042,6 @@
           if (not (equal (setq prediction (test-multi-scoring dance))
                          (setq target (test-dance-results result))))
           collect (list dance result prediction target)))
-
 #+END_SRC
 
 #+RESULTS:
