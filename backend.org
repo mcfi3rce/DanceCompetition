@@ -825,7 +825,7 @@
   #+RESULTS:
   : remove-tied-couples
 * Development
-** Step by Step for Example 1
+** Step by Step for a rule 10 b 1
 *** Values that are built when a dance is run
     #+BEGIN_SRC elisp
     (build-multi-dance-test rule-10-example-1) 
@@ -1155,3 +1155,6 @@ final-couple-sums
 | 4 | 1 | 2 | 3 | 6 | 8 | 5 | 7 |
 
 : WE DID IT CORRECTLY!
+** Step by Step for a Rule ten where summing is involved 
+
+
